@@ -170,14 +170,14 @@ class Analyzer:
             accessible_url = html_path_info['url']
             self.result_generator.generate_empty_page(local_html_path, 'utf-8')
             self.root_html_path = accessible_url
-            # self.analyse_log_file(rf"i:\SVN\trunk\Sword3\Source\QATools\LogScan\.temporary_results\temporary_cpp_funcbody_2026_05_11_21_06_40.json", 
-            #                       rf"i:\SVN\trunk\Sword3\Source\QATools\LogScan\.temporary_results\temporary_tab_infos_2026_05_11_20_41_52.json", 
-            #                       log_files, product_dir, 'gbk', result_dir, local_html_path, 
-            #                       rf"i:\SVN\trunk\Sword3\Source\QATools\LogScan\.temporary_results\temporary_svn_2026_05_08_18_17_27.json", True, 16, start_day=None)
             self.analyse_log_file(rf"i:\SVN\trunk\Sword3\Source\QATools\LogScan\.temporary_results\temporary_cpp_funcbody_2026_05_11_21_06_40.json", 
                                   rf"i:\SVN\trunk\Sword3\Source\QATools\LogScan\.temporary_results\temporary_tab_infos_2026_05_11_20_41_52.json", 
                                   log_files, product_dir, 'gbk', result_dir, local_html_path, 
-                                  None, True, 16, start_day=None)
+                                  rf"i:\SVN\trunk\Sword3\Source\QATools\LogScan\.temporary_results\temporary_svn_2026_05_08_18_17_27.json", True, 16, start_day=None)
+            # self.analyse_log_file(rf"i:\SVN\trunk\Sword3\Source\QATools\LogScan\.temporary_results\temporary_cpp_funcbody_2026_05_11_21_06_40.json", 
+            #                       rf"i:\SVN\trunk\Sword3\Source\QATools\LogScan\.temporary_results\temporary_tab_infos_2026_05_11_20_41_52.json", 
+            #                       log_files, product_dir, 'gbk', result_dir, local_html_path, 
+            #                       None, True, 16, start_day=None)
             # self.analyse_log_file(None, 
             #                       None, 
             #                       log_files, product_dir, 'gbk', result_dir, local_html_path, None, True)

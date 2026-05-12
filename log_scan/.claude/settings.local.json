@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"Y:\\\\AI\\\\skills\\\\log_scan\\\\\")",
+      "Read(//y/AI/skills/**)",
+      "Bash(ls -la \"i:/SVN/trunk/Sword3/Source/QATools/LogScan/.temporary_results/\" 2>/dev/null | head -20 || echo \"DIR NOT FOUND\")",
+      "Read(//i/SVN/trunk/Sword3/Source/QATools/LogScan/.temporary_results/**)",
+      "Bash(python src/analyzer.py)",
+      "Read(//i/SVN/trunk/Sword3/**)",
+      "Bash(svn blame *)",
+      "Bash(xargs grep -l \"KG_AsyncSocketStream\")"
+    ]
+  }
+}
