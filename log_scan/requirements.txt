@@ -1,0 +1,11 @@
+jsoncomment
+openai
+asyncio
+asyncpg
+urllib3
+charset_normalizer
+chardet
+tree_sitter
+tree-sitter-lua
+markdown
+py7zr

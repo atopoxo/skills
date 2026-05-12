@@ -1,0 +1,35 @@
+# Ignore all dot directories
+.temporary_results/
+.*/
+*/.temporary_results/
+
+.results/
+.*/
+*/.results/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.egg
+*.whl
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config files
+assets/config/

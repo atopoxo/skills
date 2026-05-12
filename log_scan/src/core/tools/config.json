@@ -1,0 +1,46 @@
+{
+    "tools":[
+        {
+            "id": "browser_search",
+            "name": "联网搜索",
+            "type": "function",
+            "function": {
+                "module": "browser",
+                "class": "Browser",
+                "name": "search",
+                "description": "执行互联网搜索获取实时信息（如新闻、股票、天气等），需提供明确的关键词",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "需要搜索的关键词或问题，例如：'今日A股走势分析', '杭州天气'"
+                        },
+                        "domain": {
+                            "type": "string",
+                            "description": "查询问题所属的领域，目前只支持：'programming', 'finance', 'medical', 'else'这5种参数"
+                        },
+                        "num_results": {
+                            "type": "integer",
+                            "description": "返回结果数量，默认3条",
+                            "default": 3
+                        }
+                    },
+                    "required": ["query", "domain"]
+                }
+            },
+            "returns": {
+                "type": "object",
+                "properties": {
+                    "ai_data": {
+                        "type": "object",
+                        "description": "需要返回给大模型的分析结果",
+                        "returnType": "ai_tips",
+                        "showType": "browser_list"
+                    }
+                },
+                "required": ["ai_data"]
+            }
+        }
+    ]
+}
