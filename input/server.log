@@ -1,0 +1,983 @@
+20260317-150155,488<INFO :00373>: Game server for JXOnline III, Protocol Veriosn: 491
+20260317-150155,488<INFO :00373>: Build at 14:16:45 Mar 17 2026
+20260317-150155,488<INFO :00373>: x64 Version
+20260317-150155,488<INFO :00373>: Heap checker is not active, to activate set the HEAPCHECK environment variable.
+20260317-150155,489<INFO :00373>: Set locale: zh_CN.gbk
+20260317-150158,490<INFO :00373>: CPU in 2.89GHz
+20260317-150158,490<INFO :00373>: [slot=GameServer, Frequency=2893207] in BOOL KSO3World::Init(IRecorderFactory*, ILoadProgress*)
+20260317-150158,490<INFO :00373>: Sword3.VersionLineName is zhcn
+20260317-150158,490<INFO :00373>: Sword3.VersionEx is hd
+20260317-150158,490<INFO :00373>: ServerType = 0
+20260317-150158,879<DEBUG:00373>: Append [Editor Strings] to global script environment ...
+20260317-150158,880<DEBUG:00373>: Append [String Functions] to global script environment ...
+20260317-150158,880<DEBUG:00373>: Append [PlayerHelper Functions] to global script environment ...
+20260317-150158,880<DEBUG:00373>: Append [MathHelper Functions] to global script environment ...
+20260317-150158,880<DEBUG:00373>: Append [NpcHelper Functions] to global script environment ...
+20260317-150158,880<DEBUG:00373>: Append [Misc Functions] to global script environment ...
+20260317-150158,880<DEBUG:00373>: Append [KOREA_VERSION] to global script environment ...
+20260317-150158,880<DEBUG:00373>: Append [Custom Function] to global script environment ...
+20260317-150158,880<DEBUG:00373>: Append [ENTERSCENE_COMMON FUNC INFO] to global script environment ...
+20260317-150158,880<DEBUG:00373>: Append [SCENE_CUSTOM_VALUE_NAME] to global script environment ...
+20260317-150158,880<DEBUG:00373>: Append [TongQuest functiuons] to global script environment ...
+20260317-150158,880<DEBUG:00373>: Append [LOGIN FUNC INFO] to global script environment ...
+20260317-150158,880<DEBUG:00373>: Append [PlayerValueName] to global script environment ...
+20260317-150158,880<DEBUG:00373>: Append [g_AIParam] to global script environment ...
+20260317-150158,880<DEBUG:00373>: [LUA] EnableGetVarCache
+20260317-150158,880<INFO :00373>: [slot=GameServer, attr=LoadScript, fast_boot_mode=0, fast_get_var=1] in BOOL KScriptCenter::Init()
+20260317-150158,880<INFO :00373>: Search for scripts files ... ...
+20260317-150201,270<INFO :00373>: ******************************>: Load scripts : 5001/107101, mem:174.330 MB
+20260317-150202,197<INFO :00373>: ******************************>: Load scripts : 10001/107101, mem:237.682 MB
+20260317-150203,292<INFO :00373>: ******************************>: Load scripts : 15001/107101, mem:205.691 MB
+20260317-150203,989<DEBUG:00373>: [PresentCodeExchangeTable.lh] PresentCodeExchangeTable is alright.
+20260317-150204,159<INFO :00373>: ******************************>: Load scripts : 20001/107101, mem:255.562 MB
+20260317-150205,640<INFO :00373>: ******************************>: Load scripts : 25001/107101, mem:309.427 MB
+20260317-150206,346<INFO :00373>: ******************************>: Load scripts : 30001/107101, mem:355.335 MB
+20260317-150207,223<INFO :00373>: ******************************>: Load scripts : 35001/107101, mem:352.149 MB
+20260317-150209,252<INFO :00373>: ******************************>: Load scripts : 40001/107101, mem:306.082 MB
+20260317-150209,984<INFO :00373>: ******************************>: Load scripts : 45001/107101, mem:358.889 MB
+20260317-150210,668<INFO :00373>: ******************************>: Load scripts : 50001/107101, mem:404.109 MB
+20260317-150211,252<DEBUG:00373>: [Editor Strings] "GetEditorString", Invalid szString (33, 303).
+20260317-150211,252<DEBUG:00373>: [Warning] - scripts/RemoteFromClient/RegisterFunction.lua - RegisterFunction中注册的函数没有说明。
+20260317-150211,252<DEBUG:00373>: [Editor Strings] "GetEditorString", Invalid szString (33, 304).
+20260317-150211,252<DEBUG:00373>: [Warning] - scripts/RemoteFromClient/RegisterFunction.lua - RegisterFunction中注册的函数没有说明。
+20260317-150211,531<INFO :00373>: ******************************>: Load scripts : 55001/107101, mem:449.806 MB
+20260317-150212,199<INFO :00373>: ******************************>: Load scripts : 60001/107101, mem:497.986 MB
+20260317-150213,403<INFO :00373>: ******************************>: Load scripts : 65001/107101, mem:557.394 MB
+20260317-150214,139<INFO :00373>: ******************************>: Load scripts : 70001/107101, mem:599.110 MB
+20260317-150215,136<INFO :00373>: ******************************>: Load scripts : 75001/107101, mem:458.650 MB
+20260317-150221,200<INFO :00373>: ******************************>: Load scripts : 80001/107101, mem:459.195 MB
+20260317-150221,837<INFO :00373>: ******************************>: Load scripts : 85001/107101, mem:499.334 MB
+20260317-150226,377<INFO :00373>: ******************************>: Load scripts : 90001/107101, mem:543.239 MB
+20260317-150227,054<INFO :00373>: ******************************>: Load scripts : 95001/107101, mem:584.512 MB
+20260317-150228,063<INFO :00373>: ******************************>: Load scripts : 100001/107101, mem:631.877 MB
+20260317-150228,684<INFO :00373>: ******************************>: Load scripts : 105001/107101, mem:671.789 MB
+20260317-150228,943<INFO :00373>: ******************************>: Load scripts : 107101/107101, mem:690.638 MB
+20260317-150228,943<INFO :00373>: 107101 scripts searched !
+20260317-150231,742<DEBUG:00373>: [time] [npc] init                                       cost: 2798.09ms
+20260317-150236,970<DEBUG:00373>: [time] [quest] init                                     cost: 5157.03ms
+20260317-150237,479<DEBUG:00373>: [time] game.startup.init.logic.settings                 cost: 8535.25ms
+20260317-150239,937<DEBUG:00373>: [time] [item] init                                      cost: 2458.87ms
+20260317-150239,939<DEBUG:00373>: EquipMagicChange Init.
+20260317-150240,330<INFO :00373>: [RoadManager] New Track Use [2354.720KB] Memory.
+20260317-150240,330<INFO :00373>: [AI] loading ... ...
+20260317-150241,010<INFO :00373>: ******************************>: Setup AI scripts : 5001/114086, mem:707.986 MB
+20260317-150242,642<INFO :00373>: ******************************>: Setup AI scripts : 10001/114086, mem:529.726 MB
+20260317-150244,115<INFO :00373>: ******************************>: Setup AI scripts : 15001/114086, mem:529.323 MB
+20260317-150245,622<INFO :00373>: ******************************>: Setup AI scripts : 20001/114086, mem:530.363 MB
+20260317-150247,052<INFO :00373>: ******************************>: Setup AI scripts : 25001/114086, mem:531.153 MB
+20260317-150248,128<INFO :00373>: ******************************>: Setup AI scripts : 30001/114086, mem:522.912 MB
+20260317-150249,241<INFO :00373>: ******************************>: Setup AI scripts : 35001/114086, mem:525.339 MB
+20260317-150250,521<INFO :00373>: ******************************>: Setup AI scripts : 40001/114086, mem:528.807 MB
+20260317-150251,949<INFO :00373>: ******************************>: Setup AI scripts : 45001/114086, mem:533.421 MB
+20260317-150253,401<INFO :00373>: ******************************>: Setup AI scripts : 50001/114086, mem:533.651 MB
+20260317-150254,793<INFO :00373>: ******************************>: Setup AI scripts : 55001/114086, mem:533.205 MB
+20260317-150256,208<INFO :00373>: ******************************>: Setup AI scripts : 60001/114086, mem:534.695 MB
+20260317-150257,741<INFO :00373>: ******************************>: Setup AI scripts : 65001/114086, mem:534.714 MB
+20260317-150259,152<INFO :00373>: ******************************>: Setup AI scripts : 70001/114086, mem:534.885 MB
+20260317-150302,036<INFO :00373>: ******************************>: Setup AI scripts : 75001/114086, mem:536.813 MB
+20260317-150303,853<INFO :00373>: ******************************>: Setup AI scripts : 80001/114086, mem:537.385 MB
+20260317-150305,947<INFO :00373>: ******************************>: Setup AI scripts : 85001/114086, mem:537.827 MB
+20260317-150307,695<INFO :00373>: ******************************>: Setup AI scripts : 90001/114086, mem:539.409 MB
+20260317-150309,339<INFO :00373>: ******************************>: Setup AI scripts : 95001/114086, mem:542.672 MB
+20260317-150310,933<INFO :00373>: ******************************>: Setup AI scripts : 100001/114086, mem:546.550 MB
+20260317-150312,537<INFO :00373>: ******************************>: Setup AI scripts : 105001/114086, mem:546.331 MB
+20260317-150314,143<INFO :00373>: ******************************>: Setup AI scripts : 110001/114086, mem:546.393 MB
+20260317-150315,644<INFO :00373>: ******************************>: Setup AI scripts : 114086/114086, mem:543.495 MB
+20260317-150315,645<INFO :00373>: [AI] 114086 AI loaded !
+20260317-150316,367<DEBUG:00373>: [time] [buff] init                                      cost:  721.98ms
+20260317-150316,367<INFO :00373>: Skill loading ... ...
+20260317-150316,367<DEBUG:00373>: [Skill]Global Param Init Successful.
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/skill/江湖/斗气真实伤害.lua"]:63: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function GetSkillLevelData, script: scripts/skill/江湖/斗气真实伤害.lua
+20260317-150318,070<ERROR:00373>: KGLOG_PROCESS_ERROR(bRetCode) at line 885 in BOOL KScriptCenter::CallFunction(unsigned int, const char*, int)
+20260317-150318,070<WARN :00373>: KGLOG_CHECK_ERROR(bRetCode) at line 1265 in BOOL KSkill::CallInitializeScript()
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/skill/江湖/斗气真实伤害.lua"]:63: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function GetSkillLevelData, script: scripts/skill/江湖/斗气真实伤害.lua
+20260317-150318,070<ERROR:00373>: KGLOG_PROCESS_ERROR(bRetCode) at line 885 in BOOL KScriptCenter::CallFunction(unsigned int, const char*, int)
+20260317-150318,070<WARN :00373>: KGLOG_CHECK_ERROR(bRetCode) at line 1265 in BOOL KSkill::CallInitializeScript()
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/skill/江湖/斗气真实伤害.lua"]:63: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function GetSkillLevelData, script: scripts/skill/江湖/斗气真实伤害.lua
+20260317-150318,070<ERROR:00373>: KGLOG_PROCESS_ERROR(bRetCode) at line 885 in BOOL KScriptCenter::CallFunction(unsigned int, const char*, int)
+20260317-150318,070<WARN :00373>: KGLOG_CHECK_ERROR(bRetCode) at line 1265 in BOOL KSkill::CallInitializeScript()
+20260317-150318,071<ERROR:00373>: [Lua] [string "scripts/skill/江湖/斗气高级免控.lua"]:63: attempt to index a nil value
+20260317-150318,071<ERROR:00373>: [Lua] Failed to call function GetSkillLevelData, script: scripts/skill/江湖/斗气高级免控.lua
+20260317-150318,071<ERROR:00373>: KGLOG_PROCESS_ERROR(bRetCode) at line 885 in BOOL KScriptCenter::CallFunction(unsigned int, const char*, int)
+20260317-150318,071<WARN :00373>: KGLOG_CHECK_ERROR(bRetCode) at line 1265 in BOOL KSkill::CallInitializeScript()
+20260317-150318,071<ERROR:00373>: [Lua] [string "scripts/skill/江湖/斗气高级免控.lua"]:63: attempt to
+ index a nil value
+20260317-150318,071<ERROR:00373>: [Lua] Failed to call function GetSkillLevelData, script: scripts/skill/江湖/斗气高级免控.lua
+20260317-150318,071<ERROR:00373>: KGLOG_PROCESS_ERROR(bRetCode) at line 885 in BOOL KScriptCenter::CallFunction(unsigned int, const char*, int)
+20260317-150318,071<WARN :00373>: KGLOG_CHECK_ERROR(bRetCode) at line 1265 in BOOL KSkill::CallInitializeScript()
+20260317-150318,071<ERROR:00373>: [Lua] [string "scripts/skill/江湖/斗气高级免控.lua"]:63: attempt to index a nil value
+20260317-150318,071<ERROR:00373>: [Lua] Failed to call function GetSkillLevelData, script: scripts/skill/江湖/斗气高级免控.lua
+20260317-150318,071<ERROR:00373>: KGLOG_PROCESS_ERROR(bRetCode) at line 885 in BOOL KScriptCenter::CallFunction(unsigned int, const char*, int)
+20260317-150318,071<WARN :00373>: KGLOG_CHECK_ERROR(bRetCode) at line 1265 in BOOL KSkill::CallInitializeScript()
+20260317-150318,071<ERROR:00373>: [Lua] [string "scripts/skill/江湖/斗气免伤.lua"]:65: attempt to index a nil value
+20260317-150318,071<ERROR:00373>: [Lua] Failed to call function GetSkillLevelData, script: scripts/skill/江湖/斗气免伤.lua
+20260317-150318,071<ERROR:00373>: KGLOG_PROCESS_ERROR(bRetCode) at line 885 in BOOL KScriptCenter::CallFunction(unsigned int, const char*, int)
+20260317-150318,071<WARN :00373>: KGLOG_CHECK_ERROR(bRetCode) at line 1265 in BOOL KSkill::CallInitializeScript()
+20260317-150318,071<ERROR:00373>: [Lua] [string "scripts/skill/江湖/斗气免伤.lua"]:65: attempt to index a nil value
+20260317-150318,071<ERROR:00373>: [Lua] Failed to call function GetSkillLevelData, script: scripts/skill/江湖/斗气免伤.lua
+20260317-150318,071<ERROR:00373>: KGLOG_PROCESS_ERROR(bRetCode) at line 885 in BOOL KScriptCenter::CallFunction(unsigned int, const char*, int)
+20260317-150318,071<WARN :00373>: KGLOG_CHECK_ERROR(bRetCode) at line 1265 in BOOL KSkill::CallInitializeScript()
+20260317-150318,071<ERROR:00373>: [Lua] [string "scripts/skill/江湖/斗气免伤.lua"]:65: attempt to index a nil value
+20260317-150318,071<ERROR:00373>: [Lua] Failed to call function GetSkillLevelData, script: scripts/skill/江湖/斗气免伤.lua
+20260317-150318,071<ERROR:00373>: KGLOG_PROCESS_ERROR(bRetCode) at line 885 in BOOL KScriptCenter::CallFunction(unsigned int, const char*, int)
+20260317-150318,071<WARN :00373>: KGLOG_CHECK_ERROR(bRetCode) at line 1265 in BOOL KSkill::CallInitializeScript()
+20260317-150324,578<INFO :00373>: [HashMap] SkillManager Init cost 23756737143 TickCount, 8211 ms
+20260317-150324,578<INFO :00373>: 42533 skill loaded !
+20260317-150318,071<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/活动组抄?..."]:314: bad argument #1 to 'pairs' (table expected, got nil)
+20260317-150318,071<ERROR:00373>: [Lua] Failed to call function On_Trial_FlopCard, script: scripts/RemoteFromClient/On_Trial.lua
+20260317-150324,578<DEBUG:00373>: [time] [skill] init                                     cost: 8211.74ms
+20260317-150325,436<INFO :00373>: HomeLandGlobalInit UserType:3
+20260317-150325,439<INFO :00373>: Load game settings ... ... [OK]
+20260317-150325,439<INFO :00373>: Connect to center server 10.11.97.42:5003 ... ... [OK]
+20260317-150325,440<INFO :00373>: Start service at 10.11.97.42:60033 ... ... [OK]
+20260317-150325,481<INFO :00552>: [KPlayerServer] Thread Start...
+20260317-150325,481<INFO :00373>: [NavClient]  Disable, NavServer:[10.11.68.67:5013]
+20260317-150325,481<INFO :00373>: Game server startup ... ... [OK]
+20260317-150325,481<INFO :00373>: Set world index = 1, basetime = 1773730892, gameloop = 1809
+20260317-150325,483<INFO :00373>: 稻香村(01, 1) loading ... ...
+20260317-150325,483<INFO :00373>: 稻香村_桃园非梦(653, 1) loading ... ...
+20260317-150325,483<INFO :00373>: 成都(108, 1) loading ... ...
+20260317-150325,691<INFO :00373>: [PROF] R2S RPC Queue slow!
+20260317-150325,691<INFO :00373>: [PROF] R2S RemoteLua : OnSendTitlePointRankInfo Time 79.0ms, nCount 1.
+20260317-150325,691<INFO :00373>: [PROF] Frame(1812) Delay 85ms
+20260317-150325,691<INFO :00373>: [PROF]   Main: total 85.23ms, max 85.23ms, min 85.23ms, count 1
+20260317-150325,691<INFO :00373>: [PROF]   Main.World: total 85.22ms, max 85.22ms, min 85.22ms, count 1
+20260317-150325,691<INFO :00373>: [PROF]   Main.World.LuaGC: total 6.00ms, max 6.00ms, min 6.00ms, count 1
+20260317-150325,691<INFO :00373>: [PROF]   Main.World.LuaGCOnce: total 5.95ms, max 1.27ms, min 0.00ms, count 3305
+20260317-150325,691<INFO :00373>: [PROF]   Main.World.R2SRPCQueue: total 79.03ms, max 79.03ms, min 79.03ms, count 1
+20260317-150325,820<DEBUG:00373>: ERROR： Activity627 has ended.
+20260317-150325,821<DEBUG:00373>: ERROR： Activity628 has ended.
+20260317-150325,821<DEBUG:00373>: ERROR： Activity663 has ended.
+20260317-150325,822<DEBUG:00373>: ERROR： Activity664 has ended.
+20260317-150325,848<DEBUG:00373>: ERROR： Activity957 has ended.
+20260317-150325,848<DEBUG:00373>: ERROR： Activity958 has ended.
+20260317-150325,871<INFO :00373>: Create map 稻香村(01, 1) ... ... [OK]
+20260317-150325,894<DEBUG:00373>: [Activity] DELAY_OFF Activity:17
+20260317-150325,895<DEBUG:00373>: [Activity] DELAY_OFF Activity:32
+20260317-150325,895<DEBUG:00373>: [Activity] NORMAL_OFF Activity:33
+20260317-150325,895<DEBUG:00373>: [Activity] NORMAL_OFF Activity:34
+20260317-150325,895<DEBUG:00373>: [Activity] NORMAL_OFF Activity:42
+20260317-150325,895<DEBUG:00373>: [Activity] NORMAL_OFF Activity:43
+20260317-150325,895<DEBUG:00373>: [Activity] NORMAL_OFF Activity:58
+20260317-150325,895<DEBUG:00373>: [Activity] DELAY_OFF Activity:59
+20260317-150325,895<DEBUG:00373>: [Activity] NORMAL_OFF Activity:89
+20260317-150325,895<DEBUG:00373>: [Activity] NORMAL_OFF Activity:90
+20260317-150325,895<DEBUG:00373>: [Activity] RECOVER_ON Activity:104
+20260317-150325,895<DEBUG:00373>: [Activity] DELAY_OFF Activity:114
+20260317-150325,895<DEBUG:00373>: [Activity] NORMAL_OFF Activity:117
+20260317-150325,895<DEBUG:00373>: [Activity] RECOVER_ON Activity:119
+20260317-150325,895<DEBUG:00373>: [Activity] NORMAL_OFF Activity:120
+20260317-150325,895<DEBUG:00373>: [Activity] RECOVER_ON Activity:124
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:129
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:130
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:131
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:133
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:134
+20260317-150325,902<DEBUG:00373>: [Activity] RECOVER_ON Activity:135
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:144
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:149
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:151
+20260317-150325,902<DEBUG:00373>: [Activity] End Activity State: 152
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:153
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:154
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:155
+20260317-150325,902<DEBUG:00373>: [Activity] DELAY_OFF Activity:157
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:158
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:159
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:180
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:181
+20260317-150325,902<DEBUG:00373>: 门派入侵活动-丐帮结束！
+20260317-150325,902<DEBUG:00373>: [Activity] NORMAL_OFF Activity:186
+20260317-150325,903<DEBUG:00373>: [Activity] NORMAL_OFF Activity:189
+20260317-150325,903<DEBUG:00373>: 门派入侵活动-乱世天策结束！
+20260317-150325,903<DEBUG:00373>: [Activity] NORMAL_OFF Activity:190
+20260317-150325,904<DEBUG:00373>: [Activity] RECOVER_ON Activity:196
+20260317-150325,904<DEBUG:00373>: 重阳活动结束！
+20260317-150325,904<DEBUG:00373>: [Activity] NORMAL_OFF Activity:198
+20260317-150325,904<DEBUG:00373>: [Activity] NORMAL_OFF Activity:200
+20260317-150325,904<DEBUG:00373>: 长安内城-劫法场结束！
+20260317-150325,904<DEBUG:00373>: [Activity] NORMAL_OFF Activity:202
+20260317-150325,911<DEBUG:00373>: [Activity] NORMAL_OFF Activity:222
+20260317-150325,911<DEBUG:00373>: 元宵节结束！
+20260317-150325,911<DEBUG:00373>: [Activity] NORMAL_OFF Activity:224
+20260317-150325,911<DEBUG:00373>: [Activity] NORMAL_OFF Activity:226
+20260317-150325,911<DEBUG:00373>: [Activity] NORMAL_OFF Activity:234
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:238
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:239
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:269
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:272
+20260317-150325,912<DEBUG:00373>: 重阳活动结束！
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:274
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:276
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:277
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:278
+20260317-150325,912<DEBUG:00373>: [Activity] DELAY_OFF Activity:284
+20260317-150325,912<DEBUG:00373>: [Activity] RECOVER_ON Activity:293
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:294
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:299
+20260317-150325,912<DEBUG:00373>: [Activity] RECOVER_ON Activity:300
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:302
+20260317-150325,912<DEBUG:00373>: [Activity] RECOVER_ON Activity:303
+20260317-150325,912<DEBUG:00373>: [Activity] RECOVER_ON Activity:304
+20260317-150325,912<DEBUG:00373>: [Activity] RECOVER_ON Activity:305
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:308
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:312
+20260317-150325,912<DEBUG:00373>: [Activity] RECOVER_ON Activity:316
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:320
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:321
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:322
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:323
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:324
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:325
+20260317-150325,912<DEBUG:00373>: [Activity] DELAY_OFF Activity:326
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:327
+20260317-150325,912<DEBUG:00373>: [Activity] DELAY_OFF Activity:328
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:329
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:330
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:331
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:332
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:333
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:334
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:335
+20260317-150325,912<DEBUG:00373>: [Activity] DELAY_OFF Activity:336
+20260317-150325,912<DEBUG:00373>: [Activity] DELAY_OFF Activity:337
+20260317-150325,912<DEBUG:00373>: [Activity] NORMAL_OFF Activity:338
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:339
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:340
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:341
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:342
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:343
+20260317-150325,913<DEBUG:00373>: [Activity] DELAY_OFF Activity:344
+20260317-150325,913<DEBUG:00373>: [Activity] DELAY_OFF Activity:345
+20260317-150325,913<DEBUG:00373>: [Activity] DELAY_OFF Activity:346
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:347
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:348
+20260317-150325,913<DEBUG:00373>: [Activity] DELAY_OFF Activity:350
+20260317-150325,913<DEBUG:00373>: [Activity] DELAY_OFF Activity:351
+20260317-150325,913<DEBUG:00373>: [Activity] DELAY_OFF Activity:352
+20260317-150325,913<DEBUG:00373>: [Activity] RECOVER_ON Activity:353
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:355
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_ON Activity:357
+20260317-150325,913<DEBUG:00373>: [Activity] DELAY_OFF Activity:365
+20260317-150325,913<DEBUG:00373>: [Activity] RECOVER_ON Activity:367
+20260317-150325,913<DEBUG:00373>: [Activity] DELAY_OFF Activity:370
+20260317-150325,913<DEBUG:00373>: [Activity] DELAY_OFF Activity:371
+20260317-150325,913<DEBUG:00373>: [Activity] DELAY_OFF Activity:372
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:373
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:378
+20260317-150325,913<DEBUG:00373>: [Activity] RECOVER_ON Activity:379
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:388
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:398
+20260317-150325,913<DEBUG:00373>: [Activity] DELAY_OFF Activity:430
+20260317-150325,913<DEBUG:00373>: [Activity] DELAY_OFF Activity:438
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:442
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:451
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:454
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:457
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:461
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:463
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:476
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:477
+20260317-150325,913<DEBUG:00373>: [Activity] RECOVER_ON Activity: 478
+20260317-150325,913<DEBUG:00373>: [Activity] RECOVER_ON Activity:480
+20260317-150325,913<DEBUG:00373>: [Activity] RECOVER_ON Activity:482
+20260317-150325,913<DEBUG:00373>: [Activity] RECOVER_ON Activity:496
+20260317-150325,913<DEBUG:00373>: [Activity] RECOVER_ON Activity:497
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:506
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:507
+20260317-150325,913<DEBUG:00373>: 508双十二惊喜免单活动活动结束！
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_ON Activity:510
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:513
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:517
+20260317-150325,913<DEBUG:00373>: [Activity] NORMAL_OFF Activity:520
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:527
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:528
+20260317-150325,914<DEBUG:00373>: [Activity] DELAY_OFF Activity:531
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:533
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:542
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:546
+20260317-150325,914<DEBUG:00373>: 十周年三个怀旧活动结束！
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:547
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:553
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:554
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:555
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:566
+20260317-150325,914<DEBUG:00373>: 浪客行活动开启！
+20260317-150325,914<DEBUG:00373>: [Activity] DELAY_ON Activity:579
+20260317-150325,914<DEBUG:00373>: 春节阵活动结束！
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:580
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:582
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:583
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:584
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:585
+20260317-150325,914<DEBUG:00373>: [Activity] RECOVER_ON Activity:587
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:589
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:597
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:598
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:599
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:601
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:609
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:610
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:611
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:612
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:617
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:618
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:619
+20260317-150325,914<DEBUG:00373>: [Activity] RECOVER_ON Activity:624
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:625
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:626
+20260317-150325,914<DEBUG:00373>: [Activity] RECOVER_ON Activity:627
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:628
+20260317-150325,914<DEBUG:00373>: [Activity] NORMAL_OFF Activity:638
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:650
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:651
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:652
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:653
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:654
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:662
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:663
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:664
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:673
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:676
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:677
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:679
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:686
+20260317-150325,915<DEBUG:00373>: [Activity] RECOVER_ON Activity:687
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:689
+20260317-150325,915<DEBUG:00373>: 修罗挑战活动结束！
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:691
+20260317-150325,915<DEBUG:00373>: [Activity] DELAY_OFF Activity:694
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:695
+20260317-150325,915<DEBUG:00373>: [Activity] NORMAL_OFF Activity:701
+20260317-150325,916<DEBUG:00373>: [Activity] RECOVER_ON Activity:710
+20260317-150325,916<DEBUG:00373>: [Activity] RECOVER_ON Activity:721
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:731
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:732
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:733
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:734
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:735
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:741
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:746
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:749
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:752
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:753
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:758
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:759
+20260317-150325,916<DEBUG:00373>: [Activity] RECOVER_ON Activity:762
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:783
+20260317-150325,916<DEBUG:00373>: [Activity] RECOVER_ON Activity:785
+20260317-150325,916<DEBUG:00373>: [Activity] RECOVER_ON Activity:790
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:809
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:819
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:820
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:824
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:828
+20260317-150325,916<DEBUG:00373>: [Activity] DELAY_OFF Activity:829
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:830
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:833
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:835
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:855
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:856
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:858
+20260317-150325,916<DEBUG:00373>: [Activity] NORMAL_OFF Activity:860
+20260317-150325,916<DEBUG:00373>: [Activity] DELAY_OFF Activity:872
+20260317-150325,917<DEBUG:00373>: [Activity] NORMAL_OFF Activity:885
+20260317-150325,917<DEBUG:00373>: [Activity] DELAY_OFF Activity:886
+20260317-150325,917<DEBUG:00373>: [Activity] NORMAL_OFF Activity:889
+20260317-150325,917<DEBUG:00373>: [Activity] NORMAL_OFF Activity:891
+20260317-150325,917<DEBUG:00373>: [Activity] NORMAL_OFF Activity:892
+20260317-150325,917<DEBUG:00373>: [Activity] NORMAL_OFF Activity:899
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_ON Activity:901
+20260317-150325,918<DEBUG:00373>: [Activity] DELAY_OFF Activity:903
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:916
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:920
+20260317-150325,918<DEBUG:00373>: [Activity] DELAY_OFF Activity:921
+20260317-150325,918<DEBUG:00373>: [Activity] RECOVER_ON Activity:925
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:926
+20260317-150325,918<DEBUG:00373>: [Activity] RECOVER_ON Activity:928
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:929
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:930
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:933
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:935
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:945
+20260317-150325,918<DEBUG:00373>: [Activity] DELAY_OFF Activity:951
+20260317-150325,918<DEBUG:00373>: [Activity] DELAY_OFF Activity:957
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:958
+20260317-150325,918<DEBUG:00373>: [Activity] RECOVER_ON Activity:959
+20260317-150325,918<DEBUG:00373>: [Activity] RECOVER_ON Activity:962
+20260317-150325,918<DEBUG:00373>: [Activity] DELAY_OFF Activity:963
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:966
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:970
+20260317-150325,918<DEBUG:00373>: [Activity] DELAY_OFF Activity:972
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:977
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:978
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:983
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:988
+20260317-150325,918<DEBUG:00373>: [Activity] DELAY_OFF Activity:1006
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:1008
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:1009
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:1012
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:1013
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:1019
+20260317-150325,918<DEBUG:00373>: [Activity] NORMAL_OFF Activity:1024
+20260317-150325,918<DEBUG:00373>: [Activity] DELAY_OFF Activity:1036
+20260317-150325,918<INFO :00373>: [PROF] R2S RPC Queue slow!
+20260317-150325,918<INFO :00373>: [PROF] R2S RemoteLua : OnSyncAllActivityState Time 34.9ms, nCount 1.
+20260317-150325,918<INFO :00373>: [PROF] Frame(1815) Delay 124ms
+20260317-150325,918<INFO :00373>: [PROF]   Main: total 123.98ms, max 123.98ms, min 123.98ms, count 1
+20260317-150325,918<INFO :00373>: [PROF]   Main.World: total 123.96ms, max 123.96ms, min 123.96ms, count 1
+20260317-150325,918<INFO :00373>: [PROF]   Main.World.LuaGC: total 6.00ms, max 6.00ms, min 6.00ms, count 1
+20260317-150325,918<INFO :00373>: [PROF]   Main.World.LuaGCOnce: total 5.95ms, max 0.68ms, min 0.00ms, count 2987
+20260317-150325,918<INFO :00373>: [PROF]   Main.World.R2SRPCQueue: total 40.98ms, max 40.98ms, min 40.98ms, count 1
+20260317-150326,238<DEBUG:00373>: Start Activity: 357scene:653
+20260317-150326,239<DEBUG:00373>: Recover Activity: 497scene:653
+20260317-150326,239<DEBUG:00373>: Recover Activity: 624scene:653
+20260317-150326,239<DEBUG:00373>: Recover Activity: 959scene:653
+20260317-150326,240<DEBUG:00373>: Recover Activity: 579scene:653
+20260317-150326,240<DEBUG:00373>: Recover Activity: 587scene:653
+20260317-150326,240<DEBUG:00373>: Recover Activity: 627scene:653
+20260317-150326,243<DEBUG:00373>: ERROR： Activity628 has ended.
+20260317-150326,243<DEBUG:00373>: ERROR： Activity663 has ended.
+20260317-150326,243<DEBUG:00373>: ERROR： Activity664 has ended.
+20260317-150326,243<DEBUG:00373>: Recover Activity: 367scene:653
+20260317-150326,246<DEBUG:00373>: Recover Activity: 135scene:653
+20260317-150326,246<DEBUG:00373>: ERROR： Activity957 has ended.
+20260317-150326,246<DEBUG:00373>: ERROR： Activity958 has ended.
+20260317-150326,248<DEBUG:00373>: Recover Activity: 196scene:653
+20260317-150326,252<DEBUG:00373>: Start Activity: 901scene:653
+20260317-150326,253<INFO :00373>: Create map 稻香村_桃园非梦(653, 1) ... ... [OK]
+20260317-150326,932<DEBUG:00373>: Start Activity: 357scene:108
+20260317-150326,934<DEBUG:00373>: Recover Activity: 497scene:108
+20260317-150326,934<DEBUG:00373>: Recover Activity: 624scene:108
+20260317-150326,934<DEBUG:00373>: Recover Activity: 959scene:108
+20260317-150326,936<DEBUG:00373>: Recover Activity: 579scene:108
+20260317-150326,936<DEBUG:00373>: Recover Activity: 587scene:108
+20260317-150326,936<DEBUG:00373>: Recover Activity: 627scene:108
+20260317-150326,937<DEBUG:00373>: ERROR： Activity628 has ended.
+20260317-150326,937<DEBUG:00373>: ERROR： Activity663 has ended.
+20260317-150326,937<DEBUG:00373>: ERROR： Activity664 has ended.
+20260317-150326,937<DEBUG:00373>: Recover Activity: 367scene:108
+20260317-150326,938<DEBUG:00373>: ERROR： Activity665 has ended.
+20260317-150326,942<DEBUG:00373>: [Activity] Error Activity State ON: 114
+20260317-150326,942<DEBUG:00373>: Recover Activity: 135scene:108
+20260317-150326,943<DEBUG:00373>: ERROR： Activity957 has ended.
+20260317-150326,943<DEBUG:00373>: ERROR： Activity958 has ended.
+20260317-150326,945<DEBUG:00373>: Recover Activity: 196scene:108
+20260317-150326,948<DEBUG:00373>: Start Activity: 901scene:108
+20260329-221104,333<ERROR:13599>: KGLOG_PROCESS_LUA_ERROR(m_pRemoteData->CanUseData((KCUSTOM_PLAYER_DATA_TYPE)dwID)) at line 43839 in int KPlayer::LuaGetRemoteArrayUInt(lua_State*)
+stack traceback:
+[scripts/Map/ACT_家园管家/Include/管家场景变量定义.lua]:803: in function 'GetMaidMaxSkill'
+[scripts/Map/ACT_家园管家/Include/管家场景变量定义.lua]:758: in function 'CheckIfSkillActive'
+[scripts/Map/ACT_家园管家/Include/管家技能头文件.lua]:207: in function 'CheckIfMaidBuff'
+[scripts/Map/家园系统/furniture/宠物窝/宠物窝测试.lua]:533: in function <linedefined:35>
+20260317-150326,951<DEBUG:00373>: Error NPC dwNpcTemplateID:130459 at Scene108 x:0 y:0 z:0
+20260317-150326,956<INFO :00373>: Create map 成都(108, 1) ... ... [OK]
+20260412-234227,019<ERROR:06101>: KGLOG_PROCESS_ERROR(nTopIndex == 3) at line 3642 in int KCharacter::LuaIsHaveBuffByOwner(lua_State*)
+20260413-205204,753<ERROR:36530>: KGLOG_PROCESS_LUA_ERROR(nAddPoint > 0) at line 25872 in int KPlayer::LuaAddTitlePoint(lua_State*)
+stack traceback:
+[scripts/Map/神农洇/include/kill_data.lua]:642: in function 'SaveRoleData'
+[scripts/Include/BattleField.lh]:487: in function 'CloseBattleField'
+[scripts/publicquest/battlefield/yunhutianchi/level70yunhutianchi.lua]:82: in function <linedefined:72>
+
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/item/九天·藏剑.lua"]:2764: bad argument #1 to 'tonumber' (value expected)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function Get36500PVPWeapon, script: scripts/item/九天·藏剑.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnCheckDiscount, script: scripts/player/PlayerScript.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnTimer, script: scripts/skill/家园系统/家园身份/渔夫_收竿.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/skill/npc/副本BOSS/阆风悬城/3号_柳公?..."]:241: attempt to compare boolean with number
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function Apply, script: scripts/skill/npc/副本BOSS/阆风悬城/3号_柳公子/3号_柳公子_妙手空空_二段其一.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/skill/扬刀大会/水灵潮汐涌动范围治疗.lua"]:27: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function GetSkillLevelData, script: scripts/skill/扬刀大会/水灵潮汐涌动范围治疗.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/skill_mobile/五毒/移动端_补天诀_子技?..."]:298: attempt to call field 'GetSkillLevel' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function ApplyBulletToDest, script: scripts/skill_mobile/五毒/移动端_补天诀_子技能/移动端_醉舞九天治疗.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnPQFinish, script: scripts/publicquest/Arena/天山碎冰谷/天山碎冰谷.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnFinishQuest, script: scripts/Map/逐鹿中原/quest/据点贸易_跑商任务.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnFinishQuest, script: scripts/Map/师徒系统/quest/发送亲传师徒奖励.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnEnterSceneCommon_PVP0, script: scripts/Include/OnEnterSceneCommon/过地图脚本_PVP相关.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function On_HomeLand_CompleteCookOrder, script: scripts/RemoteFromClient/On_HomeLand.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function On_HomeLand_CompleteFlowerOrder, script: scripts/RemoteFromClient/On_HomeLand.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function Apply, script: scripts/skill/世界规则/跨服矿车回来后同步.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction1047, script: scripts/Map/会战弓月城/ai/1号_巴图仁钦/巴图仁钦.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnDeath, script: scripts/Map/白帝江关/Npc/6号_宫威/宫威.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnDeath, script: scripts/Map/白帝江关/Npc/5号_宇文灭/5号_宇文灭.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnTimer, script: scripts/Map/场景组通用/include/通用PQ头文件_场景组_伊丽川.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/skill/八荒衡鉴/肉鸽门派技能/特殊技能_..."]:203: attempt to index local 'npc1' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function Apply, script: scripts/skill/八荒衡鉴/肉鸽门派技能/特殊技能_燎_击杀召唤.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnDeath, script: scripts/Map/会战弓月城/npc/5号_尹雪尘/尹雪尘.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnDeath, script: scripts/Map/白帝江关/Npc/4号_姜集苦/姜集苦.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnPQFinish, script: scripts/publicquest/battlefield/sichouzhilu/sichouzhilu.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnFinishQuest, script: scripts/Map/ACT_130级主城茶馆/quest/茶馆总任务.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnDeath, script: scripts/Map/白帝江关/Npc/3号_海荼/海荼.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction941, script: scripts/Map/会战弓月城/ai/2号_竭勒/竭勒.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnDeath, script: scripts/Map/九老洞/npc/1号_魏华/魏华.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnDeath, script: scripts/Map/白帝江关/Npc/2号_赵八嫂/赵八嫂.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction139, script: scripts/Map/会战弓月城/ai/3号_图南子/图南子.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction664, script: scripts/Map/白帝江关/ai/7号_宫傲/宫傲.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction1289, script: scripts/Map/会战弓月城/ai/4号_叶葵/叶葵.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnDeath, script: scripts/Map/白帝江关/Npc/1号_胡汤/罗芬.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function Apply, script: scripts/skill/世界规则/跨服回来后同步橙戒周常.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnFinishQuest, script: scripts/Map/家园系统/quest/园圃驱蚊虫.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction1614, script: scripts/Map/九老洞/ai/6号_月泉淮/月泉淮.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnFinishQuest, script: scripts/Map/ACT_花朝节/Quest/朝华夕月踏歌归.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnTimer, script: scripts/RemoteFromClient/On_Perfume.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnFinishQuest, script: scripts/Map/龙门寻宝/quest/孤城瀚海斩狂澜.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction166, script: scripts/Map/九老洞/ai/5号_麒麟/麒麟.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/世界奇遇/ai/寻宝/打斗王奇新.lua"]:290: attempt to index local 'npcFY' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction23, script: scripts/Map/世界奇遇/ai/寻宝/打斗王奇新.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnFinishQuest, script: scripts/Map/扬州_广陵邑_家园/npc/送信日常.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnDeath, script: scripts/Map/九老洞/npc/2号_钟不归/钟不归.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/item/九天·藏剑.lua"]:2764: bad argument #1 to 'tonumber' (value expected)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function Get36500PVPWeapon, script: scripts/item/九天·藏剑.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function On_Trial_FlopCard, script: scripts/RemoteFromClient/On_Trial.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnFinishQuest, script: scripts/Map/ACT_浪客行/Quest/江湖百年风霜事.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnFinishQuest, script: scripts/Map/门派打坐活动/quest/勤修不辍总任务.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/活动组抄?..."]:314: bad argument #1 to 'pairs' (table expected, got nil)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function On_Trial_FlopCard, script: scripts/RemoteFromClient/On_Trial.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function Apply, script: scripts/Map/家园身份/渔夫/skill/渔夫_鱼鹰每秒检测.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnFinishQuest, script: scripts/Map/百战异闻录/Quest/百战异闻录.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/家园系统/furniture/烹饪/藏酒通用.lua"]:306: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnLandObjectOperate, script: scripts/Map/家园系统/furniture/烹饪/藏酒通用.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Emotion/hug.lua"]:171: attempt to perform arithmetic on local 'ActiomTime' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CanAction, script: scripts/Emotion/hug.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/科举考试/include/PublicMethodForN..."]:464: attempt to call global 'ActivityMark' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function On_Exam_GetPlayerQuestList, script: scripts/RemoteFromCenter/On_Exam.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnFinishQuest, script: scripts/Map/ACT_130级河西瀚漠跨服阵营日常/quest/河西瀚漠接任务.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction16, script: scripts/Map/ACT_家园管家/ai/管家周常总控.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction1395, script: scripts/Map/九老洞/ai/4号_鬼筹/鬼筹.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/skill/家园系统/舞蹈台/舞蹈台_跳舞.lua"]:248: attempt to index local 'buff_ModuleID' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function Apply, script: scripts/skill/家园系统/舞蹈台/舞蹈台_跳舞.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnDeath, script: scripts/Map/九老洞/npc/3号_岑伤/岑伤.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnFinishQuest, script: scripts/Map/百战异闻录/Quest/再战百战异闻录.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnFinishQuest, script: scripts/Map/家园系统/quest/旷庭扫落叶.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/RemoteFromClient/On_LangKeXing.lua"]:153: attempt to compare nil with number
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function On_LangKeXing_Sure, script: scripts/RemoteFromClient/On_LangKeXing.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnFinishQuest, script: scripts/Map/家园系统/quest/鸿雁寄真情.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction15, script: scripts/Map/ACT_家园/ai/盗宝贼玩法/盗宝贼总控.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/家园系统/npc/私宅蚊虫.lua"]:20: attempt to index local 'killer' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnDeath, script: scripts/Map/家园系统/npc/私宅蚊虫.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnTimer, script: scripts/Include/BattleField.lh
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/RemoteFromClient/On_Camp.lua"]:882: attempt to compare number with nil
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function On_Camp_GFAddMember, script: scripts/RemoteFromClient/On_Camp.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/世界奇遇/npc/阴阳两界_妖狐女.lua"]:76: attempt to index local 'npc' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function the_0ne, script: scripts/Map/世界奇遇/npc/阴阳两界_妖狐女.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/稻香村_桃园非梦/doodad/机关藤蔓.lua"]:87: attempt to index local 'npcZhaMen' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnTimer, script: scripts/Map/稻香村_桃园非梦/doodad/机关藤蔓.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/百草园/ai/蹴鞠.lua"]:209: attempt to index local 'npcHuang' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction57, script: scripts/Map/百草园/ai/蹴鞠.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnMessageBoxRequest, script: scripts/script_server.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Activity/活动开始结束处理/小剧场豪华?..."]:1759: attempt to index local 'doodad' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction5, script: scripts/Map/ACT_家园管家/ai/烟花播放小剧场.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnTimer, script: scripts/skill/家园系统/家园身份/渔夫_法宝鱼叉.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/skill/天策/90级奇穴/车悬阵_蓄力龙牙.lua"]:239: attempt to index local 'TARGET' (a number value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function Apply, script: scripts/skill/天策/90级奇穴/车悬阵_蓄力龙牙.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Craft/Npc/采集精英怪.lua"]:21: attempt to index local 'killer' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnDeath, script: scripts/Craft/Npc/采集精英怪.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/江湖百态/切磋/include/pk_data.lua"]:285: attempt to index local 'doodadFlag' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnTimer, script: scripts/skill/Quest/江湖百态/切磋_区域判断.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnTimer, script: scripts/skill/家园系统/家园身份/渔夫_法宝渔网.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "center_scripts\remote_for_tong.lua"]:538: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnCampReverseAdmit, script: center_scripts/remote.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Include/Player.lh"]:1039: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnPlayerRevive, script: scripts/Map/唐门/唐门.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/ACT_浪客行/npc/九天浪对话摸一下.lua"]:52: attempt to index local 'playermaster' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnCustomEvent, script: scripts/Map/ACT_浪客行/npc/九天浪对话摸一下.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/节日七夕/include/小月救人脚本.lua"]:726: attempt to index local 'npc' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnDeath, script: scripts/Map/洛道/洛道.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "center_scripts/remote_for_tong.lua"]:538: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnCampReverseAdmit, script: center_scripts/remote.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/Act_运营活动通用/iclude/江湖行记?..."]:894: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction811, script: scripts/Map/缚罪之渊/ai/1号_阿里曼幻身/阿里曼幻身.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/player/include/野外击杀复仇头文件.lua"]:103: attempt to index local 'nBuff' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnDeath, script: scripts/Map/巴陵县/巴陵县.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/副本通用接口/include/副本通用数据..."]:921: bad argument #1 to 'pairs' (table expected, got boolean)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function CustomAction755, script: scripts/Map/阆风悬城/ai/4号_阿史那承庆/阿史那承庆.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/ACT_浪客行/include/酒店老板娘商店..."]:164: attempt to index a nil value
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function Tool_Commodity_MakeSure, script: scripts/Map/ACT_浪客行/npc/酒店老板娘.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/skill/天策/90级奇穴/车悬阵_蓄力龙牙.lua"]:241: attempt to index local 'TARGET' (a number value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function Apply, script: scripts/skill/天策/90级奇穴/车悬阵_蓄力龙牙.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/skill/家园系统/摇摇车/摇摇车_摇摆.lua"]:245: attempt to index local 'buff_ModuleID' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function Apply, script: scripts/skill/家园系统/摇摇车/摇摇车_摇摆.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/龙泉府/quest/公主支线/19388_揭穿?..."]:21: attempt to index local 'npc2' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnAcceptQuest, script: scripts/Map/龙泉府/quest/公主支线/19388_揭穿作弊.lua
+20260317-150318,070<ERROR:00373>: [Lua] [string "scripts/Map/个人进度/副本个人进度引用.lua"]:344: attempt to index local 'npcLoot' (a nil value)
+20260317-150318,070<ERROR:00373>: [Lua] Failed to call function OnTimer, script: scripts/Map/个人进度/副本个人进度引用.lua
+
+20260416-120322,189<ERROR:21730>: KGLOG_PROCESS_ERROR(piTabFile) at line 37 in BOOL KIndividualDropList::Init(char*)
+20260416-120322,189<ERROR:21730>: [KIndividualDropList] Failed to open file "settings/DropList/山海源流\Raid会战弓月城25人英雄\hzgycyxteshu5_hair.tab" !
+20260416-120322,189<ERROR:21730>: KGLOG_PROCESS_ERROR(bRetCode) at line 862 in BOOL KDropCenter::NpcTemplateDropInit(const KNpcTemplate*)
+
+20260416-210332,510<ERROR:05944>: KGLOG_PROCESS_ERROR(BuffInfo.m_dwRepresentID < MAX_BUFF_REPRESENT_ID) at line 786 in BOOL KBuffManager::LoadBuffInfo(const char*, const char*, std::set<std::basic_string<char> >&)
+20260416-210332,510<ERROR:05944>: KGLOG_PROCESS_ERROR(bRetCode) at line 164 in BOOL KBuffManager::Init(KSETTINGS_CACHE_MODE)
+---{SO3GameServer_2026_05_10_00_00_14.log}---
+20260510-020932,814<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-020932,814<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564253543231
+20260510-034639,811<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-034639,811<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262527819
+20260510-034855,686<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-034855,686<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262177184
+20260510-050532,745<ERROR:04211>: KGLOG_PROCESS_ERROR(pCell) at line 1483 in BOOL KRegion::AddNpc(KNpc*)
+20260510-050532,745<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 1555 in BOOL KScene::AddNpc(KNpc*)
+20260510-050532,745<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 3968 in BOOL KSO3World::AddNpc(KNpc*, KScene*, int, int, int)
+20260510-050532,745<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 5989 in KNpc* KScene::CreateNpc(unsigned int, int, int, int, int, int, BOOL, const char*, unsigned int, BOOL, int, int)
+20260510-054231,807<ERROR:04211>: KGLOG_PROCESS_ERROR(pCell) at line 1483 in BOOL KRegion::AddNpc(KNpc*)
+20260510-054231,807<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 1555 in BOOL KScene::AddNpc(KNpc*)
+20260510-054231,807<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 3968 in BOOL KSO3World::AddNpc(KNpc*, KScene*, int, int, int)
+20260510-054231,807<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 5989 in KNpc* KScene::CreateNpc(unsigned int, int, int, int, int, int, BOOL, const char*, unsigned int, BOOL, int, int)
+20260510-054851,432<ERROR:04211>: KGLOG_PROCESS_ERROR(pCell) at line 1483 in BOOL KRegion::AddNpc(KNpc*)
+20260510-054851,432<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 1555 in BOOL KScene::AddNpc(KNpc*)
+20260510-054851,432<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 3968 in BOOL KSO3World::AddNpc(KNpc*, KScene*, int, int, int)
+20260510-054851,432<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 5989 in KNpc* KScene::CreateNpc(unsigned int, int, int, int, int, int, BOOL, const char*, unsigned int, BOOL, int, int)
+20260510-055513,869<ERROR:04211>: KGLOG_PROCESS_ERROR(pCell) at line 1483 in BOOL KRegion::AddNpc(KNpc*)
+20260510-055513,869<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 1555 in BOOL KScene::AddNpc(KNpc*)
+20260510-055513,869<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 3968 in BOOL KSO3World::AddNpc(KNpc*, KScene*, int, int, int)
+20260510-055513,869<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 5989 in KNpc* KScene::CreateNpc(unsigned int, int, int, int, int, int, BOOL, const char*, unsigned int, BOOL, int, int)
+20260510-060116,807<ERROR:04211>: KGLOG_PROCESS_ERROR(pCell) at line 1483 in BOOL KRegion::AddNpc(KNpc*)
+20260510-060116,807<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 1555 in BOOL KScene::AddNpc(KNpc*)
+20260510-060116,807<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 3968 in BOOL KSO3World::AddNpc(KNpc*, KScene*, int, int, int)
+20260510-060116,807<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 5989 in KNpc* KScene::CreateNpc(unsigned int, int, int, int, int, int, BOOL, const char*, unsigned int, BOOL, int, int)
+20260510-060149,622<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-060149,622<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_UIMovie_EscEvent, 972777519516867900
+20260510-061214,099<ERROR:05419>: KGLOG_PROCESS_ERROR(uPackSize <= m_uRecvBufferSize) at line 3374 in virtual int KG_AsyncSocketStream::Recv(IKG_Buffer**)
+20260510-063815,744<ERROR:04211>: KGLOG_PROCESS_ERROR(pCell) at line 1483 in BOOL KRegion::AddNpc(KNpc*)
+20260510-063815,744<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 1555 in BOOL KScene::AddNpc(KNpc*)
+20260510-063815,744<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 3968 in BOOL KSO3World::AddNpc(KNpc*, KScene*, int, int, int)
+20260510-063815,744<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 5989 in KNpc* KScene::CreateNpc(unsigned int, int, int, int, int, int, BOOL, const char*, unsigned int, BOOL, int, int)
+20260510-064422,244<ERROR:04211>: KGLOG_PROCESS_ERROR(pCell) at line 1483 in BOOL KRegion::AddNpc(KNpc*)
+20260510-064422,244<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 1555 in BOOL KScene::AddNpc(KNpc*)
+20260510-064422,244<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 3968 in BOOL KSO3World::AddNpc(KNpc*, KScene*, int, int, int)
+20260510-064422,244<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 5989 in KNpc* KScene::CreateNpc(unsigned int, int, int, int, int, int, BOOL, const char*, unsigned int, BOOL, int, int)
+20260510-065045,807<ERROR:04211>: KGLOG_PROCESS_ERROR(pCell) at line 1483 in BOOL KRegion::AddNpc(KNpc*)
+20260510-065045,807<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 1555 in BOOL KScene::AddNpc(KNpc*)
+20260510-065045,807<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 3968 in BOOL KSO3World::AddNpc(KNpc*, KScene*, int, int, int)
+20260510-065045,807<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 5989 in KNpc* KScene::CreateNpc(unsigned int, int, int, int, int, int, BOOL, const char*, unsigned int, BOOL, int, int)
+20260510-065947,119<ERROR:04211>: KGLOG_PROCESS_ERROR(IS_PLAYER(pDstCharacter->m_dwID)) at line 3473 in BOOL ProcessSkillAdaptiveDamage(KCharacter*, BOOL, int, int)
+20260510-065947,119<ERROR:04211>: KGLOG_PROCESS_ERROR(IS_PLAYER(pDstCharacter->m_dwID)) at line 3523 in BOOL ProcessSkillAdaptiveDamageRand(KCharacter*, BOOL, int, int)
+20260510-065947,119<ERROR:04211>: KGLOG_PROCESS_ERROR(IS_PLAYER(pDstCharacter->m_dwID)) at line 3473 in BOOL ProcessSkillAdaptiveDamage(KCharacter*, BOOL, int, int)
+20260510-065947,119<ERROR:04211>: KGLOG_PROCESS_ERROR(IS_PLAYER(pDstCharacter->m_dwID)) at line 3523 in BOOL ProcessSkillAdaptiveDamageRand(KCharacter*, BOOL, int, int)
+20260510-075029,999<ERROR:05419>: [KG_Packer] FlushSend Failed, ErrorCode: 104
+20260510-075920,688<ERROR:04211>: KGLOG_PROCESS_ERROR(pSkill->m_pBaseInfo->dwPetTemplateID == pNpcPet->m_dwTemplateID) at line 26932 in void KPlayerServer::OnCharacterSkill(char*, size_t, int, int)
+20260510-075920,768<ERROR:04211>: KGLOG_PROCESS_ERROR(pSkill->m_pBaseInfo->dwPetTemplateID == pNpcPet->m_dwTemplateID) at line 26932 in void KPlayerServer::OnCharacterSkill(char*, size_t, int, int)
+20260510-080022,807<ERROR:04211>: KGLOG_PROCESS_ERROR(pSkill->m_pBaseInfo->dwPetTemplateID == pNpcPet->m_dwTemplateID) at line 26932 in void KPlayerServer::OnCharacterSkill(char*, size_t, int, int)
+20260510-080022,887<ERROR:04211>: KGLOG_PROCESS_ERROR(pSkill->m_pBaseInfo->dwPetTemplateID == pNpcPet->m_dwTemplateID) at line 26932 in void KPlayerServer::OnCharacterSkill(char*, size_t, int, int)
+20260510-081510,743<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer) at line 1200 in int KNpc::LuaStorySayTo(lua_State*)
+20260510-081510,743<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer) at line 1200 in int KNpc::LuaStorySayTo(lua_State*)
+20260510-082312,309<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer) at line 1200 in int KNpc::LuaStorySayTo(lua_State*)
+20260510-085542,368<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=31144739
+20260510-101222,932<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer) at line 1200 in int KNpc::LuaStorySayTo(lua_State*)
+20260510-101222,932<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer) at line 1200 in int KNpc::LuaStorySayTo(lua_State*)
+20260510-101222,932<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer) at line 1200 in int KNpc::LuaStorySayTo(lua_State*)
+20260510-111233,218<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=29267939
+20260510-115840,800<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=323288
+20260510-122856,181<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer) at line 1200 in int KNpc::LuaStorySayTo(lua_State*)
+---{SO3GameServer_2026_05_10_13_40_01.log}---
+20260510-135223,432<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer) at line 1200 in int KNpc::LuaStorySayTo(lua_State*)
+20260510-142923,369<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer) at line 1200 in int KNpc::LuaStorySayTo(lua_State*)
+20260510-143009,312<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=28524574
+20260510-152810,476<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=1376640
+20260510-161725,942<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=30214953
+20260510-162100,669<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=4830975
+20260510-162548,848<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=5506430
+20260510-163552,433<ERROR:04211>: KGLOG_PROCESS_ERROR(pCharacter) at line 478 in int KNpc::LuaModifyThreat(lua_State*)
+20260510-163552,433<ERROR:04211>: KGLOG_PROCESS_ERROR(pCharacter) at line 478 in int KNpc::LuaModifyThreat(lua_State*)
+20260510-163552,433<ERROR:04211>: KGLOG_PROCESS_ERROR(pCharacter) at line 478 in int KNpc::LuaModifyThreat(lua_State*)
+20260510-170930,656<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=11520541
+20260510-171057,505<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-171142,758<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-171145,982<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-171241,848<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-171245,892<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-171328,445<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-171331,679<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-171543,152<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-171545,963<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-171632,125<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-171635,146<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-171714,271<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-171717,149<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-171803,758<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-171806,693<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172102,149<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172105,078<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172121,043<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172123,941<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172148,365<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172151,235<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172228,594<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172231,512<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172304,392<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172307,441<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172345,017<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172347,895<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172459,190<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172501,953<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172609,857<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172612,693<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172657,818<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172700,676<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172806,083<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172809,012<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172853,830<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-172856,896<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=eTargetType == ttNoTarget || eTargetType == ttNpc || eTargetType == ttPlayer || eTargetType == ttDoodad || eTargetType == ttItem, line=3016] func=int KCharacter::CastSkill(unsigned int, unsigned int, BOOL, TARGET_TYPE, unsigned int) | dwSkillID=45191, dwSkillLevel=1, eTargetType=0
+20260510-175410,557<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer) at line 1200 in int KNpc::LuaStorySayTo(lua_State*)
+20260510-180700,743<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer) at line 1200 in int KNpc::LuaStorySayTo(lua_State*)
+20260510-180700,743<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer) at line 1200 in int KNpc::LuaStorySayTo(lua_State*)
+20260510-182344,250<ERROR:04211>: KGLOG_PROCESS_ERROR(piSrcItem) at line 1111 in DIAMOND_RESULT_CODE KDiamondManager::MountDiamondOnEquipBox(KPlayer*, unsigned int, unsigned int, unsigned int, int)
+20260510-184247,532<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=14591046
+20260510-184927,778<ERROR:05419>: [slot=MLogProcessError, attr=ProcessError, condition=bRetCode, line=1136] func=BOOL KPlayerServerThread::SwitchConnection(int, int, WORD, int, bool&) | pSendList->GetRecvSerial()=8, wRecvSerial=0
+20260510-184927,778<ERROR:05419>: KGLOG_PROCESS_ERROR(bRetCode) at line 1204 in void KPlayerServerThread::OnHandShakeCommand(unsigned char*, size_t)
+20260510-185326,147<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=31575215
+20260510-193501,136<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=34857820
+20260510-193506,275<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=34857820
+20260510-193513,610<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=34857820
+20260510-194504,885<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=19367283
+20260510-194510,089<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=19367283
+20260510-194515,437<ERROR:04211>: [slot=MLogProcessError, attr=ProcessError, condition=pMemberPlayer, line=27699] func=void KPlayerServer::OnTeamSetFormationLeader(char*, size_t, int, int) | pPlayer->m_dwID=19367283
+20260510-200240,056<ERROR:04211>: KGLOG_PROCESS_ERROR(piFodder) at line 318 in BOOL KDomesticate::Feed(unsigned int, unsigned int, int)
+20260510-210932,181<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 19212 in BOOL KPlayerServer::DoSetNpcEffectVisible(KPlayer*, unsigned int, unsigned int, BOOL)
+20260510-210932,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 21616 in BOOL KPlayer::SetNpcEffectVisible(unsigned int, unsigned int, BOOL)
+20260510-210932,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 40110 in int KPlayer::LuaSetNpcEffectVisible(lua_State*)
+20260510-210934,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 19212 in BOOL KPlayerServer::DoSetNpcEffectVisible(KPlayer*, unsigned int, unsigned int, BOOL)
+20260510-210934,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 21616 in BOOL KPlayer::SetNpcEffectVisible(unsigned int, unsigned int, BOOL)
+20260510-210934,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 40110 in int KPlayer::LuaSetNpcEffectVisible(lua_State*)
+20260510-210936,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 19212 in BOOL KPlayerServer::DoSetNpcEffectVisible(KPlayer*, unsigned int, unsigned int, BOOL)
+20260510-210936,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 21616 in BOOL KPlayer::SetNpcEffectVisible(unsigned int, unsigned int, BOOL)
+20260510-210936,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 40110 in int KPlayer::LuaSetNpcEffectVisible(lua_State*)
+20260510-210938,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 19212 in BOOL KPlayerServer::DoSetNpcEffectVisible(KPlayer*, unsigned int, unsigned int, BOOL)
+20260510-210938,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 21616 in BOOL KPlayer::SetNpcEffectVisible(unsigned int, unsigned int, BOOL)
+20260510-210938,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 40110 in int KPlayer::LuaSetNpcEffectVisible(lua_State*)
+20260510-210940,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 19212 in BOOL KPlayerServer::DoSetNpcEffectVisible(KPlayer*, unsigned int, unsigned int, BOOL)
+20260510-210940,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 21616 in BOOL KPlayer::SetNpcEffectVisible(unsigned int, unsigned int, BOOL)
+20260510-210940,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 40110 in int KPlayer::LuaSetNpcEffectVisible(lua_State*)
+20260510-210942,181<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 19212 in BOOL KPlayerServer::DoSetNpcEffectVisible(KPlayer*, unsigned int, unsigned int, BOOL)
+20260510-210942,181<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 21616 in BOOL KPlayer::SetNpcEffectVisible(unsigned int, unsigned int, BOOL)
+20260510-210942,181<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 40110 in int KPlayer::LuaSetNpcEffectVisible(lua_State*)
+20260510-210944,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 19212 in BOOL KPlayerServer::DoSetNpcEffectVisible(KPlayer*, unsigned int, unsigned int, BOOL)
+20260510-210944,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 21616 in BOOL KPlayer::SetNpcEffectVisible(unsigned int, unsigned int, BOOL)
+20260510-210944,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 40110 in int KPlayer::LuaSetNpcEffectVisible(lua_State*)
+20260510-210946,183<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 19212 in BOOL KPlayerServer::DoSetNpcEffectVisible(KPlayer*, unsigned int, unsigned int, BOOL)
+20260510-210946,183<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 21616 in BOOL KPlayer::SetNpcEffectVisible(unsigned int, unsigned int, BOOL)
+20260510-210946,183<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 40110 in int KPlayer::LuaSetNpcEffectVisible(lua_State*)
+20260510-210948,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 19212 in BOOL KPlayerServer::DoSetNpcEffectVisible(KPlayer*, unsigned int, unsigned int, BOOL)
+20260510-210948,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 21616 in BOOL KPlayer::SetNpcEffectVisible(unsigned int, unsigned int, BOOL)
+20260510-210948,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 40110 in int KPlayer::LuaSetNpcEffectVisible(lua_State*)
+20260510-210950,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 19212 in BOOL KPlayerServer::DoSetNpcEffectVisible(KPlayer*, unsigned int, unsigned int, BOOL)
+20260510-210950,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 21616 in BOOL KPlayer::SetNpcEffectVisible(unsigned int, unsigned int, BOOL)
+20260510-210950,182<ERROR:04211>: KGLOG_PROCESS_ERROR(bRetCode) at line 40110 in int KPlayer::LuaSetNpcEffectVisible(lua_State*)
+20260510-211943,938<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-211943,938<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564258589997
+20260510-212030,376<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-212030,376<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261743068
+20260510-212134,314<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-212134,314<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261659337
+20260510-213040,188<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-213040,188<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260407349
+20260510-213229,750<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-213229,750<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262170049
+20260510-213516,689<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-213516,689<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260095999
+20260510-213816,750<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-213816,750<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261659337
+---{SO3GameServer_2026_05_10_21_40_21.log}---
+20260510-214202,376<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-214202,376<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260412335
+20260510-214216,688<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-214216,688<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260328452
+20260510-214443,062<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-214443,062<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262173519
+20260510-214744,875<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-214744,875<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261732996
+20260510-215251,188<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-215251,188<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564259550335
+20260510-215438,376<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-215438,376<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260412335
+20260510-220205,933<ERROR:04211>: KGLOG_PROCESS_ERROR(m_ViewPoint.pRegion == NULL) at line 19590 in int KPlayer::LuaCreateViewPoint(lua_State*)
+20260510-220216,189<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-220216,189<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564259149274
+20260510-220405,689<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-220405,689<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564259577727
+20260510-220417,064<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-220417,064<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260402851
+20260510-220939,501<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-220939,501<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262177184
+20260510-221053,814<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-221053,814<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261659337
+20260510-221223,626<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-221223,626<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262145547
+20260510-221517,688<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-221517,688<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564259577727
+20260510-221825,250<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-221825,250<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260402851
+20260510-221832,500<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-221832,500<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262383065
+20260510-222104,501<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-222104,501<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262171966
+20260510-222109,939<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-222109,939<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564259577727
+20260510-222157,349<ERROR:05419>: KGLOG_PROCESS_ERROR(uPackSize <= m_uRecvBufferSize) at line 3374 in virtual int KG_AsyncSocketStream::Recv(IKG_Buffer**)
+20260510-222501,626<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-222501,626<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262145547
+20260510-222637,563<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-222637,563<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564259149274
+20260510-222957,563<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-222957,563<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262102814
+20260510-223003,875<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-223003,875<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262177184
+20260510-223025,625<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-223025,625<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260359713
+20260510-223347,375<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-223347,375<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262145547
+20260510-223616,689<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-223616,689<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261738350
+20260510-223752,313<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-223752,313<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262171966
+20260510-223836,126<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-223836,126<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262112060
+20260510-224128,126<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-224128,126<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564259149274
+20260510-224300,938<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-224300,938<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260095999
+20260510-224643,188<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-224643,188<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261733005
+20260510-224733,627<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-224733,627<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260402851
+20260510-224902,754<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-224902,754<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262170049
+20260510-225036,251<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-225036,251<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260359713
+20260510-225044,064<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-225044,064<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260412335
+20260510-225052,375<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-225052,375<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261733005
+20260510-225339,750<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-225339,750<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261743068
+20260510-225703,626<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-225703,626<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262173519
+20260510-225844,314<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-225844,314<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564259031222
+20260510-230104,691<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-230104,691<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261859696
+20260510-230202,000<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-230202,000<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262112060
+20260510-230209,126<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-230209,126<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261732996
+20260510-230550,818<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-230550,818<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262383065
+20260510-230650,876<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-230650,876<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564258589997
+20260510-230801,313<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-230801,313<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260407349
+20260510-231035,376<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-231035,376<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260412335
+20260510-231328,063<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-231328,063<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261659337
+20260510-231539,313<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-231539,313<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262177184
+20260510-231551,874<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-231551,874<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261743068
+20260510-231553,751<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-231553,751<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261659337
+20260510-231749,063<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-231749,063<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564259550335
+20260510-231934,500<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-231934,500<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262145547
+20260510-231944,875<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-231944,875<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564257440282
+20260510-232315,313<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-232315,313<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261859696
+20260510-232413,875<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-232413,875<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262177184
+20260510-232606,250<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-232606,250<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564258589997
+20260510-232810,813<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-232810,813<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260328452
+20260510-233023,001<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-233023,001<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262527819
+20260510-233054,376<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-233054,376<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262102814
+20260510-233240,746<ERROR:04211>: Can't Found Action 57 by Character 1074706881
+20260510-233243,188<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-233243,188<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262177184
+20260510-233301,746<ERROR:04211>: Can't Found Action 57 by Character 1074706881
+20260510-233308,745<ERROR:04211>: Can't Found Action 68 by Character 1074706881
+20260510-233313,251<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-233313,251<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564259031222
+20260510-233315,128<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-233315,128<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262171966
+20260510-233427,814<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-233427,814<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262170049
+20260510-233829,375<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-233829,375<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564259550335
+20260510-233829,689<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-233829,689<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262171966
+20260510-234000,625<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-234000,625<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261659337
+20260510-234316,063<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-234316,063<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564259550335
+20260510-234439,688<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-234439,688<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564258589997
+20260510-234752,690<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-234752,690<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262177184
+20260510-235008,650<ERROR:05419>: KGLOG_PROCESS_ERROR(uPackSize <= m_uRecvBufferSize) at line 3374 in virtual int KG_AsyncSocketStream::Recv(IKG_Buffer**)
+20260510-235106,124<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-235106,124<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564260359713
+20260510-235309,374<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-235309,374<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564257468742
+20260510-235357,189<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-235357,189<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564262145547
+20260510-235517,625<ERROR:04211>: KGLOG_PROCESS_ERROR(uGlobalID) at line 25491 in int KScriptFuncList::LuaAddPraise(lua_State*)
+20260510-235522,682<ERROR:05419>: KGLOG_PROCESS_ERROR(uPackSize <= m_uRecvBufferSize) at line 3374 in virtual int KG_AsyncSocketStream::Recv(IKG_Buffer**)
+20260510-235650,125<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
+20260510-235650,125<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261732996

@@ -1,0 +1,36 @@
+{
+  "log_parsing": {
+    "error_pattern": "ERROR|Exception|Traceback|Fail",
+    "file_line_pattern": "([\\w\\d._]+\\.(py|sh|pl))\"?,\\s*line\\s+(\\d+)"
+  },
+  "deepseek": {
+    "api_key": "your_deepseek_api_key_here",
+    "base_url": "https://api.deepseek.com",
+    "model": "deepseek-chat"
+  },
+  "svn": {
+    "use_svn": true
+  },
+  "script_map": {
+    "bvt": "z:/trunk"
+  },
+  "base_url": "http://10.11.185.59:5000",
+  "cpp_source": [
+    {
+      "root": "i:/SVN/trunk/Sword3/Include",
+      "black_list": []
+    },
+    {
+      "root": "i:/SVN/trunk/Sword3/Source",
+      "black_list": [
+        "Client",
+        "DevVersionTools",
+        "KG3DEngineDX11",
+        "KG3DEngine",
+        "QATools",
+        "Tools"
+      ]
+    }
+  ],
+  "server_whole_log_path": "z:/trunk/server/logs/SO3GameServer"
+}
