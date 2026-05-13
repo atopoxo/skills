@@ -182,7 +182,7 @@ private:
 
 ### 2.5 垂直间距
 
-**变量声明后空一行：** 函数开头的变量声明/定义块结束后，必须有一行空行，然后再开始函数体的实现逻辑：
+**变量声明后空一行：** 函数开头的变量声明/定义块结束后，**必须**有一行空行，然后再开始函数体的实现逻辑。**这是强制规则，不允许任何例外**：
 
 ```cpp
 BOOL SomeFunction(int nParam)
@@ -193,6 +193,26 @@ BOOL SomeFunction(int nParam)
 
     LOG_PROCESS_ERROR(nParam > 0);
 
+    // ... 业务逻辑 ...
+Exit0:
+    return bResult;
+}
+```
+
+**传入参数含指针的检查顺序：** 如果函数参数中有指针类型，变量声明块后的第一个逻辑**必须**是对这些指针参数的有效性检查（使用 `LOG_PROCESS_ERROR`），不得在指针检查之前插入其他业务逻辑：
+
+```cpp
+BOOL PushMentorInfo(int nMaxCount, MentorInfo* pPushList, int* pnRetCount)
+{
+    BOOL               bResult         = false;
+    int                nRealCount      = 0;
+    int                nMentorMapCount = 0;
+    PUSH_MAP::iterator itMentor;
+
+    LOG_PROCESS_ERROR(pPushList);
+    LOG_PROCESS_ERROR(pnRetCount);
+
+    *pnRetCount = 0;
     // ... 业务逻辑 ...
 Exit0:
     return bResult;
@@ -294,6 +314,8 @@ BOOL PushApprenticeInfo(int nForceID, int nMaxCount);
 
 > **`const char*` 命名规则：** `const char*` 类型变量**必须**以 `pcsz` 为前缀，后接描述性名称（PascalCase），禁止使用 `psz`、`sz` 等其他前缀。例如 `const char* pcszFileName = NULL;`。
 
+> **变量名必须有明确含义：** 除 `for` 循环计数器外，**绝对禁止**使用无意义的变量名（如 `p`、`a`、`b`、`tmp` 等）。每个变量名必须包含完整的类型前缀和描述性名称。例如 `const char* p = NULL;` 是**绝对禁止**的，必须改为 `const char* pcszPos = NULL;` 或具有明确含义的名称。
+
 **作用域前缀：**
 
 | 前缀 | 含义 |
@@ -383,6 +405,8 @@ if (pszInput == NULL)
 // 正确
 LOG_PROCESS_ERROR(pszInput != NULL);
 ```
+
+**特别注意：** 任何手写的 `if (ptr == NULL) { goto Exit0; }` 形式都必须替换为 `LOG_PROCESS_ERROR(ptr != NULL);`，反之 `if (ptr != NULL) { goto Exit1; }` 必须替换为 `LOG_PROCESS_SUCCESS(ptr == NULL);`。禁止在函数体内出现任何手写 if-goto 语句。
 
 `LOG_PROCESS_SUCCESS(condition)` —— condition 为 true 时跳转到 Exit1，用于提前成功退出路径：
 
@@ -514,8 +538,10 @@ Exit0:
 | float | `0.0f` | `float fScale = 0.0f;` |
 | BOOL | `false` | `BOOL bResult = false;` |
 | 指针 | `NULL` / `nullptr` | `Skill* pSkill = NULL;` |
-| std::string | `""` | `std::string strName = "";` |
+| std::string | `""`（可省略，默认构造即为空） | `std::string strName = "";` |
 | char | `'\0'` | `char cFlag = '\0';` |
+
+> **`std::string` 初始化说明：** `std::string` 默认构造函数已创建空字符串，因此 `std::string strFilePath = "";` 中的 `= ""` 是多余的。可直接写 `std::string strFilePath;`，或保留 `= ""` 以保持列对齐一致性。两者均可接受，但**不得**在不需要列对齐的情况下单独给 `std::string` 赋 `= ""` 而其他变量不参与对齐。
 
 ---
 
