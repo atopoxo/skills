@@ -421,6 +421,27 @@ if (pszInput == NULL)
 LOG_PROCESS_SUCCESS(pszInput == NULL);
 ```
 
+**有返回值函数的调用必须检查：** 任何调用有返回值的函数（如返回 `BOOL`），**必须**使用 `LOG_PROCESS_ERROR` 或 `PROCESS_ERROR` 宏对返回值进行检查，**绝对禁止**忽略返回值或使用手写 `if` 判断：
+
+```cpp
+// 错误：忽略返回值
+EnsureFileData(pFileData, uUID);
+WriteJsonFile(uUID);
+
+// 错误：手写 if 判断返回值
+if (!EnsureFileData(pFileData, uUID))
+{
+    goto Exit0;
+}
+
+// 正确：使用宏检查返回值
+bRetCode = EnsureFileData(pFileData, uUID);
+LOG_PROCESS_ERROR(bRetCode);
+
+bRetCode = WriteJsonFile(uUID);
+LOG_PROCESS_ERROR(bRetCode);
+```
+
 **死标签必须注释掉：** 如果函数体内没有任何 `goto` 语句或 `LOG_PROCESS_ERROR`/`PROCESS_ERROR`/`LOG_PROCESS_SUCCESS` 宏需要跳转到 `Exit0:` 或 `Exit1:`，则这些标签必须被注释掉（改为 `//Exit0:` 和 `//Exit1:`），否则会产生编译警告：
 
 ```cpp
