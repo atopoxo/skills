@@ -17,8 +17,9 @@ from tqdm import tqdm
 from skills.cpp_function_extractor.cpp_function_extractor_base import CppFunctionExtractorBase
 
 class CppFunctionExtractor(CppFunctionExtractorBase):
-    def __init__(self, config_path: str):
+    def __init__(self, config_path: str, work_dir: str):
         super().__init__(config_path)
+        self.work_dir = work_dir
 
     def extract_macros(self, all_files: list, total_files: int, encoding: str = 'gbk', max_workers: Optional[int] = None) -> Dict[str, Any]:
         if max_workers is None:
@@ -156,7 +157,7 @@ class CppFunctionExtractor(CppFunctionExtractorBase):
             print("没有找到函数")
             return None
 
-        current_dir = os.getcwd()
+        current_dir = self.work_dir
         output_dir = os.path.join(current_dir, ".temporary_results")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)

@@ -46,6 +46,9 @@ class FindWrecker(FindWreckerBase):
         """设置聊天管理器，用于大模型分析"""
         self.chat_mgr = chat_mgr
 
+    def get_principal(self, description: str):
+        return self._get_principal(description)
+
     def get_blame_by_history(self, context_result: Any, encoding: str, max_workers: int, start_day: str = None):
         if not self.use_svn:
             return "SVN 查询已禁用"

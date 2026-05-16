@@ -1,0 +1,123 @@
+{
+    "tab_load": [
+        {
+			"source": "analyzer",
+			"reference_doc": null,
+            "count": 1,
+            "file_path": "z:/trunk/client/settings/skill/Buff.tab",
+            "tab_attribute": "RepresentID",
+            "error_msg": "KGLOG_PROCESS_ERROR(BuffInfo.m_dwRepresentID < MAX_BUFF_REPRESENT_ID)",
+            "cpp_error_msg": "KGLOG_PROCESS_ERROR(BuffInfo.m_dwRepresentID < (1 << 16))",
+            "line_num": 786,
+            "suggestion": "**错误解释：**  \n该错误发生在读取 `Buff.tab` 文件时，属性 `RepresentID` 对应的值 `BuffInfo.m_dwRepresentID` 超出了允许的范围。C++代码中的检查条件 `BuffInfo.m_dwRepresentID < (1 << 16)` 要求该值必须小于 65536（因为 `1 << 16` 即 2 的 16 次方，等于 65536）。`m_dwRepresentID` 是一个无符号整数（通常为 DWORD 类型），但程序期望它占用不超过 16 位二进制位（即 0~65535 的范围）。当前文件中该属性的值可能大于或等于 65536，导致断言失败。\n\n**修复方向：**  \n1. 检查 `z:/trunk/client/settings/skill/Buff.tab` 文件中 `RepresentID` 列的所有数值，确保每个值都小于 65536。  \n2. 如果确实需要更大的数值，需要评估是否可调整程序中的位宽限制（例如修改为 `1 << 17` 或其他），但需同步修改代码和数据结构的定义，并确认所有相关模块能兼容。  \n3. 如果该值错误是数据配置失误，修正为合法值即可。",
+            "wrecker_info": [
+                {
+                    "author": "chenpengyu",
+                    "revision": "r1827649",
+                    "description": "【剑网3-C993505】【剑网3端游】【4月】副本前置任务剧情制作（新续），新增定身buff",
+                    "principal": [
+                        "qiuzhenfeng"
+                    ],
+                    "type": "added",
+                    "old": null,
+                    "new": "",
+                    "old_line": null,
+                    "new_line": 60674,
+                    "header": "ID\tName\tUseage\tFunctionType\tRepresentPos\tRepresentID\tAppendType\tDetachType\tBuffType\tLevel\tIntensity\tIsStackable\tMaxStackNum\tCount\tInterval\tHide\tExclude\tSave\tOnManaShield\tOnFight\tOnHorse\tOnTerrain\tFormationLeader\tScriptFile\tGlobalExclude\tUniqueTarget\tCanCancel\tBeginAttrib1\tBeginValue1A\tBeginValue1B\tBeginAttrib2\tBeginValue2A\tBeginValue2B\tBeginAttrib3\tBeginValue3A\tBeginValue3B\tBeginAttrib4\tBeginValue4A\tBeginValue4B\tBeginAttrib5\tBeginValue5A\tBeginValue5B\tBeginAttrib6\tBeginValue6A\tBeginValue6B\tBeginAttrib7\tBeginValue7A\tBeginValue7B\tBeginAttrib8\tBeginValue8A\tBeginValue8B\tBeginAttrib9\tBeginValue9A\tBeginValue9B\tBeginAttrib10\tBeginValue10A\tBeginValue10B\tBeginAttrib11\tBeginValue11A\tBeginValue11B\tBeginAttrib12\tBeginValue12A\tBeginValue12B\tBeginAttrib13\tBeginValue13A\tBeginValue13B\tBeginAttrib14\tBeginValue14A\tBeginValue14B\tBeginAttrib15\tBeginValue15A\tBeginValue15B\tActiveAttrib1\tActiveValue1A\tActiveValue1B\tActiveAttrib2\tActiveValue2A\tActiveValue2B\tEndTimeAttrib1\tEndTimeValue1A\tEndTimeValue1B\tEndTimeAttrib2\tEndTimeValue2A\tEndTimeValue2B\tIsCountable\tDecayType\tMoveStateMask\tMapBanMask\tIsOffLineClock\tCanAccumulate\tSrcDistance\tOnKungfuID\tInSprint\tInFollow\tCancelByUseItem\tMapInvalidMask\tIsCombatBuff\tMinInterval\tClearUnderWater\tMoveStateMask2\tShapeShiftInvalid\tMaxInterval\tActiveCoefficient\tCanBeSteal\tNeedSync\tInBirdMove\tCanTransfer\tInParkour\tCostSingleStack\tInSlideSprint\tMorphInvalid\tValidByLevel\tRLActions\tCoexist\tIsIntensityStackable",
+                    "new_line_content": "33729\t5号_唐怀仁_万镖皆空成就\t464\t\tBody\t0\t33729\t0\t\t1\t1\t0\t1\t1\t0\t0\t1\t1\t\t\t\t\t\t\t1\t0\t0\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t4294967294\t0\t\t0\t0\t\t\t\t\t0\t\t0\t\t63\t1\t0\t1\t0\t1\t\t\t\t\t\t\t\t\t\t0"
+                }
+            ],
+            "wrecker_index": 0
+        }
+    ],
+    "lua_call": [
+		{
+			"source": "analyzer",
+			"reference_doc": null,
+            "count": 1,
+            "encoding": "GBK",
+            "file_path": "z:/trunk/client/scripts/skill/家园系统/舞蹈台/舞蹈台_跳舞.lua",
+            "line_num": 248,
+            "line_content": "\t\t\tBGMdoodad = scene.CreateDoodad(8274, player.nX, player.nY, player.nZ, 0, player.dwID ..\"WuDaoTai\")\n\t\t\tBGMdoodad.SetDisappearFrames(600 * GLOBAL.GAME_FPS)\n\n\t\t\t--取记录家具ModuleID的buff用于区分bgm\n\t\t\tlocal buff_ModuleID = player.GetBuff(29900, 1)\n\t\t\tlocal nModuleID = buff_ModuleID.nCustomValue\n\t\t\tif buff_ModuleID and tBGM[nModuleID] then\n\t\t\t\tBGMdoodad.PlaySound(tBGM[nModuleID])\n\t\t\telse\n\t\t\t\tBGMdoodad.PlaySound(tBGM[\"default\"])\n\t\t\tend\n",
+            "error": "GetMember希望2个参数，结果发现1个参数",
+            "wrecker_info": [
+                {
+                    "author": "wangyiwei",
+                    "revision": "r1535066",
+                    "description": "【剑网3-C785325】【家具交互】“秦时明月”联动家具交互制作 - 舞蹈台技能脚本",
+                    "principal": [
+                        "fengwei"
+                    ],
+                    "old": null,
+                    "new": "local nModuleID = buff_ModuleID.nCustomValue",
+                    "type": "added",
+                    "old_line": null,
+                    "new_line": 247
+                }
+            ],
+            "wrecker_index": 0
+        }
+	],
+    "lua": [
+        {
+			"source": "analyzer",
+			"reference_doc": null,
+            "count": 1,
+            "encoding": "GBK",
+            "file_path": "z:/trunk/client/scripts/skill/家园系统/舞蹈台/舞蹈台_跳舞.lua",
+            "line_num": 248,
+            "select_content": "\t\t\tBGMdoodad = scene.CreateDoodad(8274, player.nX, player.nY, player.nZ, 0, player.dwID ..\"WuDaoTai\")\n\t\t\tBGMdoodad.SetDisappearFrames(600 * GLOBAL.GAME_FPS)\n\n\t\t\t--取记录家具ModuleID的buff用于区分bgm\n\t\t\tlocal buff_ModuleID = player.GetBuff(29900, 1)\n\t\t\tlocal nModuleID = buff_ModuleID.nCustomValue\n\t\t\tif buff_ModuleID and tBGM[nModuleID] then\n\t\t\t\tBGMdoodad.PlaySound(tBGM[nModuleID])\n\t\t\telse\n\t\t\t\tBGMdoodad.PlaySound(tBGM[\"default\"])\n\t\t\tend\n",
+            "error": "KGLOG_PROCESS_ERROR(bRetCode) at line 5989 in KNpc* KScene::CreateNpc(unsigned int, int, int, int, int, int, BOOL, const char*, unsigned int, BOOL, int, int)",
+            "reference": "以下是上下文引用:\n\n代码片段引用:\nbRetCode = g_pSO3World->AddNpc(pNpc, this, nX, nY, nZ);\nKGLOG_PROCESS_ERROR(bRetCode);\n",
+            "need_analyse": true,
+            "suggestion": "    报错原因：KGScene::CreateNpc内部调用g_pSO3World->AddNpc失败。可能原因: NPC ID冲突、场景NPC数量达到上限、NPC资源未正确加载。source: Source/Common/SO3World/Src/KScene.cpp。\n增加AddNpc失败时的详细上下文日志(NPC ID、坐标、场景名)，排查是否存在重复创建或资源缺失。",
+            "wrecker_info": [
+                {
+                    "author": "wangyiwei",
+                    "revision": "r1535066",
+                    "description": "【剑网3-C785325】【家具交互】“秦时明月”联动家具交互制作 - 舞蹈台技能脚本",
+                    "principal": [
+                        "fengwei"
+                    ],
+                    "old": null,
+                    "new": "local nModuleID = buff_ModuleID.nCustomValue",
+                    "type": "added",
+                    "old_line": null,
+                    "new_line": 247
+                }
+            ],
+            "wrecker_index": 0
+        }
+    ],
+	"c/c++": [
+        {
+			"source": "llm",
+			"reference_doc": null,
+            "count": 1,
+            "encoding": "GBK",
+            "file_path": "I:/SVN/trunk/Sword3/Source/Common/SO3World/Src/KScene.cpp",
+            "line_num": 5988,
+            "select_content": "bRetCode = g_pSO3World->AddNpc(pNpc, this, nX, nY, nZ);",
+            "error": "attempt to index local 'buff_ModuleID' (a nil value)",
+            "reference": "以下是上下文引用:\n\n代码片段引用:\ntBGM = {\n\t[\"default\"] = 29, --《在下！沈剑心》\n\t[18442] = 52, --秦时明月\n}\nif not BGMdoodad then\n\n\t\tend\n",
+            "need_analyse": true,
+            "suggestion": "    报错原因：尝试索引一个可能为nil的变量`buff_ModuleID`。在代码中，`player.GetBuff(29900, 1)`可能返回nil，但后续代码直接尝试访问`buff_ModuleID.nCustomValue`，导致错误。\n    改进建议：在访问`buff_ModuleID`的属性之前，先检查它是否为nil。同时，逻辑判断`if buff_ModuleID and tBGM[nModuleID] then`中，`nModuleID`的赋值在检查`buff_ModuleID`之前，如果`buff_ModuleID`为nil，`nModuleID`的赋值也会出错。应调整顺序。\n    改进代码：\n    ```\n            BGMdoodad = scene.CreateDoodad(8274, player.nX, player.nY, player.nZ, 0, player.dwID ..\"WuDaoTai\")\n            BGMdoodad.SetDisappearFrames(600 * GLOBAL.GAME_FPS)\n\n            --取记录家具ModuleID的buff用于区分bgm\n            local buff_ModuleID = player.GetBuff(29900, 1)\n            if buff_ModuleID then\n                local nModuleID = buff_ModuleID.nCustomValue\n                if tBGM[nModuleID] then\n                    BGMdoodad.PlaySound(tBGM[nModuleID])\n                else\n                    BGMdoodad.PlaySound(tBGM[\"default\"])\n                end\n            else\n                BGMdoodad.PlaySound(tBGM[\"default\"])\n            end\n    ```",
+            "wrecker_info": [
+                {
+                    "author": "linjiaqi",
+                    "revision": "r100568",
+                    "description": "【剑网3-C585325】添加npc",
+                    "principal": [
+                        "shaoyi"
+                    ],
+                    "old": null,
+                    "new": "bRetCode = g_pSO3World->AddNpc(pNpc, this, nX, nY, nZ);",
+                    "type": "added",
+                    "old_line": null,
+                    "new_line": 5988
+                }
+            ],
+            "wrecker_index": 0
+        }
+    ]
+}

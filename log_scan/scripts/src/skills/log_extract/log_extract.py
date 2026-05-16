@@ -9,8 +9,9 @@ from skills.skill_base import SkillBase
 
 @singleton
 class LogExtract(SkillBase):
-    def __init__(self, config_path):
+    def __init__(self, config_path: str, work_dir: str):
         super().__init__(config_path)
+        self.work_dir = work_dir
         self.invalid_path_chars = set('<>:"|?*')
 
     def extract(self, log_paths: list, encoding: str) -> List[Dict]:
@@ -313,7 +314,7 @@ class LogExtract(SkillBase):
         return (result, count)
     
     def _get_lua_unique_errors(self, script_base_dir: str, errors: List[Dict], encoding: str) -> Any:
-        results: Dict[str, Dict[int, List[str]]] = {}
+        results: Any = {}
         result_count = 0
         for item in errors:
             current_path = item.get("file")
@@ -343,22 +344,18 @@ class LogExtract(SkillBase):
 
                 if line_num not in results[target_key]:
                     results[target_key][line_num] = {
-                        "error": []
+                        "error": {},
+                        'reference_need': reference_need
                     }
-                error_exist = False
-                line_error = results[target_key][line_num]
-                for error_data in line_error['error']:
-                    if error_msg in error_data:
-                        error_exist = True
-                        break
-                if error_exist is False:
-                    line_error['error'].append(error_msg)
-                    line_error['reference_need'] = reference_need
+                line_error = results[target_key][line_num]['error']
+                if error_msg not in line_error:
+                    line_error[error_msg] = 0
                     result_count += 1
+                line_error[error_msg] += 1
         return (results, result_count)
     
     def _get_lua_call_unique_errors(self, script_base_dir: str, errors: List[Dict], encoding: str) -> Any:
-        results: Dict[str, Dict[int, List[str]]] = {}
+        results: Any = {}
         result_count = 0
         for item in errors:
             class_name = item.get("class_name")
@@ -376,9 +373,12 @@ class LogExtract(SkillBase):
             function_result = class_result[function_name]
             if line_num not in function_result:
                 function_result[line_num] = {
-                    "expected_params": expected_params
+                    "expected_params": expected_params,
+                    "count": 0
                 }
-            result_count += 1
+                result_count += 1
+            line_data = function_result[line_num]
+            line_data['count'] += 1
         return (results, result_count)
     
     def _get_tab_load_unique_errors(self, script_base_dir: str, errors: List[Dict], encoding: str) -> Any:
@@ -396,16 +396,18 @@ class LogExtract(SkillBase):
             function_result = results[func_name]
             if line_num not in function_result:
                 function_result[line_num] = {
-                    "error_msgs": [],
+                    "error_msgs": {},
                     "relative_paths": set()  # 使用set避免重复
                 }
             line_data = function_result[line_num]
-            if error_msg not in line_data["error_msgs"]:
-                line_data["error_msgs"].append(error_msg)
+            error_msgs = line_data["error_msgs"]
+            if error_msg not in error_msgs:
+                error_msgs[error_msg] = 0
                 # 添加相对路径
                 for path in relative_paths:
                     line_data["relative_paths"].add(path)
                 result_count += 1
+            error_msgs[error_msg] += 1
 
         # 将set转换回list
         for func_name in results:
@@ -415,20 +417,19 @@ class LogExtract(SkillBase):
         return (results, result_count)
 
     def _get_else_unique_errors(self, errors: List[Dict]) -> Any:
-        results = []
+        results = {}
         count = 0
-        seen = set()
         for item in errors:
             content = item.get("content", "")
-            if content and content not in seen:
-                seen.add(content)
-                results.append(content)
+            if content and content not in results:
+                results[content] = 0
                 count += 1
+            results[content] += 1
         return (results, count)
 
     def save_remain_log(self, else_result: list, encoding: str) -> str:
         """将 unique_errors['else'] 存入 .temporary_results/ 目录."""
-        output_dir = os.path.join(os.getcwd(), ".temporary_results")
+        output_dir = os.path.join(self.work_dir, ".temporary_results")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         timestamp = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")

@@ -1,5 +1,6 @@
 import datetime
 import os
+from typing import Any
 from core.json.json_parser import get_json_parser
 from settings.global_config import GlobalConfig
 from core.function.base_function import singleton
@@ -48,16 +49,16 @@ class Analyzer:
         self.chat_mgr.init_models()
         custom_config_path = os.path.join(self.cwd, "custom_config.json")
         self.custom_config = self.json_parser.read_json_file(custom_config_path)
-        self.log_extractor = LogExtract(custom_config_path)
+        self.log_extractor = LogExtract(custom_config_path, self.cwd)
         self.tips_analyzer = ModifyTips(custom_config_path, self.context_mgr)
         self.lua_call_finder = LuaCallFinder()
         self.error_analyzer = ErrorAnalyse(custom_config_path, self.context_mgr, self.chat_mgr)
         self.svn_finder = FindWrecker(custom_config_path, self.chat_mgr)
         self.result_generator = ResultGenerate(self.cwd)
         self.extract_file = ExtractFile()
-        self.cpp_function_extractor = CppFunctionExtractor(custom_config_path)
-        self.tab_file_extractor = TabFileExtractor(custom_config_path)
-        self.cpp_tab_call_analyse = CppTabCallAnalyse(custom_config_path, self.chat_mgr)
+        self.cpp_function_extractor = CppFunctionExtractor(custom_config_path, self.cwd)
+        self.tab_file_extractor = TabFileExtractor(custom_config_path, self.cwd)
+        self.cpp_tab_call_analyse = CppTabCallAnalyse(custom_config_path, self.chat_mgr, self.cwd)
         self.tab_error_finder = TabErrorFinder(custom_config_path)
         self.cpp_error_analyzer = CppErrorAnalyse(custom_config_path, self.context_mgr, self.chat_mgr)
 
@@ -126,6 +127,11 @@ class Analyzer:
             if save_temporary_result:
                 self.result_generator.save_temporary(context_result, encoding, current_step, 'reference')
             current_step += 1
+            kinds = ["lua", "lua_call", "tab_load", "c/c++"]
+            for kind in kinds:
+                if not context_result.get(kind):
+                    context_result[kind] = []
+                self._add_source(context_result[kind], "analyzer")
         if current_step == 4:
             current_time = datetime.datetime.now().strftime("%H:%M:%S.%f")[:-3]
             print(f"[{current_time}] 步骤{current_step}: 大模型正在分析改进建议...")
@@ -146,11 +152,11 @@ class Analyzer:
             if save_temporary_result:
                 self.result_generator.save_temporary(context_result, encoding, current_step, 'svn')
             current_step += 1
-        if current_step == 7:
-            current_time = datetime.datetime.now().strftime("%H:%M:%S.%f")[:-3]
-            print(f"[{current_time}] 步骤{current_step}: 输出最终报告...")
-            self.result_generator.save(context_result, product_dir, encoding=encoding, result_dir=result_dir, root_html_path=root_html_path, current_step=current_step)
-            current_step += 1
+        # if current_step == 7:
+        #     current_time = datetime.datetime.now().strftime("%H:%M:%S.%f")[:-3]
+        #     print(f"[{current_time}] 步骤{current_step}: 输出最终报告...")
+        #     self.result_generator.save(context_result, product_dir, encoding=encoding, result_dir=result_dir, root_html_path=root_html_path, current_step=current_step)
+        #     current_step += 1
     
     def run(self, cwd: str, log_path: str, data: dict) -> str:
         log_dir = os.path.join(cwd, "input")
@@ -170,12 +176,12 @@ class Analyzer:
             accessible_url = html_path_info['url']
             self.result_generator.generate_empty_page(local_html_path, 'utf-8')
             self.root_html_path = accessible_url
-            self.analyse_log_file(rf"i:\SVN\trunk\Sword3\Source\QATools\LogScan\.temporary_results\temporary_cpp_funcbody_2026_05_11_21_06_40.json", 
-                                  rf"i:\SVN\trunk\Sword3\Source\QATools\LogScan\.temporary_results\temporary_tab_infos_2026_05_11_20_41_52.json", 
+            self.analyse_log_file(rf"Y:\AI\skills\log_scan\scripts\.temporary_results\temporary_cpp_funcbody_2026_05_11_21_06_40.json", 
+                                  rf"Y:\AI\skills\log_scan\scripts\.temporary_results\temporary_tab_infos_2026_05_11_20_41_52.json", 
                                   log_files, product_dir, 'gbk', result_dir, local_html_path, 
-                                  rf"i:\SVN\trunk\Sword3\Source\QATools\LogScan\.temporary_results\temporary_svn_2026_05_08_18_17_27.json", True, 16, start_day=None)
-            # self.analyse_log_file(rf"i:\SVN\trunk\Sword3\Source\QATools\LogScan\.temporary_results\temporary_cpp_funcbody_2026_05_11_21_06_40.json", 
-            #                       rf"i:\SVN\trunk\Sword3\Source\QATools\LogScan\.temporary_results\temporary_tab_infos_2026_05_11_20_41_52.json", 
+                                  rf"Y:\AI\skills\log_scan\scripts\.temporary_results\temporary_svn_2026_05_20_12_20_54.json", True, 16, start_day=None)
+            # self.analyse_log_file(rf"Y:\AI\skills\log_scan\scripts\.temporary_results\temporary_cpp_funcbody_2026_05_11_21_06_40.json", 
+            #                       rf"Y:\AI\skills\log_scan\scripts\.temporary_results\temporary_tab_infos_2026_05_11_20_41_52.json", 
             #                       log_files, product_dir, 'gbk', result_dir, local_html_path, 
             #                       None, True, 16, start_day=None)
             # self.analyse_log_file(None, 
@@ -184,14 +190,20 @@ class Analyzer:
             return accessible_url
         else:
             return None
+        
+    def _add_source(self, data: Any, tag: str):
+        for item in data:
+            item["source"] = tag
 
 def get_analyzer() -> Analyzer:
     global analyzer
-    analyzer = Analyzer("admin", os.getcwd())
+    cwd = os.path.join(os.getcwd(), "scripts")
+    analyzer = Analyzer("admin", cwd)
     return analyzer
 
 def execute(analyzer: Analyzer, log_path: str, data: dict):
-    cwd = os.getcwd()
+    cwd = os.path.join(os.getcwd(), "scripts")
+    os.chdir(cwd)
     analyzer.init_env()
     return analyzer.run(cwd, log_path, data)
 
@@ -202,7 +214,7 @@ def get_root_html_path(analyzer: Analyzer) -> str:
         return None
     
 if __name__ == "__main__":
-    log_path = "I:/SVN/trunk/Sword3/Source/QATools/LogScan/input.zip"
+    log_path = rf"Y:\AI\skills\log_scan\scripts\input.zip"
     data = {
         "version": "bvt",
     }

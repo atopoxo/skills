@@ -1,0 +1,338 @@
+{
+  "name": "output_error_analysis",
+  "description": "输出日志错误分析的结构化结果。将 temporary_else 中未归类的报错按四类分类格式化输出：tab_load（表格配置错误）、lua_call（Lua调用C接口参数不匹配）、lua（Lua脚本错误）、c/c++（C/C++代码错误）。",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "tab_load": {
+        "type": "array",
+        "description": "表格相关错误列表。包含 .tab 配置表数据校验失败、表字段值超出范围、配置项缺失等问题。",
+        "items": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string",
+              "enum": ["analyzer", "llm"],
+              "description": "数据来源：analyzer 表示工具自动分析结果，llm 表示大模型分析结果。temporary_else 处理统一填 llm。"
+            },
+            "reference_doc": {
+              "type": ["string", "null"],
+              "description": "引用的 references 经验文档的相对路径（如 references/buff_not_exist.md）。无则为 null。"
+            },
+            "count": {
+              "type": "integer",
+              "description": "该报错在日志中出现的次数。"
+            },
+            "file_path": {
+              "type": "string",
+              "description": "出错的 .tab 配置文件的绝对路径。"
+            },
+            "tab_attribute": {
+              "type": "string",
+              "description": "出错的表格列名/字段名。"
+            },
+            "error_msg": {
+              "type": "string",
+              "description": "C/C++ 代码中的原始报错信息（含宏名）。"
+            },
+            "cpp_error_msg": {
+              "type": "string",
+              "description": "C/C++ 代码宏展开后的报错条件表达式。如无展开版本则与 error_msg 相同。"
+            },
+            "line_num": {
+              "type": "integer",
+              "description": "C/C++ 代码中触发报错的行号。"
+            },
+            "suggestion": {
+              "type": "string",
+              "description": "错误原因解释和修复建议。优先从 references 经验文档中提取。"
+            },
+            "wrecker_info": {
+              "type": "array",
+              "description": "该文件相关的 SVN 修改记录列表，用于追溯责任人。",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "author": { "type": "string", "description": "SVN 提交者。" },
+                  "revision": { "type": "string", "description": "SVN 版本号（如 r1827649）。" },
+                  "description": { "type": "string", "description": "SVN 提交描述/commit message。" },
+                  "principal": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "description": "通过 find_wrecker.get_principal 从提交描述中提取的主责人列表。"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["added", "deleted", "modify"],
+                    "description": "修改类型：added(新增)、deleted(删除)、modify(修改)。"
+                  },
+                  "old": {
+                    "type": ["string", "null"],
+                    "description": "修改前的值。type 为 added 时为 null。"
+                  },
+                  "new": {
+                    "type": ["string", "null"],
+                    "description": "修改后的值。type 为 deleted 时为 null。"
+                  },
+                  "old_line": {
+                    "type": ["integer", "null"],
+                    "description": "修改前的行号。type 为 added 时为 null。"
+                  },
+                  "new_line": {
+                    "type": ["integer", "null"],
+                    "description": "修改后的行号。type 为 deleted 时为 null。"
+                  },
+                  "header": {
+                    "type": "string",
+                    "description": ".tab 文件的表头内容（制表符分隔）。仅 tab_load 分类需要此字段。"
+                  },
+                  "new_line_content": {
+                    "type": "string",
+                    "description": "new_line 不为 null 时，该行在文件中的完整内容。"
+                  }
+                },
+                "required": ["author", "revision", "description", "principal", "type", "old", "new", "old_line", "new_line", "header", "new_line_content"]
+              }
+            },
+            "wrecker_index": {
+              "type": "integer",
+              "description": "wrecker_info 数组中导致本次报错的修改的索引。0 表示第一个，-1 表示未找到。"
+            }
+          },
+          "required": ["source", "reference_doc", "count", "file_path", "tab_attribute", "error_msg", "cpp_error_msg", "line_num", "suggestion", "wrecker_info", "wrecker_index"]
+        }
+      },
+      "lua_call": {
+        "type": "array",
+        "description": "Lua 调用 C/C++ 接口时参数个数不匹配的错误列表。temporary_else 中极少出现，通常为空数组。",
+        "items": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string",
+              "enum": ["analyzer", "llm"],
+              "description": "数据来源。temporary_else 处理统一填 llm。"
+            },
+            "reference_doc": {
+              "type": ["string", "null"],
+              "description": "引用的 references 经验文档相对路径，无则为 null。"
+            },
+            "count": {
+              "type": "integer",
+              "description": "该报错出现的次数。"
+            },
+            "encoding": {
+              "type": "string",
+              "description": "文件编码，默认 GBK。"
+            },
+            "file_path": {
+              "type": "string",
+              "description": "报错 Lua 脚本的绝对路径。"
+            },
+            "line_num": {
+              "type": "integer",
+              "description": "Lua 脚本中报错的行号。"
+            },
+            "line_content": {
+              "type": "string",
+              "description": "Lua 脚本报错行的完整内容。"
+            },
+            "error": {
+              "type": "string",
+              "description": "Lua 报错原因描述（如 GetMember希望2个参数，结果发现1个参数）。"
+            },
+            "wrecker_info": {
+              "type": "array",
+              "description": "SVN 修改记录列表。",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "author": { "type": "string" },
+                  "revision": { "type": "string" },
+                  "description": { "type": "string" },
+                  "principal": { "type": "array", "items": { "type": "string" } },
+                  "type": { "type": "string", "enum": ["added", "deleted", "modify"] },
+                  "old": { "type": ["string", "null"] },
+                  "new": { "type": ["string", "null"] },
+                  "old_line": { "type": ["integer", "null"] },
+                  "new_line": { "type": ["integer", "null"] }
+                },
+                "required": ["author", "revision", "description", "principal", "type", "old", "new", "old_line", "new_line"]
+              }
+            },
+            "wrecker_index": {
+              "type": "integer",
+              "description": "wrecker_info 中导致报错的修改索引，-1 表示未找到。"
+            }
+          },
+          "required": ["source", "reference_doc", "count", "encoding", "file_path", "line_num", "line_content", "error", "wrecker_info", "wrecker_index"]
+        }
+      },
+      "lua": {
+        "type": "array",
+        "description": "Lua 脚本自身相关的错误列表。包括远程调用、脚本逻辑错误、变量引用错误等。",
+        "items": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string",
+              "enum": ["analyzer", "llm"],
+              "description": "数据来源。temporary_else 处理统一填 llm。"
+            },
+            "reference_doc": {
+              "type": ["string", "null"],
+              "description": "引用的 references 经验文档相对路径，无则为 null。"
+            },
+            "count": {
+              "type": "integer",
+              "description": "该报错出现的次数。"
+            },
+            "encoding": {
+              "type": "string",
+              "description": "文件编码，默认 GBK。"
+            },
+            "file_path": {
+              "type": "string",
+              "description": "报错 Lua 脚本的绝对路径。"
+            },
+            "line_num": {
+              "type": "integer",
+              "description": "Lua 脚本中报错的行号。"
+            },
+            "select_content": {
+              "type": "string",
+              "description": "Lua 脚本报错行上下若干行的代码片段，用于理解上下文。"
+            },
+            "error": {
+              "type": "string",
+              "description": "Lua 脚本报错的原始内容/错误消息。"
+            },
+            "reference": {
+              "type": "string",
+              "description": "Lua 脚本的上下文引用信息，如相关函数定义、变量声明等。"
+            },
+            "need_analyse": {
+              "type": "boolean",
+              "description": "是否需要交给大模型进一步分析。已有经验文档覆盖的设为 false，新发现模式设为 true。"
+            },
+            "suggestion": {
+              "type": "string",
+              "description": "大模型分析结论或经验文档中的修复建议。"
+            },
+            "wrecker_info": {
+              "type": "array",
+              "description": "SVN 修改记录列表。",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "author": { "type": "string" },
+                  "revision": { "type": "string" },
+                  "description": { "type": "string" },
+                  "principal": { "type": "array", "items": { "type": "string" } },
+                  "type": { "type": "string", "enum": ["added", "deleted", "modify"] },
+                  "old": { "type": ["string", "null"] },
+                  "new": { "type": ["string", "null"] },
+                  "old_line": { "type": ["integer", "null"] },
+                  "new_line": { "type": ["integer", "null"] }
+                },
+                "required": ["author", "revision", "description", "principal", "type", "old", "new", "old_line", "new_line"]
+              }
+            },
+            "wrecker_index": {
+              "type": "integer",
+              "description": "wrecker_info 中导致报错的修改索引，-1 表示未找到。"
+            }
+          },
+          "required": ["source", "reference_doc", "count", "encoding", "file_path", "line_num", "select_content", "error", "reference", "need_analyse", "suggestion", "wrecker_info", "wrecker_index"]
+        }
+      },
+      "c/c++": {
+        "type": "array",
+        "description": "C/C++ 代码相关报错列表。包括 KGLOG_PROCESS_ERROR、MLogProcessError、Can't Found Action、技能/Buff/物品创建失败等。",
+        "items": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string",
+              "enum": ["analyzer", "llm"],
+              "description": "数据来源。temporary_else 处理统一填 llm。"
+            },
+            "reference_doc": {
+              "type": ["string", "null"],
+              "description": "引用的 references 经验文档相对路径，无则为 null。"
+            },
+            "count": {
+              "type": "integer",
+              "description": "该报错出现的次数。"
+            },
+            "encoding": {
+              "type": "string",
+              "description": "C/C++ 源文件编码，默认 GBK。"
+            },
+            "file_path": {
+              "type": "string",
+              "description": "报错 C/C++ 源文件的绝对路径。"
+            },
+            "line_num": {
+              "type": "integer",
+              "description": "C/C++ 代码中触发报错的行号。"
+            },
+            "select_content": {
+              "type": "string",
+              "description": "C/C++ 报错行上下若干行的代码片段。"
+            },
+            "error": {
+              "type": "string",
+              "description": "C/C++ 报错的原始内容（如 KGLOG_PROCESS_ERROR(xxx) at line N in func）。"
+            },
+            "reference": {
+              "type": "string",
+              "description": "C/C++ 代码的上下文引用信息，如相关函数实现、宏定义等。"
+            },
+            "need_analyse": {
+              "type": "boolean",
+              "description": "是否需要交给大模型进一步分析。已有经验文档覆盖的设为 false，新发现模式设为 true。"
+            },
+            "suggestion": {
+              "type": "string",
+              "description": "报错原因分析和修复建议。优先从 references 经验文档中提取。"
+            },
+            "wrecker_info": {
+              "type": "array",
+              "description": "SVN 修改记录列表。",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "author": { "type": "string", "description": "SVN 提交者。" },
+                  "revision": { "type": "string", "description": "SVN 版本号。" },
+                  "description": { "type": "string", "description": "SVN 提交描述。" },
+                  "principal": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "description": "通过 get_principal 提取的主责人列表。"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["added", "deleted", "modify"],
+                    "description": "修改类型。"
+                  },
+                  "old": { "type": ["string", "null"], "description": "修改前内容。" },
+                  "new": { "type": ["string", "null"], "description": "修改后内容。" },
+                  "old_line": { "type": ["integer", "null"], "description": "修改前行号。" },
+                  "new_line": { "type": ["integer", "null"], "description": "修改后行号。" }
+                },
+                "required": ["author", "revision", "description", "principal", "type", "old", "new", "old_line", "new_line"]
+              }
+            },
+            "wrecker_index": {
+              "type": "integer",
+              "description": "wrecker_info 中导致报错的修改索引，-1 表示未找到。"
+            }
+          },
+          "required": ["source", "reference_doc", "count", "encoding", "file_path", "line_num", "select_content", "error", "reference", "need_analyse", "suggestion", "wrecker_info", "wrecker_index"]
+        }
+      }
+    },
+    "required": ["tab_load", "lua_call", "lua", "c/c++"]
+  }
+}

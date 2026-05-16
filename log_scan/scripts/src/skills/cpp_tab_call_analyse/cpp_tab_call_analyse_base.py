@@ -9,9 +9,10 @@ from core.json.json_parser import get_json_parser
 from skills.skill_base import SkillBase
 
 class CppTabCallAnalyseBase(SkillBase):
-    def __init__(self, config_path, chat_mgr):
+    def __init__(self, config_path: str, chat_mgr: Any, work_dir: str):
         super().__init__(config_path)
         self.chat_mgr = chat_mgr
+        self.work_dir = work_dir
         self.code_block_marker = "```"
         self.code_example = self._read_example()
         self.tips = {
@@ -46,7 +47,7 @@ class CppTabCallAnalyseBase(SkillBase):
         self.json_parser = get_json_parser()
 
     def _read_example(self) -> str:
-        file_path = os.path.join(os.getcwd(), "src/skills/cpp_tab_call_analyse/tab_call_example.md")
+        file_path = os.path.join(self.work_dir, "src/skills/cpp_tab_call_analyse/tab_call_example.md")
         with open(file_path, 'r', encoding='utf-8') as f:
             return f.read()
 

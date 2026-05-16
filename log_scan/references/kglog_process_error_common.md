@@ -46,3 +46,29 @@ func=int KCharacter::CastSkill(...) | dwSkillID=45191, dwSkillLevel=1, eTargetTy
 - **责任人**: longjingyu (r285443, 条件), yechuan (r284091, 宏)
 - **原因**: eTargetType=0是未初始化的默认值或上游传参错误
 - **建议**: 追踪技能45191的配置，在CastSkill入口增加对eTargetType=0的防御性处理
+
+## 模式5: SwitchConnection SendList.Confirm 失败
+
+```
+[slot=MLogProcessError, condition=bRetCode, line=1136]
+func=BOOL KPlayerServerThread::SwitchConnection(...)
+| pSendList->GetRecvSerial()=8, wRecvSerial=0
+```
+
+- **文件**: `Source/Common/SO3World/Src/KPlayerServerThread.cpp:1136`
+- **责任人**: yesen (r345368, MLogProcessError宏); yesen (r345255, SwitchConnection流程)
+- **代码**: `bRetCode = pSendList->Confirm(wRecvSerial); KGMLOG_PROCESS_ERROR(bRetCode, ...)`
+- **原因**: 断线重连时传入的 wRecvSerial=0 与 SendList 已缓存的 GetRecvSerial()=8 不匹配。wRecvSerial=0 可能是客户端重连请求包中序列号字段异常（未正确维护或默认值）
+- **建议**: 客户端侧检查重连请求包中 wRecvSerial 的来源；服务端可对 wRecvSerial=0 做特殊处理（视为全新连接跳过 Confirm 检查）
+
+## 模式6: KG_Packer FlushSend 失败 (ErrorCode 104)
+
+```
+[KG_Packer] FlushSend Failed, ErrorCode: 104
+```
+
+- **文件**: `Include/Common/KG_Package.h`（接口）; `Source/Common/SO3World/Src/KPlayerServerThread.cpp:434`（调用处）
+- **责任人**: yesen (r345808, FlushSend错误处理分支); wangying9 (r296783, KGSimplePacker基础实现)
+- **代码**: `nRetCode = pConnection->SocketPacker.FlushSend(pConnection->piSocketStream, m_nNetWorkLoop)`
+- **原因**: ErrorCode 104 = ECONNRESET，对端连接已重置。底层 RawSend 在发送缓冲区数据时发现 socket 已断开，通常是客户端异常断线（崩溃、网络切换、超时等）。上层已有 `if (!nRetCode) { m_strLastError = "Flush Send Error"; goto Exit0; }` 的断线处理
+- **建议**: 此错误属正常断线处理流程，无需特殊修复。若频繁出现可排查网络质量和客户端稳定性

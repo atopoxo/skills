@@ -91,7 +91,8 @@ class LuaCallFinder:
                                         "file_path": file_path.replace('\\', '/'),
                                         "line_num": line_num + 1,
                                         "line_content": line,
-                                        "error": error_msg
+                                        "error": error_msg,
+                                        "count": item["count"],
                                     }
                                     current_result.append(result)
         except Exception as ex:

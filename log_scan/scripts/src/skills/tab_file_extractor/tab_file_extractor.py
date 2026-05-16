@@ -14,8 +14,9 @@ from skills.tab_file_extractor.tab_file_extractor_base import TabFileExtractorBa
 
 class TabFileExtractor(TabFileExtractorBase):
     
-    def __init__(self, config_path: str):
+    def __init__(self, config_path: str, work_dir: str):
         super().__init__(config_path)
+        self.work_dir = work_dir
 
     def generate_tab_file_info(self, encoding: str = 'gbk', max_workers: Optional[int] = None) -> Any:
         # 检查路径是否存在
@@ -78,7 +79,7 @@ class TabFileExtractor(TabFileExtractorBase):
         # for func_name, file_name in self.func_file_pairs:
         #     output_lines.append(f'{func_name}\t{file_name.replace("\\", "/")}')
 
-        current_dir = os.getcwd()
+        current_dir = self.work_dir
         output_dir = os.path.join(current_dir, ".temporary_results")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -91,47 +92,3 @@ class TabFileExtractor(TabFileExtractorBase):
             return file_path
         except Exception as ex:
             print(f"\n[*] 步骤{step}: 保存文件{file_path}失败: {ex}")
-
-def main():
-    parser = argparse.ArgumentParser(description='从日志目录中提取 C 代码日志并排序')
-    parser.add_argument('log_path', nargs='?', default='z:\\trunk\\server\\logs\\SO3GameServer',
-                       help='日志文件或目录路径 (默认: z:\\trunk\\server\\logs\\SO3GameServer)')
-    parser.add_argument('-o', '--output', help='输出文件路径')
-    parser.add_argument('-e', '--encoding', default='gbk',
-                       help='文件编码 (默认: gbk)')
-    parser.add_argument('-w', '--workers', type=int, default=16, help='最大工作线程数')
-    parser.add_argument('-v', '--verbose', action='store_true',
-                       help='显示详细信息')
-
-    args = parser.parse_args()
-
-    # 检查路径是否存在
-    if not os.path.exists(args.log_path):
-        print(f"Error: Path '{args.log_path}' does not exist")
-        print("Please provide the correct log file or directory path")
-        return 1
-
-    # 创建提取器
-    extractor = TabFileExtractor(args.log_path)
-
-    # 确定输出文件路径
-    if args.output:
-        output_path = args.output
-    else:
-        # 默认输出文件名
-        base_name = os.path.basename(args.log_path.rstrip('/\\'))
-        if not base_name or base_name == '.':
-            base_name = 'logs'
-        output_path = os.path.join(os.getcwd(), f"func_name_to_file.txt")
-
-    # 使用新的 generate_tab_file_info 方法
-    func_name_to_files = extractor.generate_tab_file_info(
-        log_dir=args.log_path,
-        encoding=args.encoding,
-        max_workers=args.workers
-    )
-    extractor.save(output_path, encoding=args.encoding)
-
-
-if __name__ == "__main__":
-    sys.exit(main())

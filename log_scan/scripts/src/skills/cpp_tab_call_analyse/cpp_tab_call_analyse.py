@@ -8,8 +8,8 @@ from core.function.base_function import *
 from skills.cpp_tab_call_analyse.cpp_tab_call_analyse_base import CppTabCallAnalyseBase
 
 class CppTabCallAnalyse(CppTabCallAnalyseBase):
-    def __init__(self, config_path, chat_mgr):
-        super().__init__(config_path, chat_mgr)
+    def __init__(self, config_path: str, chat_mgr, work_dir: str):
+        super().__init__(config_path, chat_mgr, work_dir)
 
     def analyse(self, cpp_funcbody: Any, batch_size: int, max_workers: int, current_step):
         context_result = cpp_funcbody["functions"]

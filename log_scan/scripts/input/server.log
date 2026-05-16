@@ -981,3 +981,11 @@ stack traceback:
 20260510-235522,682<ERROR:05419>: KGLOG_PROCESS_ERROR(uPackSize <= m_uRecvBufferSize) at line 3374 in virtual int KG_AsyncSocketStream::Recv(IKG_Buffer**)
 20260510-235650,125<ERROR:04211>: KGLOG_PROCESS_ERROR(pPlayer->m_pScene) at line 5072 in void KSO3World::AcceptC2SRemoteLuaCall(KPlayer*, const char*, unsigned char*, size_t)
 20260510-235650,125<ERROR:04211>: [AcceptC2SRemoteLuaCall] Function: On_LangKeXing_ConfirmMap, 432345564261732996
+
+20260406-235822,775<ERROR:60465>: [KSkill] CreateSkill(0:0) not found from skill's table. [1581]20260406-235822,775<ERROR:60465>: [ApplyOnChain] pSubSkill not exist, skill:(30854, 1), sub:0 [1582]20260406-235822,775<ERROR:60465>: KGLOG_PROCESS_ERROR(pSubSkill) at line 8118 in SKILL_RESULT_CODE KSkill::ApplyOnChain(KSKILL_BULLET*)
+
+20260402-210232,292<ERROR:60465>: KGLOG_PROCESS_ERROR(pItemInfo) at line 131 in virtual IItem* KGItemHouse::CreateItem(DWORD, DWORD, time_t, DWORD, DWORD, int) 
+20260402-210232,292<ERROR:60465>: [Shop] Shop template ID 1365, invalid item (nType = 10, nIndex = 2158, dwRandomSeed = 0) ! 
+
+20260406-161539,949<ERROR:04388>: [slot=Buff, attr=BuffNotExist, buff_id=562, buff_lv=49] in KBuffList::CallBuff 
+20260406-161539,950<ERROR:04388>: KGLOG_PROCESS_ERROR(pOriginBuff) at line 641 in KBuffList::CallBuff

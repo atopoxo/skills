@@ -173,7 +173,7 @@ class ResultGenerate:
             print(f"[!] 保存空结果页面失败: {ex}")
 
     def save_temporary(self, context_result: Any, encoding: str, step: int, tag: str) -> str:
-        current_dir = os.getcwd()
+        current_dir = self.work_dir
         output_dir = os.path.join(current_dir, ".temporary_results")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)

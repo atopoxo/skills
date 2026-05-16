@@ -42,10 +42,61 @@ analyzer.py 的完整分析流程（7 步）：
 
 `temporary_else_*.json` 包含未能归类到已知模式的"其他"报错，结构为 JSON 数组，每项是一条原始日志行。对于这些报错，你需要：
 
-1. **分类归纳**：按报错类型（`KGLOG_PROCESS_ERROR`、`[slot=MLogProcessError]`、Lua 远程调用、网络错误等）归类
-2. **分析原因**：结合报错信息中的函数名、行号、条件表达式推断可能原因
-3. **关联责任人**：参考 `scripts/custom_config.json` 中 `cpp_source` 指明的 C/C++ 代码路径和 `script_map` 指明的脚本/.tab 路径定位源文件，优先通过 `svn diff` 查找最近修改该文件/行的人员，若 diff 无法定位再回退使用 `svn blame` 获取责任人
-4. **生成结构化 JSON**：输出到 `scripts/.results/` 下**当前这次运行对应的** `final_result_{timestamp}` 目录中
+1. **读取输出格式规范**：在处理前必须读取 `assets/error_output_format.json`（function call 格式的输出规范，供大模型理解并输出结构化结果），记录每种分类（`tab_load`、`lua_call`、`lua`、`c/c++`）所需的属性字段及其类型/描述，同时参考 `assets/error_output_example.json` 的样例输出。输出格式中四类错误说明：
+   - `tab_load` — 表格相关错误
+   - `lua_call` — lua调用c/c++接口参数个数不匹配错误
+   - `lua` — lua自身相关错误
+   - `c/c++` — c/c++代码相关报错
+2. **分类归纳**：将每条报错按上述四类归类。归类原则：
+   - 涉及 `.tab` 配置表数据校验失败、表字段值超出范围、配置项缺失的 → `tab_load`
+   - Lua 远程调用（`AcceptC2SRemoteLuaCall`）且属于正常交互行为的 → `lua`（标记为安全、无需告警）
+   - C/C++ 代码中的 `KGLOG_PROCESS_ERROR`、`MLogProcessError`、`Can't Found Action`、技能/Buff/物品创建失败等 → `c/c++`
+   - `lua_call` 分类仅用于 C 接口参数个数不匹配场景，temporary_else 中极少出现
+3. **分析原因**：结合报错信息中的函数名、行号、条件表达式推断可能原因。**优先参考 `references/` 目录中已有的经验文档**，避免重复分析
+4. **关联责任人**：参考 `scripts/custom_config.json` 中 `cpp_source` 指明的 C/C++ 代码路径和 `script_map` 指明的脚本/.tab 路径定位源文件，优先通过 `svn diff` 查找最近修改该文件/行的人员，若 diff 无法定位再回退使用 `svn blame` 获取责任人。调用 `scripts/src/skills/find_wrecker/find_wrecker.py` 的 `get_principal` 获取主责人
+5. **生成结构化 JSON**：按 `assets/error_output_format.json` 和 `assets/error_output_example.json` 规范格式化输出，每条记录需包含：
+   - `source`: 标记为 `"llm"`（大模型分析结果）
+   - `reference_doc`: 引用的 references 文档相对路径，无则为 `null`
+   - 对应分类的所有必填字段（参考 format 定义）
+   - 输出文件命名为 `temporary_else_analysis.json`，保存到 `scripts/.results/` 下**当前这次运行对应的** `final_result_{timestamp}` 目录中
+
+### 输出强制规范
+
+以下三条为强制性要求，输出 JSON 时逐条校验：
+
+1. **`source` 为 `"llm"` 时 `need_analyse` 必须为 `true`**：大模型产出的分析结果默认仍需进一步分析，不可设为 `false`。仅当 `source` 为 `"analyzer"`（工具自动分析）时 `need_analyse` 才可为 `false`。
+
+2. **`suggestion` 中禁止出现"参见 references/xxx"等引用式写法**：必须将参考文档中的分析结论、原因、修复方案完整展开写入 `suggestion` 字段。每一条 suggestion 应是独立可读的完整分析，包含：错误原因解释、影响范围评估、具体修复步骤（含代码示例或配置修改方式）。即使是已由经验文档覆盖的已知模式，也必须将经验文档内容全文展开，不得偷懒引用。
+
+3. **`wrecker_info` 不能为空数组**：每一条输出记录必须至少包含一条 SVN 相关记录。若 `svn blame` / `svn diff` 均无法定位到具体提交者，则填入一条占位记录：`{"author": "unknown", "revision": "unknown", "description": "无法定位责任人", "principal": [], "type": "modify", "old": null, "new": null, "old_line": null, "new_line": null}`，并将 `wrecker_index` 设为 `-1`。
+
+### 5. 合并报错结果到最终报告
+
+完成 temporary_else 分析和输出后，将大模型分析结果合并到最终报告。调用 `scripts/src/skills/merge_result/merge_result.py` 中的 `MergeResult` 类执行合并：
+
+```python
+import sys
+sys.path.insert(0, r"scripts\src")
+
+from skills.merge_result.merge_result import MergeResult
+
+cwd = r"scripts"  # 工作目录，包含 .temporary_results/
+result_dir = r"scripts\.results\final_result_{timestamp}"  # 当前这次运行对应的目录
+product_dir = r"z:/trunk"  # 产品目录，从 custom_config.json 的 script_map 中获取
+merger = MergeResult(cwd)
+merged = merger.merge_result(result_dir)
+
+if merged:
+    # 合并成功后，仿照 analyzer.py 步骤 7 重新生成 HTML 报告
+    # context_result 从合并后的 total.json 读入，current_step=8
+    merger.regenerate_report(result_dir, product_dir, encoding='gbk')
+```
+
+合并与重新生成原则：
+- 对 4 个 category（`tab_load`、`lua_call`、`lua`、`c/c++`）逐一将 temporary_else_analysis 的数组合并到 temporary_svn 对应数组末尾
+- `temporary_svn_*.json` 与 `total.json` 内容一致（均为 analyzer.py 步骤 7 的输出产物），因此合并后直接覆盖 total.json 不会丢失已有数据
+- 合并后调用 `regenerate_report` 重新生成 HTML 报告：从合并后的 total.json 读取 context_result，以 `current_step=8` 调用 `ResultGenerate.save()`，其余参数（`product_dir`、`encoding`、`result_dir`、`root_html_path`）与 analyzer.py 中 `analyse_log_file` 步骤 7 一致
+- 如无需合并（无 temporary_else 文件或全为空），`merge_result` 返回 False，跳过重新生成
 
 ### 3. 经验文档管理
 
@@ -74,6 +125,8 @@ analyzer.py 的完整分析流程（7 步）：
 | 临时中间结果 | `scripts/.temporary_results/` |
 | 最终报告输出 | `scripts/.results/final_result_{timestamp}/` |
 | 经验文档库 | `references/` |
+| 输出格式规范（function call） | `assets/error_output_format.json` |
+| 输出格式样例 | `assets/error_output_example.json` |
 | 可扩展 skill 脚本 | `scripts/src/skills/` |
 | Skill 基类 | `scripts/src/skills/skill_base.py` |
 | 依赖列表 | `scripts/requirements.txt` |

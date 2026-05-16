@@ -12,7 +12,7 @@ class TabErrorFinder(SkillBase):
     def __init__(self, config_path):
         super().__init__(config_path)
 
-    def find(self, unique_errors: Dict[str, Dict[int, List[str]]], cpp_funcbody: Any, tab_infos: Any, product_dir: str, encoding: str, max_workers: int, current_step: int) -> List[Dict[str, str]]:
+    def find(self, unique_errors: Any, cpp_funcbody: Any, tab_infos: Any, product_dir: str, encoding: str, max_workers: int, current_step: int) -> List[Dict[str, str]]:
         result = []
 
         if not unique_errors:
@@ -32,14 +32,10 @@ class TabErrorFinder(SkillBase):
                 for check in matching_checks:
                     tab_attribute = check.get("tab_attribute", "")
                     error_msg = check.get("error_msg", "")
-                    error_msgs = error_info.get("error_msgs", [])
-                    if error_msgs:
-                        if isinstance(error_msgs, list):
-                            error_msg = error_msgs[0]  # 使用第一个错误消息
-                        else:
-                            error_msg = error_msgs
-                    elif not error_msg:
-                        error_msg = check.get("error_msg", "")
+                    count = 0
+                    error_msgs = error_info.get("error_msgs", {})
+                    if len(error_msgs) > 0:
+                        error_msg, count = next(iter(error_msgs.items()))
                     cpp_error_msg = check.get("error_msg", "")
                     relative_path_list = error_info.get("relative_paths", [])
                     intersection_path_list = []
@@ -56,7 +52,8 @@ class TabErrorFinder(SkillBase):
                                 "tab_attribute": tab_attribute,
                                 "error_msg": error_msg,
                                 "cpp_error_msg": cpp_error_msg,
-                                "line_num": line_num
+                                "line_num": line_num,
+                                "count": count
                             })
 
         total_tasks = len(tasks)
@@ -96,7 +93,8 @@ class TabErrorFinder(SkillBase):
                     "tab_attribute": task["tab_attribute"],
                     "error_msg": task["error_msg"],
                     "cpp_error_msg": task["cpp_error_msg"],
-                    "line_num": task["line_num"]
+                    "line_num": task["line_num"],
+                    "count": task["count"]
                 })
                 pbar.update(1)
         except Exception as ex:

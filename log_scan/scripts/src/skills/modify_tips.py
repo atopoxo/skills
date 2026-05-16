@@ -13,24 +13,26 @@ class ModifyTips(SkillBase):
         self.context_mgr = context_mgr
         self.result_lock = threading.Lock()
 
-    def get_modify_tips(self, unique_errors: Dict[str, Dict[int, List[str]]], context_lines: int, encoding: str, max_workers: int) -> List[Any]:
+    def get_modify_tips(self, unique_errors: Any, context_lines: int, encoding: str, max_workers: int) -> List[Any]:
         result = []
         tasks = []
         task_index = 0
         for file_path, lines in unique_errors.items():
             for line_num, error_data in lines.items():
-                error_list = error_data.get('error', [])
+                error_list = error_data.get('error', {})
                 if not error_list:
                     continue
                 reference_need = error_data.get('reference_need', False)
-                error_str = ';'.join([error for error in error_list])
+                error_str = ';'.join([error for error in error_list.keys()])
+                count = sum(error_list.values())
                 tasks.append({
                     'task_index': task_index,
                     'file_path': file_path,
                     'line_num': line_num,
                     'context_lines': context_lines,
                     'error': error_str,
-                    'reference_need': reference_need
+                    'reference_need': reference_need,
+                    'count': count
                 })
                 task_index += 1
 
@@ -54,6 +56,7 @@ class ModifyTips(SkillBase):
                         task['context_lines'],
                         task['error'],
                         task['reference_need'],
+                        task['count'],
                         encoding, 
                         task['task_index'],
                         pbar,
@@ -71,7 +74,7 @@ class ModifyTips(SkillBase):
             pbar.close()
         return result
     
-    def __get_single_tip(self, result: List[Dict], file_path: str, line_num: int, context_lines: int, error: str, reference_need: bool, encoding: str, task_index: int, pbar: tqdm, progress_lock: threading.Lock):
+    def __get_single_tip(self, result: List[Dict], file_path: str, line_num: int, context_lines: int, error: str, reference_need: bool, count: int, encoding: str, task_index: int, pbar: tqdm, progress_lock: threading.Lock):
         try:
             code_context = read_file_context(file_path, line_num, context_lines, None, 'byte')
             if code_context:
@@ -92,6 +95,7 @@ class ModifyTips(SkillBase):
                         'select_content': code_context['select_content'].decode(encoding, errors='ignore'),
                         'error': error,
                         'reference': reference_content,
+                        'count': count,
                         'need_analyse': need_analyse
                     }
                     with self.result_lock:
