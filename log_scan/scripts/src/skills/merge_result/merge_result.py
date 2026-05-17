@@ -66,7 +66,7 @@ class MergeResult:
         print(f"[完成] 已更新 total.json")
         return True
 
-    def regenerate_report(self, result_dir: str, product_dir: str, encoding: str = 'gbk') -> bool:
+    def regenerate_report(self, result_dir: str, product_dir, encoding: str = 'gbk') -> bool:
         """读取合并后的 total.json，仿照 analyzer.py 步骤 7 重新生成 HTML 报告。
 
         参数与 analyzer.py 中 analyse_log_file 的 step 7 调用一致：

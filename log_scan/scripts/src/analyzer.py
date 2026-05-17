@@ -81,6 +81,9 @@ class Analyzer:
             elif temporary_file_path and 'temporary_svn_' in temporary_file_path:
                 context_result = self.result_generator.load_temporary(temporary_file_path, encoding, current_step)
                 current_step = 7
+            elif temporary_file_path and 'total.json' in temporary_file_path:
+                context_result = self.result_generator.load_temporary(temporary_file_path, encoding, current_step)
+                current_step = 7
         if current_step == 1:
             current_time = datetime.datetime.now().strftime("%H:%M:%S.%f")[:-3]
             print(f"[{current_time}] 步骤{current_step}: 正在从服务器日志中提取函数名和文件信息...")
@@ -155,7 +158,9 @@ class Analyzer:
         # if current_step == 7:
         #     current_time = datetime.datetime.now().strftime("%H:%M:%S.%f")[:-3]
         #     print(f"[{current_time}] 步骤{current_step}: 输出最终报告...")
-        #     self.result_generator.save(context_result, product_dir, encoding=encoding, result_dir=result_dir, root_html_path=root_html_path, current_step=current_step)
+        #     cpp_roots = [src['root'] for src in self.custom_config.get('cpp_source', [])]
+        #     cpp_source_dir = os.path.commonpath(cpp_roots) if cpp_roots else ''
+        #     self.result_generator.save(context_result, [product_dir, cpp_source_dir], encoding=encoding, result_dir=result_dir, root_html_path=root_html_path, current_step=current_step)
         #     current_step += 1
     
     def run(self, cwd: str, log_path: str, data: dict) -> str:
@@ -176,14 +181,14 @@ class Analyzer:
             accessible_url = html_path_info['url']
             self.result_generator.generate_empty_page(local_html_path, 'utf-8')
             self.root_html_path = accessible_url
-            self.analyse_log_file(rf"Y:\AI\skills\log_scan\scripts\.temporary_results\temporary_cpp_funcbody_2026_05_11_21_06_40.json", 
-                                  rf"Y:\AI\skills\log_scan\scripts\.temporary_results\temporary_tab_infos_2026_05_11_20_41_52.json", 
-                                  log_files, product_dir, 'gbk', result_dir, local_html_path, 
-                                  rf"Y:\AI\skills\log_scan\scripts\.temporary_results\temporary_svn_2026_05_20_12_20_54.json", True, 16, start_day=None)
             # self.analyse_log_file(rf"Y:\AI\skills\log_scan\scripts\.temporary_results\temporary_cpp_funcbody_2026_05_11_21_06_40.json", 
             #                       rf"Y:\AI\skills\log_scan\scripts\.temporary_results\temporary_tab_infos_2026_05_11_20_41_52.json", 
             #                       log_files, product_dir, 'gbk', result_dir, local_html_path, 
-            #                       None, True, 16, start_day=None)
+            #                       rf"Y:\AI\skills\log_scan\scripts\.temporary_results\temporary_svn_2026_05_20_12_20_54.json", True, 16, start_day=None)
+            self.analyse_log_file(rf"Y:\AI\skills\log_scan\scripts\.temporary_results\temporary_cpp_funcbody_2026_05_11_21_06_40.json", 
+                                  rf"Y:\AI\skills\log_scan\scripts\.temporary_results\temporary_tab_infos_2026_05_11_20_41_52.json", 
+                                  log_files, product_dir, 'gbk', result_dir, local_html_path, 
+                                  rf"y:\AI\skills\log_scan\scripts\.results\final_result_2026_05_16_22_21_51\total.json", True, 16, start_day=None)
             # self.analyse_log_file(None, 
             #                       None, 
             #                       log_files, product_dir, 'gbk', result_dir, local_html_path, None, True)

@@ -52,13 +52,35 @@ analyzer.py 的完整分析流程（7 步）：
    - Lua 远程调用（`AcceptC2SRemoteLuaCall`）且属于正常交互行为的 → `lua`（标记为安全、无需告警）
    - C/C++ 代码中的 `KGLOG_PROCESS_ERROR`、`MLogProcessError`、`Can't Found Action`、技能/Buff/物品创建失败等 → `c/c++`
    - `lua_call` 分类仅用于 C 接口参数个数不匹配场景，temporary_else 中极少出现
-3. **分析原因**：结合报错信息中的函数名、行号、条件表达式推断可能原因。**优先参考 `references/` 目录中已有的经验文档**，避免重复分析
-4. **关联责任人**：参考 `scripts/custom_config.json` 中 `cpp_source` 指明的 C/C++ 代码路径和 `script_map` 指明的脚本/.tab 路径定位源文件，优先通过 `svn diff` 查找最近修改该文件/行的人员，若 diff 无法定位再回退使用 `svn blame` 获取责任人。调用 `scripts/src/skills/find_wrecker/find_wrecker.py` 的 `get_principal` 获取主责人
+3. **分析原因**：结合报错信息中的函数名、行号、条件表达式推断可能原因。**优先参考 `references/` 目录中已有的经验文档**，避免重复分析。**如果涉及读取源文件内容，调用 `ElseAnalyzer.read_files()` 方法**，由该方法记录待读取文件并开启最多 16 个线程并行读取
+4. **关联责任人**：参考 `scripts/custom_config.json` 中 `cpp_source` 指明的 C/C++ 代码路径和 `script_map` 指明的脚本/.tab 路径定位源文件，优先通过 `svn diff` 查找最近修改该文件/行的人员，若 diff 无法定位再回退使用 `svn blame` 获取责任人。调用 `scripts/src/skills/find_wrecker/find_wrecker.py` 的 `get_principal` 获取主责人。**SVN 操作统一通过 `ElseAnalyzer.svn_query()` 方法执行**，由该方法记录待查询文件并开启最多 16 个线程并行执行 SVN 查询
 5. **生成结构化 JSON**：按 `assets/error_output_format.json` 和 `assets/error_output_example.json` 规范格式化输出，每条记录需包含：
    - `source`: 标记为 `"llm"`（大模型分析结果）
    - `reference_doc`: 引用的 references 文档相对路径，无则为 `null`
    - 对应分类的所有必填字段（参考 format 定义）
    - 输出文件命名为 `temporary_else_analysis.json`，保存到 `scripts/.results/` 下**当前这次运行对应的** `final_result_{timestamp}` 目录中
+
+**ElseAnalyzer 调用方式**：
+
+```python
+import sys
+sys.path.insert(0, r"scripts\src")
+
+from skills.else_analyzer.else_analyzer import ElseAnalyzer
+from core.json.json_parser import get_json_parser
+
+config_path = r"scripts\custom_config.json"
+analyzer = ElseAnalyzer(config_path)
+
+# 并行读取文件
+file_paths = [r"z:/trunk/server/scripts/xxx.lua", r"i:/SVN/trunk/Sword3/Source/xxx.cpp"]
+file_contents = analyzer.read_files(file_paths, encoding='gbk', max_workers=16)
+# 返回: {file_path: [line1, line2, ...]}
+
+# 并行 SVN 查询
+svn_info = analyzer.svn_query(file_paths, encoding='gbk', max_workers=16)
+# 返回: {file_path: [{author, revision, description, principal}, ...]}
+```
 
 ### 输出强制规范
 
@@ -76,6 +98,7 @@ analyzer.py 的完整分析流程（7 步）：
 
 ```python
 import sys
+import os
 sys.path.insert(0, r"scripts\src")
 
 from skills.merge_result.merge_result import MergeResult
@@ -83,19 +106,27 @@ from skills.merge_result.merge_result import MergeResult
 cwd = r"scripts"  # 工作目录，包含 .temporary_results/
 result_dir = r"scripts\.results\final_result_{timestamp}"  # 当前这次运行对应的目录
 product_dir = r"z:/trunk"  # 产品目录，从 custom_config.json 的 script_map 中获取
+
+# 计算 C/C++ 源码公共父目录（与 analyzer.py 步骤 7 一致）
+import json
+with open(r"scripts\custom_config.json", 'r', encoding='utf-8') as f:
+    config = json.load(f)
+cpp_roots = [src['root'] for src in config.get('cpp_source', [])]
+cpp_source_dir = os.path.commonpath(cpp_roots) if cpp_roots else ''
+
 merger = MergeResult(cwd)
 merged = merger.merge_result(result_dir)
 
 if merged:
     # 合并成功后，仿照 analyzer.py 步骤 7 重新生成 HTML 报告
     # context_result 从合并后的 total.json 读入，current_step=8
-    merger.regenerate_report(result_dir, product_dir, encoding='gbk')
+    merger.regenerate_report(result_dir, [product_dir, cpp_source_dir], encoding='gbk')
 ```
 
 合并与重新生成原则：
 - 对 4 个 category（`tab_load`、`lua_call`、`lua`、`c/c++`）逐一将 temporary_else_analysis 的数组合并到 temporary_svn 对应数组末尾
 - `temporary_svn_*.json` 与 `total.json` 内容一致（均为 analyzer.py 步骤 7 的输出产物），因此合并后直接覆盖 total.json 不会丢失已有数据
-- 合并后调用 `regenerate_report` 重新生成 HTML 报告：从合并后的 total.json 读取 context_result，以 `current_step=8` 调用 `ResultGenerate.save()`，其余参数（`product_dir`、`encoding`、`result_dir`、`root_html_path`）与 analyzer.py 中 `analyse_log_file` 步骤 7 一致
+- 合并后调用 `regenerate_report` 重新生成 HTML 报告：从合并后的 total.json 读取 context_result，以 `current_step=8` 调用 `ResultGenerate.save()`，`product_dir` 参数传入 `[product_dir, cpp_source_dir]`（列表格式），其余参数（`encoding`、`result_dir`、`root_html_path`）与 analyzer.py 中 `analyse_log_file` 步骤 7 一致
 - 如无需合并（无 temporary_else 文件或全为空），`merge_result` 返回 False，跳过重新生成
 
 ### 3. 经验文档管理
@@ -129,6 +160,7 @@ if merged:
 | 输出格式样例 | `assets/error_output_example.json` |
 | 可扩展 skill 脚本 | `scripts/src/skills/` |
 | Skill 基类 | `scripts/src/skills/skill_base.py` |
+| temporary_else 并行文件/SVN 工具 | `scripts/src/skills/else_analyzer/` |
 | 依赖列表 | `scripts/requirements.txt` |
 
 ## custom_config.json 关键字段

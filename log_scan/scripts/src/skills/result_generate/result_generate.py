@@ -193,17 +193,26 @@ class ResultGenerate:
             print(f"\n[*] 步骤{step}: 加载文件{file_path}失败: {ex}")
             return None
         
-    def save(self, context_result: Any, scripts_dir: str, encoding: str, result_dir: str, root_html_path: str, current_step: int) -> str:
+    def save(self, context_result: Any, source_dirs: list[str],  encoding: str, result_dir: str, root_html_path: str, current_step: int) -> str:
         file_path = os.path.join(result_dir, f"total.json")
         try:
             self.json_parser.write_to_file(context_result, file_path, ensure_ascii=False, indent=4, encoding=encoding)
-            self._save_to_html(context_result, scripts_dir, result_dir, 'utf-8', root_html_path)
+            self._save_to_html(context_result, source_dirs, result_dir, 'utf-8', root_html_path)
             print(f"\n[*] 步骤{current_step}: 分析结果已保存至: {file_path}")
             return file_path
         except Exception as ex:
             print(f"\n[*] 步骤{current_step}: 保存文件{file_path}失败: {ex}")
 
-    def _save_to_html(self, context_result: Any, scripts_dir: str, result_dir: str, encoding: str, root_html_path: str):
+    def _get_relative_path(self, path_without_ext: str, source_dirs: list[str]) -> str:
+        """从文件路径中去除匹配的源目录前缀，得到相对路径。scripts_dir 可以是单个路径或路径列表。"""
+        for d in source_dirs:
+            dir_to_remove = d.rstrip('/\\') + os.sep
+            dir_to_remove = dir_to_remove.replace('\\', '/')
+            if path_without_ext.startswith(dir_to_remove):
+                return path_without_ext[len(dir_to_remove):]
+        return path_without_ext
+
+    def _save_to_html(self, context_result: Any, source_dirs: list[str], result_dir: str, encoding: str, root_html_path: str):
         html_files = []  # 存储生成的HTML文件信息
         
         for key, items in context_result.items():
@@ -217,16 +226,13 @@ class ResultGenerate:
                 path_split = os.path.splitext(path)
                 path_without_ext = path_split[0]
                 ext = path_split[1]
-                dir_to_remove = scripts_dir.rstrip('/\\') + os.sep
-                dir_to_remove = dir_to_remove.replace('\\', '/')
-                if path_without_ext.startswith(dir_to_remove):
-                    relative_path = path_without_ext[len(dir_to_remove):]
-                else:
-                    relative_path = path_without_ext
+                relative_path = self._get_relative_path(path_without_ext, source_dirs)
                 safe_filename = relative_path.replace('/', '_').replace('\\', '_')
-                final_filename = f"{key}_{safe_filename}_{line_num}.html"
+                real_key = key.replace('\\', '_').replace('/', '_')
+                final_filename = f"{real_key}_{safe_filename}_{line_num}.html"
                 output_path = os.path.join(result_dir, final_filename)
                 html_files.append({
+                    'key': key,
                     'file_path': relative_path + ext,
                     'line_num': line_num,
                     'error': error,
@@ -714,47 +720,94 @@ class ResultGenerate:
 
     def _generate_main_page(self, root_html_path: str, html_files: list, encoding: str):
         """
-        生成主页面，包含所有生成的HTML文件的链接表格
-        
+        生成主页面，按 key（分类）分块显示所有 HTML 文件链接表格。
+
         参数:
         - root_html_path: 结果输出路径
-        - html_files: HTML文件信息列表
+        - html_files: HTML文件信息列表，每项含 'key' 字段
         - encoding: 文件编码
         """
-        # 生成表格行
-        table_rows = ""
-        for file_info in html_files:
-            file_path = file_info['file_path']
-            error = file_info['error'] if file_info.get('error') else file_info.get('error_msg', None)
-            wrecker_info = file_info.get('wrecker_info')
-            wrecker_index = file_info.get('wrecker_index', 0)
-            html_file = file_info.get('html_file', None)
-            
-            description = ""
-            author = ""
-            principal = []
-            if wrecker_info and isinstance(wrecker_info, list) and wrecker_index >= 0 and len(wrecker_info) > wrecker_index:
-                info = wrecker_info[wrecker_index]
-                description = info.get('description', '')
-                author = info.get('author', '')
-                principal = info.get('principal', [])
-            
-            if not file_info.get('update_error') and (wrecker_index == -1 or not html_file):
-                suggestion_cell = '问题已修复/暂未找到问题'
-            elif html_file:
-                suggestion_cell = f'<a href="{html_file}" target="_blank">详情</a>'
-            else:
-                suggestion_cell = '-'
-            table_rows += f"""
-            <tr>
-                <td>{file_path}</td>
-                <td>{description}</td>
-                <td>{author}</td>
-                <td>{', '.join(principal)}</td>
-                <td>{error}</td>
-                <td>{suggestion_cell}</td>
-            </tr>"""
-        
+        category_names = {
+            'tab_load': 'Tab 表格配置错误',
+            'lua_call': 'Lua 调用 C 接口参数不匹配',
+            'lua': 'Lua 脚本错误',
+            'c/c++': 'C/C++ 代码错误',
+        }
+
+        # 按 key 分组
+        groups = {}
+        for fi in html_files:
+            k = fi.get('key', 'other')
+            groups.setdefault(k, []).append(fi)
+
+        # 生成每个分组的表格
+        sections = []
+        for key in ['tab_load', 'lua_call', 'lua', 'c/c++']:
+            items = groups.get(key, [])
+            if not items:
+                continue
+            display_name = category_names.get(key, key)
+            table_rows = ""
+            for fi in items:
+                file_path = fi['file_path']
+                error = fi['error'] if fi.get('error') else fi.get('error_msg', None)
+                wrecker_info = fi.get('wrecker_info')
+                wrecker_index = fi.get('wrecker_index', 0)
+                html_file = fi.get('html_file', None)
+
+                description = ""
+                author = ""
+                principal = []
+                if wrecker_info and isinstance(wrecker_info, list) and wrecker_index >= 0 and len(wrecker_info) > wrecker_index:
+                    info = wrecker_info[wrecker_index]
+                    description = info.get('description', '')
+                    author = info.get('author', '')
+                    principal = info.get('principal', [])
+
+                if not fi.get('update_error') and (wrecker_index == -1 or not html_file):
+                    suggestion_cell = '问题已修复/暂未找到问题'
+                elif html_file:
+                    suggestion_cell = f'<a href="{html_file}" target="_blank">详情</a>'
+                else:
+                    suggestion_cell = '-'
+                table_rows += f"""
+                <tr>
+                    <td><div class="file-path">{file_path}</div></td>
+                    <td><div class="description">{description}</div></td>
+                    <td>{author}</td>
+                    <td>{', '.join(principal)}</td>
+                    <td>{error}</td>
+                    <td>{suggestion_cell}</td>
+                </tr>"""
+
+            sections.append(f"""
+        <div class="category-section">
+            <h2 class="category-title">{display_name} <span class="category-count">{len(items)} 条</span></h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:30%">文件路径</th>
+                        <th style="width:20%">描述</th>
+                        <th style="width:8%">修改人</th>
+                        <th style="width:8%">负责人</th>
+                        <th style="width:26%">错误原因</th>
+                        <th style="width:8%">建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {table_rows}
+                </tbody>
+            </table>
+        </div>""")
+
+        # 汇总统计
+        total_count = len(html_files)
+        stats_items = ""
+        for key in ['tab_load', 'lua_call', 'lua', 'c/c++']:
+            cnt = len(groups.get(key, []))
+            if cnt > 0:
+                stats_items += f'<span class="stat-badge">{category_names.get(key, key)}: {cnt}</span>'
+
         # 主页面HTML模板
         main_page_html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -762,23 +815,47 @@ class ResultGenerate:
     <meta charset="{encoding}">
     <title>代码修改建议汇总</title>
     <style>
-        body {{ 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; 
-            padding: 20px; 
-            background: #f9f9f9; 
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            padding: 20px;
+            background: #f9f9f9;
             color: #333;
             line-height: 1.6;
         }}
         h1 {{
             text-align: center;
             color: #2c3e50;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
         }}
-        .stats {{
+        .summary {{
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             color: #7f8c8d;
             font-size: 14px;
+        }}
+        .stat-badge {{
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin: 0 4px;
+            font-size: 13px;
+        }}
+        .category-section {{
+            margin-bottom: 40px;
+        }}
+        .category-title {{
+            font-size: 20px;
+            color: #2c3e50;
+            border-left: 4px solid #3498db;
+            padding-left: 12px;
+            margin-bottom: 12px;
+        }}
+        .category-count {{
+            font-size: 14px;
+            color: #7f8c8d;
+            font-weight: normal;
         }}
         table {{
             width: 100%;
@@ -787,19 +864,24 @@ class ResultGenerate:
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             border-radius: 5px;
             overflow: hidden;
+            table-layout: fixed;
         }}
         th {{
             background-color: #3498db;
             color: white;
             font-weight: bold;
             text-align: left;
-            padding: 15px;
+            padding: 12px 10px;
             position: sticky;
             top: 0;
+            font-size: 13px;
         }}
         td {{
-            padding: 12px 15px;
+            padding: 10px;
             border-bottom: 1px solid #ecf0f1;
+            font-size: 12px;
+            vertical-align: top;
+            word-break: break-all;
         }}
         tr:nth-child(even) {{
             background-color: #f8f9fa;
@@ -817,13 +899,13 @@ class ResultGenerate:
             text-decoration: underline;
         }}
         .file-path {{
-            max-width: 300px;
+            max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }}
         .description {{
-            max-width: 400px;
+            max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -832,30 +914,19 @@ class ResultGenerate:
 </head>
 <body>
     <h1>代码修改建议汇总</h1>
-    <div class="stats">共 {len(html_files)} 个建议</div>
-    <table>
-        <thead>
-            <tr>
-                <th>文件路径</th>
-                <th>描述</th>
-                <th>修改人</th>
-                <th>负责人</th>
-                <th>错误原因</th>
-                <th>建议</th>
-            </tr>
-        </thead>
-        <tbody>
-            {table_rows}
-        </tbody>
-    </table>
+    <div class="summary">共 {total_count} 个建议 &nbsp;|&nbsp; {stats_items}</div>
+    {''.join(sections)}
 </body>
 </html>"""
-        
+
         # 保存主页面
         main_page_path = root_html_path
         try:
             with open(main_page_path, 'w', encoding=encoding) as f:
                 f.write(main_page_html)
+            print(f"[+] 主页面已生成: {main_page_path}")
+        except Exception as e:
+            print(f"[!] 保存主页面失败: {e}")
             print(f"[+] 主页面已生成: {main_page_path}")
         except Exception as e:
             print(f"[!] 保存主页面失败: {e}")
