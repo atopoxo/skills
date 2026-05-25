@@ -1,0 +1,9 @@
+# Sensitive / generated files
+config.json
+eastmoney_session.pkl
+stock_cache.json
+api_debug.json
+scripts/stock.exe
+__pycache__/
+*.pyc
+.DS_Store

@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python *)",
+      "Bash(python -u *)",
+      "Bash(stock.exe *)",
+      "Bash(Y:\\\\AI\\\\skills\\\\stock\\\\**)",
+      "Bash(y:/AI/skills/stock/**)",
+      "Read(//y/AI/skills/stock/**)",
+      "Read(y:/AI/skills/stock/**)",
+      "Read(C:\\\\Users\\\\Crystal\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\y--AI-skills-stock\\\\**)",
+      "WebSearch",
+      "mcp__chrome-devtools__*",
+      "Bash(pip install *)",
+      "Bash(pip list *)",
+      "Bash(playwright install *)",
+      "Bash(where python)",
+      "Bash(ls *)",
+      "Bash(tasklist *)"
+    ]
+  }
+}

@@ -1,0 +1,478 @@
+﻿var PosPartial = {};
+(function (view) {
+    //持仓
+    var Url_GetStockList = '/Com/queryAssetAndPositionV1';
+    //委托
+    var Url_GetOrdersData = '/Search/queryTodayOrderWEB';
+    //成交
+    var Url_GetDealData = '/Search/queryTodayMatchWEB';
+
+    var $listTable = $("#listTable");
+    var $tabPanel = $("#tabPanel");
+    var $pager = $("#pagerContainer");
+
+    var _dwcArr = [];
+    var _count = 1;
+    var _pageCount = 10;
+
+    //初始化
+    function page_init() {
+        //获取数据 持仓绑定
+        getData("我的持仓");
+
+        //绑定事件
+        $tabPanel.on("click", "li", function (e) {
+            var $that = $(e.currentTarget);
+            if (!$that.hasClass("current")) {
+                $that.addClass("current").siblings().removeClass("current");
+            }
+            getData($that.attr("title"));
+        });
+    }
+
+    function getData(tag, type) {
+        var dwc = '';
+        if (type == 'next') {
+            _count++;
+            dwc = _dwcArr[_dwcArr.length - 1];
+        } else if (type == 'pre') {
+            var dwcCount = _dwcArr.length;
+            if (dwcCount > 2) {
+                dwc = _dwcArr[dwcCount - 3];
+                _dwcArr.pop();
+                _count--;
+            }
+            else {
+                dwc = '';
+                _dwcArr.pop();
+                _count = 1;
+            }
+        } else {
+            dwc = '';
+            _dwcArr = [];
+            _count = 1;
+        }
+        _pageCount = 10;
+
+        if (tag == "我的持仓") {
+            //持仓不分页
+            _pageCount = 999999;
+            dwc = "";
+            utools.loadAjax(Url_GetStockList, { qqhs: _pageCount, dwc: dwc }, function (result) {
+                if (result != '' && result != null) {
+                    if (result.Status == 0) {
+                        $listTable.find("thead").html('<tr>'
+                            + '<th>证券<br/>代码</th>'
+                            + '<th>证券名称</th>'
+                            + '<th>持仓数量</th>'
+                            + '<th>可用数量</th>'
+                            + '<th>成本价</th>'
+                            + '<th>当前价</th>'
+                            + '<th>最新市值</th>'
+                            + '<th>持仓盈亏</th>'
+                            + '<th>持仓盈亏<br/>比例</th>'
+                            + '<th>当日盈亏</th>'
+                            + '<th>当日盈亏<br/>比例</th>'
+                            + '<th>操作</th>'
+                            + '</tr>');
+
+                        var positions = [], bonds = [];
+                        if (result.Data && result.Data[0]) {
+                            if (result.Data[0].positions) {
+                                positions = result.Data[0].positions;
+                            }
+                            if (result.Data[0].positions) {
+                                bonds = result.Data[0].bonds;
+                            }
+                        }
+                        //var data = positions.concat(bonds);这里不用展示国债逆回购的
+                        var data = positions;
+                        if (data.length == 0) {
+                            $listTable.find("tbody").html('<tr><td colspan="12">暂无数据...</td></tr>');
+                        } else {
+                            var liHtml = '', sumCzsl = 0, sumKmsl = 0, sumFdyk = 0, sumDryk = 0, item;
+                            var odd = '', ykcss = '', jgFormat = 3;
+                            for (var i = 0; i < data.length; i++) {
+                                var item = data[i];
+                                var link, mktFlag = item.Zqdm.substr(0, 1);
+
+                                link = buildStockLink(item);
+                                //odd = odd == '' ? 'odd' : '';
+                                liHtml += '<tr class="' + odd + '">';
+
+                                var ljyk = item.Ljyk || '';
+                                if (ljyk > 0) {
+                                    ykcss = 'red';
+                                }
+                                else if (ljyk < 0) {
+                                    ykcss = 'green';
+                                }
+                                else {
+                                    ykcss = '';
+                                }
+
+                                if (mktFlag == '7') {
+                                    liHtml += '<td>' + item.Zqdm + '</td>';// 证券代码
+                                    liHtml += '<td>' + item.Zqmc + '</td>';// 证券名称
+                                } else {
+                                    liHtml += '<td><a href="' + link + '" target="_blank"  ref="noopener noreferrer">' + item.Zqdm + '</a></td>';// 证券代码
+                                    liHtml += '<td><a href="' + link + '" target="_blank"  ref="noopener noreferrer">' + item.Zqmc + '</a></td>';// 证券名称
+                                }
+
+                                liHtml += '<td>' + (item.Zqsl || '-') + '</td>';// 持仓数量
+                                sumCzsl += (item.Zqsl * 1);
+                                liHtml += '<td>' + (item.Kysl || '-') + '</td>';// 可卖数量
+                                sumKmsl += (item.Kysl * 1);
+
+
+                                liHtml += '<td>' + (item.Cbjg ? (item.Cbjg * 1).toFixed(jgFormat) : '-') + '</td>';// 成本价
+                                liHtml += '<td>' + (item.Zxjg ? (item.Zxjg * 1).toFixed(jgFormat) : '-') + '</td>';// 当前价
+                                liHtml += '<td>' + (item.Zxsz * 1).toFixed(jgFormat) + '</td>';// 最新市值
+                                liHtml += '<td class="' + ykcss + '">' + (item.Ljyk ? (item.Ljyk * 1).toFixed(2) : '-') + '</td>';// 持仓盈亏
+                                sumFdyk += (item.Ljyk * 1);
+                                liHtml += '<td class="' + ykcss + '">' + (item.Ykbl ? ((item.Ykbl * 100).toFixed(jgFormat) + '%') : '-') + '</td>';// 持仓盈亏比例    
+
+                                var Dryk = item.Dryk || '';
+                                if (Dryk > 0) {
+                                    Dryk_css = 'red';
+                                }
+                                else if (Dryk < 0) {
+                                    Dryk_css = 'green';
+                                }
+                                else {
+                                    Dryk_css = '';
+                                }
+
+                                liHtml += '<td class="' + Dryk_css + '">' + (item.Dryk ? (item.Dryk * 1).toFixed(2) : '-') + '</td>';// 当日盈亏
+                                sumDryk += item.Dryk ? (item.Dryk * 1) : 0;
+                                liHtml += '<td class="' + Dryk_css + '">' + (item.Drykbl ? ((item.Drykbl * 100).toFixed(jgFormat) + '%') : '-') + '</td>';// 当日盈亏比例                                                                
+                                var moneytype = "元";
+                                switch (item.Market) {
+                                    case "HB":
+                                        moneytype = "美元";
+                                        break;
+                                    case "SB":
+                                        moneytype = "港币";
+                                        break;
+                                }
+
+                                // 操作
+                                if (item.Market == "HG") {
+                                    liHtml += '<td> <button class="btn btn_buy" type="button" onclick="javascript:window.location.href=\'/HKTrade/HKBuy?code=' + item.Zqdm + '&name=' + encodeURI(item.Zqmc) + '&moneytype=' + encodeURI(moneytype) + '&type=buy\';">买</button>  ';
+                                    liHtml += ' <button class="btn btn_sale green" type="button" onclick="javascript:window.location.href=\'/HKTrade/HKSale?code=' + item.Zqdm + '&name=' + encodeURI(item.Zqmc) + '&moneytype=' + encodeURI(moneytype) + '&type=sale\';">卖</button></td>';
+                                }
+                                else if (item.Market == "S") {
+                                    liHtml += '<td> <button class="btn btn_buy" type="button" onclick="javascript:window.location.href=\'/SGTTrade/HKBuy?code=' + item.Zqdm + '&name=' + encodeURI(item.Zqmc) + '&moneytype=' + encodeURI(moneytype) + '&type=buy\';">买</button>  ';
+                                    liHtml += ' <button class="btn btn_sale green" type="button" onclick="javascript:window.location.href=\'/SGTTrade/HKSale?code=' + item.Zqdm + '&name=' + encodeURI(item.Zqmc) + '&moneytype=' + encodeURI(moneytype) + '&type=sale\';">卖</button></td>';
+                                }
+                                else if (item.Market == 'TA') {
+                                    liHtml += '<td class="w100"> <button class="btn btn_buy mr5" type="button" onclick="javascript:window.location.href=\'/OtherTrade/StockTranBuy?code=' + item.Zqdm + '&name=' + encodeURI(item.Zqmc) + '\';">买</button>  ';
+                                    liHtml += ' <button class="btn btn_sale green" type="button" onclick="javascript:window.location.href=\'/OtherTrade/StockTranSale?code=' + item.Zqdm + '&name=' + encodeURI(item.Zqmc) + '&gddm=' + (item.Gddm || '') + '\';">卖</button></td>';
+                                }
+                                else if (item.Market == 'B') {
+                                    liHtml += '<td> <button class="btn btn_buy" type="button" onclick="javascript:window.location.href=\'/Trade/Buy?code=' + item.Zqdm + '&name=' + encodeURI(item.Zqmc) + '&moneytype=' + encodeURI(moneytype) + '&type=buy&zqlx=' + item.Zqlx + '&mt=B&market=' + item.Market + '\';">买</button>  ';
+                                    liHtml += ' <button class="btn btn_sale green" type="button" onclick="javascript:window.location.href=\'/Trade/Sale?code=' + item.Zqdm + '&name=' + encodeURI(item.Zqmc) + '&moneytype=' + encodeURI(moneytype) + '&type=sale&zqlx=' + item.Zqlx + '&mt=B&gddm=' + (item.Gddm || '') + '&market=' + item.Market + '\';">卖</button></td>';
+                                }
+                                else {
+                                    if (item.Zqlx == 'Q') {//权证
+                                        liHtml += '<td>&nbsp;</td>';
+                                    } else if (item.Zqlx == 'G') {//国债逆回购
+                                        liHtml += '<td class="w100">&nbsp;</td>';
+                                    } else {
+                                        var mt = "";
+                                        if (item.Market == "HA" || item.Market == "HB") {
+                                            mt = "1";
+                                        } else if (item.Market == "SA" || item.Market == "SB") {
+                                            mt = "2";
+                                        }
+                                        liHtml += '<td> <button class="btn btn_buy" type="button" onclick="javascript:window.location.href=\'' + window.buyUrl + '?code=' + item.Zqdm + '&name=' + encodeURI(item.Zqmc) + '&moneytype=' + encodeURI(moneytype) + '&type=buy&zqlx=' + item.Zqlx + '&mt=' + mt + '&market=' + item.Market + '\';">买</button>  ';
+                                        liHtml += ' <button class="btn btn_sale green" type="button" onclick="javascript:window.location.href=\'' + window.saleUrl + '?code=' + item.Zqdm + '&name=' + encodeURI(item.Zqmc) + '&moneytype=' + encodeURI(moneytype) + '&type=sale&zqlx=' + item.Zqlx + '&mt=' + mt + '&gddm=' + (item.Gddm || '') + '&market=' + item.Market + '\';">卖</button></td>';
+                                    }
+                                }
+
+                                liHtml += '</tr>';
+                            }
+
+                            //var sumFdyk_css = '';
+                            //if (sumFdyk > 0) {
+                            //    sumFdyk_css = 'red';
+                            //}
+                            //else if (sumFdyk < 0) {
+                            //    sumFdyk_css = 'green';
+                            //}
+                            //else {
+                            //    sumFdyk_css = '';
+                            //}
+
+                            //var sumDryk_css = '';
+                            //if (sumDryk > 0) {
+                            //    sumDryk_css = 'red';
+                            //}
+                            //else if (sumDryk < 0) {
+                            //    sumDryk_css = 'green';
+                            //}
+                            //else {
+                            //    sumDryk_css = '';
+                            //}
+
+                            //liHtml += '<tr>';
+                            //liHtml += '<td class="black fb" colspan="2">合 计</td>';
+                            //liHtml += '<td></td>';
+                            //liHtml += '<td></td>';
+                            //liHtml += '<td></td><td></td><td></td>';
+                            //liHtml += '<td class="' + sumFdyk_css + '">' + sumFdyk.toFixed(2) + '</td>';
+                            //liHtml += '<td></td>';
+                            //liHtml += '<td class="' + sumDryk_css + '">' + sumDryk.toFixed(2) + '</td>';
+                            //liHtml += '<td></td><td></td><td></td>';
+                            //liHtml += '</tr>';
+                            $listTable.find("tbody").html(liHtml);
+                        }
+                        // 翻页
+                        if (type != 'pre') {
+                            if (data.length > 0)
+                                _dwcArr.push(data[data.length - 1].Dwc);
+                            else
+                                _dwcArr.push('-');
+                        }
+                        var bl = data.length < _pageCount ? false : true;
+                        editPage(tag, bl);
+                        $("#nowPage").text("第 " + _count + " 页");
+                    }
+                    else {
+                        alertMsg("", result.Message || "网络繁忙,请稍后重试!", "error");
+                    }
+                }
+                else {
+                    alertMsg("", "网络繁忙,请稍后重试!", "error");
+                }
+            }, true);
+
+        } else if (tag == "当日委托") {
+            utools.loadAjax(Url_GetOrdersData, { qqhs: _pageCount, dwc: dwc }, function (result) {
+                if (result != '' && result != null) {
+                    if (result["Status"] == "0") {
+                        $listTable.find("thead").html('<tr>'
+                            + '<th>委托时间</th>'
+                            + '<th>证券代码</th>'
+                            + '<th>证券名称</th>'
+                            + '<th>委托方向</th>'
+                            + '<th>委托数量</th>'
+                            + '<th>委托状态</th>'
+                            + '<th>委托价格</th>'
+                            + '<th>成交数量</th>'
+                            + '<th>成交金额</th>'
+                            + '<th>成交价格</th>'
+                            + '<th>委托编号</th>'
+                            + '<th>币种</th>'
+                            + '<th>操作</th>'
+                            + '</tr>');
+
+                        var data = result.Data;
+                        if (data.length == 0) {
+                            $listTable.find("tbody").html('<tr><td colspan="13">暂无数据...</td></tr>');
+                        } else {
+                            var liHtml = '', item;
+                            var odd = 'odd';
+                            for (var i = 0; i < data.length; i++) {
+                                item = data[i];
+                                var jgFormat = 3, link, mktFlag = item.Zqdm.substr(0, 1);
+
+                                link = buildStockLink(item);
+
+                                odd = odd == '' ? 'odd' : '';
+                                liHtml += '<tr class="' + odd + '">';
+                                liHtml += '<td>' + formatDateTime(item.Wtsj) + '</td>';// 委托时间
+                                if (mktFlag == '7') {
+                                    liHtml += '<td>' + item.Zqdm + '</td>';// 证券代码
+                                    liHtml += '<td>' + item.Zqmc + '</td>';// 证券名称
+                                } else {
+                                    liHtml += '<td><a href="' + link + '" target="_blank"  ref="noopener noreferrer">' + item.Zqdm + '</a></td>';// 证券代码
+                                    liHtml += '<td><a href="' + link + '" target="_blank"  ref="noopener noreferrer">' + item.Zqmc + '</a></td>';// 证券名称
+                                }
+                                liHtml += '<td>' + item.Mmsm + '</td>';// 委托方向
+                                liHtml += '<td>' + item.Wtsl + '</td>';// 委托数量
+                                liHtml += '<td>' + item.Wtzt + '</td>';// 委托状态
+                                liHtml += '<td>' + (item.Wtjg * 1).toFixed(jgFormat) + '</td>';// 委托价格
+                                liHtml += '<td>' + item.Cjsl + '</td>';// 成交数量
+                                liHtml += '<td>' + (item.Cjje * 1).toFixed(jgFormat) + '</td>';// 成交金额
+                                liHtml += '<td>' + (item.Cjjg * 1).toFixed(jgFormat) + '</td>';// 成交价格
+                                liHtml += '<td>' + item.Wtbh + '</td>';// 委托编号
+
+                                var bzStr = "人民币";
+                                switch (item.Market) {
+                                    case "HB":
+                                        bzStr = "美元";
+                                        break;
+                                    case "SB":
+                                        bzStr = "港币";
+                                        break;
+                                    case "HG":
+                                    case "S":
+                                        bzStr = "-";
+                                        break;
+                                }
+                                liHtml += '<td>' + bzStr + '</td>';// 币种
+
+                                if (item.Kcd == "1")
+                                    liHtml += '<td><button type="button" class="btn btn_cancel" onclick="PosPartial.RevokeOrders(\'' + item.Wtrq + '\',\'' + item.Wtbh + '\',\'' + item.Market + '\',\'' + item.Mmlb_ex + '\')">撤单</button></td>';// 操作
+                                else
+                                    liHtml += '<td>-</td>';// 操作
+                                liHtml += '</tr>';
+                            }
+                            $listTable.find("tbody").html(liHtml);
+                        }
+                        // 翻页
+                        if (type != 'pre') {
+                            if (data.length > 0)
+                                _dwcArr.push(data[data.length - 1].Dwc);
+                            else
+                                _dwcArr.push('-');
+                        }
+                        var bl = data.length < _pageCount ? false : true;
+                        editPage(tag, bl);
+                        $("#nowPage").text("第 " + _count + " 页");
+                    }
+                    else {
+                        alertMsg("", result.Message, "error");
+                    }
+                }
+                else {
+                    alertMsg("", "网络繁忙,请稍后重试!", "error");
+                }
+                return;
+            }, true);
+        } else if (tag == "当日成交") {
+            utools.loadAjax(Url_GetDealData, { qqhs: _pageCount, dwc: dwc }, function (result) {
+                if (result != '' && result != null) {
+                    if (result["Status"] == "0") {
+                        $listTable.find("thead").html('<tr>'
+                            + '<th>成交时间</th>'
+                            + '<th>证券代码</th>'
+                            + '<th>证券名称</th>'
+                            + '<th>委托方向</th>'
+                            + '<th>成交数量</th>'
+                            + '<th>成交价格</th>'
+                            + '<th>成交金额</th>'
+                            + '<th>委托编号</th>'
+                            + '<th>成交编号</th>'
+                            + '<th>币种</th>'
+                            + '<th>交易市场</th>'
+                            + '</tr>');
+
+                        var data = result.Data;
+                        if (data.length == 0) {
+                            $listTable.find("tbody").html('<tr><td colspan="11">暂无数据...</td></tr>');
+                        } else {
+                            var liHtml = '', item;
+                            var odd = 'odd';
+                            for (var i = 0; i < data.length; i++) {
+                                item = data[i];
+                                var jgFormat = 3, link, mktFlag = item.Zqdm.substr(0, 1);
+
+                                link = buildStockLink(item);
+
+                                odd = odd == '' ? 'odd' : '';
+                                liHtml += '<tr class="' + odd + '">';
+                                liHtml += '<td>' + formatDateTime(item.Cjsj) + '</td>';// 成交时间
+                                if (mktFlag == '7') {
+                                    liHtml += '<td>' + item.Zqdm + '</td>';// 证券代码
+                                    liHtml += '<td>' + item.Zqmc + '</td>';// 证券名称
+                                } else {
+                                    liHtml += '<td><a href="' + link + '" target="_blank"  ref="noopener noreferrer">' + item.Zqdm + '</a></td>';// 证券代码
+                                    liHtml += '<td><a href="' + link + '" target="_blank"  ref="noopener noreferrer">' + item.Zqmc + '</a></td>';// 证券名称
+                                }
+                                liHtml += '<td>' + item.Mmsm + '</td>';// 买卖
+                                liHtml += '<td>' + item.Cjsl + '</td>';// 成交数量
+                                liHtml += '<td>' + (item.Cjjg * 1).toFixed(jgFormat) + '</td>';// 成交价格
+                                liHtml += '<td>' + (item.Cjje * 1).toFixed(jgFormat) + '</td>';// 成交金额
+                                liHtml += '<td>' + item.Wtbh + '</td>';// 合同编号
+                                liHtml += '<td>' + item.Cjbh + '</td>';// 成交编号
+
+                                var bzStr = "人民币";
+                                switch (item.Market) {
+                                    case "HB":
+                                        bzStr = "美元";
+                                        break;
+                                    case "SB":
+                                        bzStr = "港币";
+                                    case "HG":
+                                    case "S":
+                                        bzStr = "-";
+                                        break;
+                                }
+                                liHtml += '<td>' + bzStr + '</td>';// 币种
+
+                                liHtml += '<td>' + WebAppConfig.Mapping.Market[item.Market] + '</td>';// 交易市场
+                                liHtml += '</tr>';
+                            }
+                            $listTable.find("tbody").empty().html(liHtml);
+                        }
+                        // 翻页
+                        if (type != 'pre') {
+                            if (data.length > 0)
+                                _dwcArr.push(data[data.length - 1].Dwc);
+                            else
+                                _dwcArr.push('-');
+                        }
+                        var bl = data.length < _pageCount ? false : true;
+                        editPage(tag, bl);
+                        $("#nowPage").text("第 " + _count + " 页");
+                    }
+                    else {
+                        alertMsg("", result.Message, "error");
+                    }
+                }
+                else {
+                    alertMsg("", "网络繁忙,请稍后重试!", "error");
+                }
+                return;
+
+            }, true);
+        }
+    }
+
+    function editPage(tag, bl) {
+        if (bl) {
+            if ($pager.children().length == 0) {
+                $pager.html('<div class="confooter"><div class="pager fr"></div></div>');
+            }
+        }
+
+        var html = '';
+        if (_count == 1) {
+            if (bl)
+                html = '<span>上一页</span>  <span id="nowPage">第 页</span>  <a target="_self" data-page="next" href="javascript:PosPartial.GetData(\'' + tag + '\',\'next\');">下一页</a>';
+            else
+                $(".confooter").remove();
+        } else {
+            if (bl)
+                html = '<a target="_self" href="javascript:PosPartial.GetData(\'' + tag + '\',\'pre\');">上一页</a>  <span id="nowPage">第 页</span>  <a target="_self" data-page="next" href="javascript:PosPartial.GetData(\'' + tag + '\',\'next\');">下一页</a>';
+            else
+                html = '<a target="_self" href="javascript:PosPartial.GetData(\'' + tag + '\',\'pre\');">上一页</a>  <span id="nowPage">第 页</span>  <span>下一页</span>';
+        }
+        $(".pager").html(html);
+    }
+
+    page_init();
+
+    view.GetData = getData;
+
+    view.RevokeOrders = function (wtrq, wtbh, market, mmlb) {
+        alertMsg("", "确认撤销？", "question", function (code) {
+            if (code == "1") {
+                utools.loadAjax("/Trade/cancelStockWEB", { wtrq: wtrq, wtbh: wtbh, market: market, mmlb: mmlb }, function (result) {
+                    if (result) {
+                        if (result.Status == 0) {
+                            alertMsg("", '撤单委托已提交，可至当日委托查看撤单结果', "info", function () { PosPartial.GetData("当日委托"); });
+                        } else {
+                            alertMsg("", result.Message || '操作失败', "error");
+                        }
+                    } else {
+                        alertMsg("", "网络繁忙，请稍后再试！", "error");
+                    }
+                }, true);
+            }
+        });
+    }
+})(PosPartial);
+
