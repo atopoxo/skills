@@ -52,7 +52,6 @@ DEFAULT_CONFIG = {
     "console_alert": {
         "enabled": True,
         "show_all_ticks": False,
-        "summary_interval_seconds": 60,
     },
     "fallback_stocks": [
         {"code": "sh688008", "name": "澜起科技", "market": "sh"},

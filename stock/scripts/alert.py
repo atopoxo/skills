@@ -44,8 +44,6 @@ class AlertDispatcher:
 
     def __init__(self, config):
         self._console_enabled = config.get("console_alert", {}).get("enabled", True)
-        self._show_all_ticks = config.get("console_alert", {}).get("show_all_ticks", False)
-        self._summary_interval = config.get("console_alert", {}).get("summary_interval_seconds", 60)
 
         fs = config.get("feishu", {})
         self._feishu_enabled = fs.get("enabled", False)
@@ -63,8 +61,6 @@ class AlertDispatcher:
         self._token = None
         self._token_expiry = 0
 
-        self._last_summary_time = None
-
     # ── public API ──────────────────────────────────────────────────
 
     def send(self, event):
@@ -78,115 +74,6 @@ class AlertDispatcher:
         """Send initial holdings overview to Feishu only (console suppressed)."""
         if self._feishu_enabled:
             self._send_holdings_feishu(account_url)
-
-    def send_categorized_summary(self, stocks_data, code_to_cat, cat_order):
-        """Send periodic categorized summary to console + Feishu.
-
-        Args:
-            stocks_data: list of (code, name, price, daily_change_pct)
-            code_to_cat: dict {sina_code: category_name}
-            cat_order: list of category names in display order
-        """
-        if not stocks_data:
-            return
-
-        # Compute stats
-        up_limit = down_limit = up_pct1 = down_pct1 = 0
-        for _, _, _, chg in stocks_data:
-            if chg >= 9.5:
-                up_limit += 1
-            elif chg <= -9.5:
-                down_limit += 1
-            if chg >= 1:
-                up_pct1 += 1
-            elif chg <= -1:
-                down_pct1 += 1
-
-        # Group by category — use _resolve_cat for bare-code matching
-        cat_stocks = {c: [] for c in cat_order}
-        for code, name, price, chg in stocks_data:
-            cat = self._resolve_cat(code, code_to_cat)
-            if cat not in cat_stocks:
-                cat = "其它"
-                if "其它" not in cat_stocks:
-                    cat_stocks["其它"] = []
-            cat_stocks[cat].append((name, chg))
-
-        # Show ALL categories in custom.ini order, even empty ones
-        display_cats = [(c, cat_stocks.get(c, [])) for c in cat_order]
-        # Append "其它" only if there are unclassified stocks
-        if cat_stocks.get("其它"):
-            display_cats.append(("其它", cat_stocks["其它"]))
-
-        now = datetime.now()
-        stats_line = f"涨停 {up_limit}只 | 跌停 {down_limit}只 | 上涨（>=1%）{up_pct1}只 | 下跌（>=1%）{down_pct1}只"
-
-        if self._console_enabled:
-            self._send_categorized_console(now, stats_line, display_cats)
-        if self._feishu_enabled:
-            self._send_categorized_feishu(now, stats_line, display_cats)
-
-    # ── categorized console ──────────────────────────────────────────
-
-    def _send_categorized_console(self, now, stats_line, cat_stocks):
-        W = 62
-        ts = now.strftime("%Y/%m/%d %H:%M:%S")
-        print()
-        print("=" * W)
-        print(f"  {ts} 异动报警")
-        print(f"  {stats_line}")
-        print("=" * W)
-
-        for cat_name, stocks in cat_stocks:
-            parts = [f"{name} {chg:+.2f}%" for name, chg in stocks]
-            line = f"  {cat_name}: " + "，".join(parts)
-            # Wrap long lines
-            if len(line) > W:
-                print(f"  {cat_name}:")
-                for name, chg in stocks:
-                    print(f"    {name} {chg:+.2f}%")
-            else:
-                print(line)
-
-        print("=" * W)
-        print()
-
-    # ── categorized feishu ───────────────────────────────────────────
-
-    def _send_categorized_feishu(self, now, stats_line, cat_stocks):
-        ts = now.strftime("%Y/%m/%d %H:%M:%S")
-        lines = [f"**{cat_name}**: " + "，".join(
-            f"{name} {chg:+.2f}%" for name, chg in stocks
-        ) for cat_name, stocks in cat_stocks]
-
-        content = stats_line + "\\n\\n" + "\\n\\n".join(lines)
-
-        card = {
-            "msg_type": "interactive",
-            "card": {
-                "header": {
-                    "title": {"tag": "plain_text", "content": f"{ts} 异动报警"},
-                    "template": "blue",
-                },
-                "elements": [{
-                    "tag": "div",
-                    "text": {"tag": "lark_md", "content": content},
-                }],
-            },
-        }
-
-        if self._feishu_mode == "app":
-            self._send_app(card)
-        else:
-            self._send_webhook(card)
-
-    # ── deprecated / backward compat ─────────────────────────────────
-
-    def send_summary(self, windows_info):  # noqa: ARG002
-        """Deprecated: use send_categorized_summary instead."""
-
-    def tick_display(self, code, name, price, change_30s):  # noqa: ARG002
-        """Per-tick display (no-op, replaced by categorized summary)."""
 
     def send_feishu_test(self):
         """Send a test message to verify Feishu configuration."""

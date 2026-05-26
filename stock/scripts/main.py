@@ -8,13 +8,14 @@ Login flow (fast path):
   3. Fallback stocks if all login methods fail
 """
 
-import argparse, sys, os, ctypes
+import argparse, sys, os, ctypes, threading
 
 from config import create_default_config, load_config, load_categories
 from price_fetcher import fetch_prices_batch
 from alert import AlertDispatcher
 from monitor import StockMonitor
-from account_page import launch_account_page, start_tunnel
+from account_page import launch_account_page, start_tunnel, update_price_data
+import news_fetcher
 
 
 def _set_process_title(title):
@@ -102,10 +103,19 @@ def main():
     monitor = StockMonitor(cfg, dispatcher)
     monitor.set_stocks(stocks)
 
-    monitor.set_categories(code_to_cat, cat_order)
+    if holdings_data:
+        monitor.set_on_tick(update_price_data)
 
     # Send initial holdings summary to console + Feishu
     dispatcher.send_holdings_summary(stocks, value_map, holdings_data or {}, code_to_cat, cat_order, account_url)
+
+    # Start background news refresh (every 5 minutes)
+    news_thread = threading.Thread(
+        target=news_fetcher.refresh_news_loop,
+        args=(stocks, 300),
+        daemon=True,
+    )
+    news_thread.start()
 
     try:
         monitor.run()
@@ -150,6 +160,9 @@ def holdings_to_stocks(positions):
 
 def _resolve_market(code):
     code = str(code)
+    # Zero-pad short codes (East Money may strip leading zeros from HK codes)
+    if len(code) < 5:
+        code = code.zfill(5)
     if len(code) == 5 and code.startswith("0"):
         return "hk"
     if code.startswith(("60", "68", "51", "56")):
@@ -162,7 +175,7 @@ def _resolve_market(code):
 def _to_sina_code(code, market):
     code = str(code)
     if market == "hk":
-        return f"rt_hk{code}"
+        return f"rt_hk{code.zfill(5)}"
     if market == "sh":
         return f"sh{code}"
     return f"sz{code}"

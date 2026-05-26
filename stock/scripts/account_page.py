@@ -15,12 +15,108 @@ import webbrowser
 import time
 import urllib.request
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
+from news_fetcher import get_news_json
+from price_fetcher import get_current_fx_rate
 
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 _FIXED_PORT = 18080
+
+# Shared state for real-time price updates
+_holdings_data = {}
+_holdings_lock = threading.Lock()
+
+
+def _resolve_market(code):
+    code = str(code)
+    # Zero-pad short codes (East Money may strip leading zeros from HK codes)
+    if len(code) < 5:
+        code = code.zfill(5)
+    if len(code) == 5 and code.startswith("0"):
+        return "hk"
+    if code.startswith(("60", "68", "51", "56")):
+        return "sh"
+    if code.startswith(("00", "30", "15")):
+        return "sz"
+    return "sz"
+
+
+def _to_sina_code(code, market):
+    code = str(code)
+    if market == "hk":
+        return f"rt_hk{code.zfill(5)}"
+    if market == "sh":
+        return f"sh{code}"
+    return f"sz{code}"
+
+
+def set_holdings_data(data):
+    """Store initial holdings data. East Money returns all prices in CNY
+    (including HK stocks), so no conversion is needed.
+    Derives _cash for total_value reconstruction."""
+    global _holdings_data
+    with _holdings_lock:
+        import copy
+        _holdings_data = copy.deepcopy(data)
+        total_mv = sum(
+            p.get("market_value", 0) or 0
+            for p in _holdings_data.get("positions", [])
+        )
+        _holdings_data["_cash"] = (_holdings_data.get("total_value", 0) or 0) - total_mv
+
+
+def update_price_data(price_map):
+    """Merge latest price_map (sina_code → StockPrice) into per-position fields.
+    HK stock prices from Sina are HKD; converted to CNY via get_current_fx_rate."""
+    global _holdings_data
+    with _holdings_lock:
+        if not _holdings_data:
+            return
+        for p in _holdings_data.get("positions", []):
+            code = str(p.get("code", ""))
+            market = _resolve_market(code)
+            sina = _to_sina_code(code, market)
+            sp = price_map.get(sina)
+            if sp and sp.price > 0:
+                shares = p.get("shares", 0)
+                cost = p.get("cost", 0)
+                if market == "hk":
+                    fx = get_current_fx_rate()
+                    price_cny = sp.price * fx
+                    prev_close_cny = sp.prev_close * fx
+                    p["price"] = price_cny  # CNY for display consistency with cost
+                    p["prev_close"] = prev_close_cny
+                    p["market_value"] = shares * price_cny
+                    p["daily_pnl"] = (price_cny - prev_close_cny) * shares
+                    if cost > 0:
+                        # cost is already in CNY (account currency)
+                        p["total_pnl"] = (price_cny - cost) * shares
+                        p["pnl_pct"] = (price_cny - cost) / cost * 100
+                else:
+                    p["price"] = sp.price
+                    p["prev_close"] = getattr(sp, "prev_close", p.get("prev_close", sp.price))
+                    p["market_value"] = shares * sp.price
+                    p["daily_pnl"] = (sp.price - p["prev_close"]) * shares
+                    if cost > 0:
+                        p["total_pnl"] = (sp.price - cost) * shares
+                        p["pnl_pct"] = (sp.price - cost) / cost * 100
+
+
+def _get_holdings_json():
+    """Return current holdings data as JSON, computing totals from positions
+    on every call so header values always match the sum of stock cards."""
+    with _holdings_lock:
+        total_mv = 0
+        total_daily = 0
+        for p in _holdings_data.get("positions", []):
+            total_mv += p.get("market_value", 0) or 0
+            total_daily += p.get("daily_pnl", 0) or 0
+        result = dict(_holdings_data)
+        result["total_daily_pnl"] = total_daily
+        result["total_value"] = total_mv + result.pop("_cash", 0)
+        return json.dumps(result, ensure_ascii=False, default=str)
 
 
 def _get_lan_ip():
@@ -313,6 +409,65 @@ body {
 
 /* ── Blur for hidden amounts ── */
 .blur-on .amount { filter: blur(6px); }
+
+/* ── News Modal ── */
+.modal-backdrop {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: flex; align-items: flex-end; justify-content: center;
+}
+.modal-backdrop.hidden { display: none; }
+.modal-sheet {
+    width: 100%; max-width: 430px; max-height: 70vh;
+    background: #fff; border-radius: 16px 16px 0 0;
+    display: flex; flex-direction: column;
+    animation: slideUp 0.25s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px; border-bottom: 1px solid #eee;
+}
+.modal-title { font-size: 16px; font-weight: 600; }
+.modal-close {
+    background: none; border: none; font-size: 20px;
+    color: #999; cursor: pointer; padding: 4px 8px;
+}
+.modal-body {
+    overflow-y: auto; padding: 12px 16px; flex: 1;
+}
+.news-item {
+    padding: 12px 0; border-bottom: 1px solid #f0f0f0;
+}
+.news-item:last-child { border-bottom: none; }
+.news-item a {
+    font-size: 14px; color: #333; text-decoration: none; font-weight: 500;
+}
+.news-item a:visited { color: #888; }
+.news-item .news-intro {
+    font-size: 12px; color: #999; margin-top: 4px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.news-item .news-time { font-size: 11px; color: #bbb; margin-top: 4px; }
+.news-empty { text-align: center; padding: 30px; color: #999; font-size: 14px; }
+.news-loading { text-align: center; padding: 30px; color: #999; font-size: 14px; }
+
+/* ── Hot News Button ── */
+.news-btn {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 11px; color: #e33a3d; cursor: pointer;
+    padding: 2px 8px; border: 1px solid #e33a3d;
+    border-radius: 10px; background: #fff;
+    margin-left: 8px; transition: all 0.15s;
+}
+.news-btn:hover { background: #e33a3d; color: #fff; }
+.news-btn .badge {
+    background: #e33a3d; color: #fff; font-size: 10px;
+    border-radius: 8px; padding: 0 5px; min-width: 16px; text-align: center;
+}
+.news-btn:hover .badge { background: #fff; color: #e33a3d; }
 </style>
 </head>
 <body>
@@ -392,6 +547,19 @@ body {
     <div class="tab-item"><span class="tab-icon">👤</span>我的</div>
 </div>
 
+<!-- ── News Modal ── -->
+<div class="modal-backdrop hidden" id="newsModal" onclick="if(event.target===this)closeNews()">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <span class="modal-title" id="newsModalTitle">热点新闻</span>
+            <button class="modal-close" onclick="closeNews()">✕</button>
+        </div>
+        <div class="modal-body" id="newsModalBody">
+            <div class="news-loading">加载中...</div>
+        </div>
+    </div>
+</div>
+
 </div>
 
 <script>
@@ -432,7 +600,9 @@ function renderStockCard(p) {
 
     var html = '<div class="stock-card">';
     html += '<div class="stock-top">';
-    html += '<div><div class="stock-name">' + p.name + '</div>';
+    html += '<div><div class="stock-name">' + p.name;
+    html += '<button class="news-btn" data-code="' + p.code + '" data-name="' + p.name + '" onclick="event.stopPropagation();var e=this;openNews(e.dataset.code,e.dataset.name)">热点</button>';
+    html += '</div>';
     html += '<div class="stock-code">' + p.code + '</div></div>';
     html += '<div class="stock-pnl ' + pnlCls + '">' + fmtPnl(dailyPnlVal) + '</div>';
     html += '</div>';
@@ -454,8 +624,13 @@ function renderStockCard(p) {
     return html;
 }
 
-function render() {
-    var d = DATA;
+function render(data) {
+    var d = data || DATA;
+    // Save collapse state before re-render
+    var collapsed = {};
+    document.querySelectorAll('.cat-section').forEach(function(el, i) {
+        if (el.classList.contains('collapsed')) collapsed[i] = true;
+    });
     var totalVal = d.total_value || 0;
     var dailyPnl = d.total_daily_pnl || 0;
     var pos = d.positions || [];
@@ -591,6 +766,11 @@ function render() {
 
     setHtml('stockCount', totalCount + '只');
     setHtml('stockList', listHtml);
+
+    // Restore collapse state
+    document.querySelectorAll('.cat-section').forEach(function(el, i) {
+        if (collapsed[i]) el.classList.add('collapsed');
+    });
 }
 
 function toggleCat(header) {
@@ -624,7 +804,46 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
+// ── News Modal ──
+function openNews(code, name) {
+    document.getElementById('newsModalTitle').textContent = name + ' — 热点新闻';
+    document.getElementById('newsModalBody').innerHTML = '<div class="news-loading">加载中...</div>';
+    document.getElementById('newsModal').classList.remove('hidden');
+    fetch('/news?code=' + encodeURIComponent(code)).then(function(r) {
+        return r.json();
+    }).then(function(items) {
+        var body = document.getElementById('newsModalBody');
+        if (!items || items.length === 0) {
+            body.innerHTML = '<div class="news-empty">暂无相关热点</div>';
+            return;
+        }
+        var html = '';
+        items.forEach(function(item) {
+            html += '<div class="news-item">';
+            html += '<a href="' + (item.url || '#') + '" target="_blank" rel="noopener">' + (item.title || '') + '</a>';
+            if (item.intro) html += '<div class="news-intro">' + item.intro + '</div>';
+            if (item.time) {
+                var t = item.time;
+                if (t.length >= 16) t = t.substring(0, 16);
+                html += '<div class="news-time">' + t + '</div>';
+            }
+            html += '</div>';
+        });
+        body.innerHTML = html;
+    }).catch(function() {
+        document.getElementById('newsModalBody').innerHTML = '<div class="news-empty">加载失败</div>';
+    });
+}
+function closeNews() {
+    document.getElementById('newsModal').classList.add('hidden');
+}
+
 render();
+
+// Poll for real-time updates every 5 seconds
+setInterval(function() {
+    fetch('/data').then(function(r) { return r.json(); }).then(render).catch(function(){});
+}, 5000);
 </script>
 </body>
 </html>"""
@@ -659,10 +878,27 @@ class _Handler(BaseHTTPRequestHandler):
             self.send_header("Expires", "0")
             self.end_headers()
             self.wfile.write(_Handler.page_html.encode("utf-8"))
+        elif path == "/data":
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(_get_holdings_json().encode("utf-8"))
         elif path == "/health":
             self.send_response(200)
             self.send_header("Cache-Control", "no-store")
             self.end_headers()
+        elif path == "/news":
+            qs = parse_qs(urlparse(self.path).query)
+            raw_code = qs.get("code", [""])[0]
+            # Convert raw East Money code to sina code for news lookup
+            market = _resolve_market(raw_code)
+            sina = _to_sina_code(raw_code, market)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(get_news_json(sina).encode("utf-8"))
         elif path == "/shutdown":
             self.send_response(200)
             self.send_header("Cache-Control", "no-store")
@@ -706,7 +942,10 @@ def launch_account_page(holdings_data, code_to_cat=None, cat_order=None, open_br
     Returns:
         HTTPServer instance (call server.shutdown() to stop)
     """
-    _Handler.page_html = _generate_page(holdings_data, code_to_cat, cat_order)
+    import copy
+    page_data = copy.deepcopy(holdings_data)
+    set_holdings_data(page_data)
+    _Handler.page_html = _generate_page(page_data, code_to_cat, cat_order)
 
     _try_shutdown_old(_FIXED_PORT)
 
