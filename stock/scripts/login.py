@@ -73,15 +73,19 @@ def _parse_holdings(data):
             if not code or _safe_int(p.get("Zqsl", 0)) <= 0:
                 continue
             name = str(p.get("Zqmc", p.get("zqzwqc", "")))
+            shares_val = _safe_int(p.get("Zqsl"))
+            price_val = _safe_float(p.get("Zxjg"))
+            daily_pnl_val = _safe_float(p.get("Dryk"))
             all_positions.append({
                 "code": code,
                 "name": name,
-                "shares": _safe_int(p.get("Zqsl")),
+                "shares": shares_val,
                 "available": _safe_int(p.get("Kysl")),
                 "cost": _safe_float(p.get("Cbjg")),
-                "price": _safe_float(p.get("Zxjg")),
+                "price": price_val,
+                "prev_close": price_val - daily_pnl_val / shares_val if shares_val > 0 else price_val,
                 "market_value": _safe_float(p.get("Zxsz")),
-                "daily_pnl": _safe_float(p.get("Dryk")),
+                "daily_pnl": daily_pnl_val,
                 "total_pnl": _safe_float(p.get("Ljyk")),
                 "pnl_pct": _safe_float(p.get("Ykbl")) * 100,
                 "account_type": str(acct_type),

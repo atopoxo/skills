@@ -1,6 +1,6 @@
 """
 News fetcher — fetches hot financial news from Sina API by stock name.
-Returns news items grouped by stock code.
+Scores relevance per stock, filters by threshold, supports multi-stock news sharing.
 """
 
 import json
@@ -17,17 +17,41 @@ if sys.platform == "win32":
 
 _SINA_NEWS_API = "https://feed.mix.sina.com.cn/api/roll/get"
 _NEWS_FETCH_TIMEOUT = 5
+_RELEVANCE_THRESHOLD = 2  # minimum score to include news for a stock
 
 # Shared state
-_news_data = {}  # {sina_code: [{title, url, time, intro}, ...]}
+_news_data = {}  # {sina_code: [{title, url, time, intro, score}, ...]}
 _news_lock = threading.Lock()
 
 
-def _fetch_stock_news(keyword, code, count=8):
-    """Fetch news for a specific stock from Sina finance API.
-    Uses both stock name and stock code as search keywords for relevance.
-    Filters results to only include news mentioning the stock name."""
-    # Strip sina prefix for human-readable code (rt_hk00700 → 00700, sh600000 → 600000)
+def _relevance_score(title, intro, keyword, display_code, categories=None):
+    """Score a news item's relevance to a stock. Higher = more relevant.
+
+    Title match:     +3 (strong signal)
+    Code in title:   +3 (strong signal)
+    Intro match:     +2 (medium signal)
+    Code in intro:   +2 (medium signal)
+    Category match:  +1 per match (weak signal — sector-wide news)
+    """
+    score = 0
+    if keyword in title:
+        score += 3
+    if display_code in title:
+        score += 3
+    if keyword in intro:
+        score += 2
+    if display_code in intro:
+        score += 2
+    if categories:
+        for cat in categories:
+            if cat in title or cat in intro:
+                score += 1
+    return score
+
+
+def _fetch_stock_news(keyword, code, categories=None, count=8):
+    """Fetch news for a specific stock and score relevance.
+    Only returns items with score >= _RELEVANCE_THRESHOLD."""
     display_code = code
     for prefix in ("rt_hk", "sh", "sz"):
         if display_code.startswith(prefix):
@@ -53,6 +77,9 @@ def _fetch_stock_news(keyword, code, count=8):
     for entry in data.get("result", {}).get("data", []):
         title = entry.get("title", "")
         intro = entry.get("intro", "")
+        score = _relevance_score(title, intro, keyword, display_code, categories)
+        if score < _RELEVANCE_THRESHOLD:
+            continue
         ctime = entry.get("ctime", "")
         try:
             ts = int(ctime)
@@ -64,21 +91,34 @@ def _fetch_stock_news(keyword, code, count=8):
             "url": entry.get("url", ""),
             "time": ctime,
             "intro": intro,
+            "score": score,
         })
     return items
 
 
-def fetch_all_news(stocks):
+def fetch_all_news(stocks, code_to_cat=None):
     """Fetch news for all stocks (sina_code, name) tuples.
     Deduplicates by stock code. Returns {sina_code: [news_items]}."""
     result = {}
     for code, name in stocks:
         if code in result:
             continue
-        items = _fetch_stock_news(name, code)
+        categories = None
+        if code_to_cat:
+            # code_to_cat keys are raw East Money codes (e.g., "00981");
+            # sina codes have a prefix (e.g., "rt_hk00981")
+            raw_code = code
+            for prefix in ("rt_hk", "sh", "sz"):
+                if raw_code.startswith(prefix):
+                    raw_code = raw_code[len(prefix):]
+                    break
+            cat = code_to_cat.get(raw_code, "")
+            if cat:
+                categories = [cat]
+        items = _fetch_stock_news(name, code, categories)
         if items:
             result[code] = items
-        time.sleep(0.2)  # Rate limit
+        time.sleep(0.2)
     return result
 
 
@@ -100,11 +140,11 @@ def get_news_json(code):
     return json.dumps(get_news_for_code(code), ensure_ascii=False)
 
 
-def refresh_news_loop(stocks, interval_seconds=300):
+def refresh_news_loop(stocks, code_to_cat=None, interval_seconds=300):
     """Background thread: periodically refresh news data."""
     while True:
         try:
-            data = fetch_all_news(stocks)
+            data = fetch_all_news(stocks, code_to_cat)
             set_news_data(data)
             total = sum(len(v) for v in data.values())
             print(f"[news] 热点更新完成: {len(data)} 只股票, {total} 条新闻")

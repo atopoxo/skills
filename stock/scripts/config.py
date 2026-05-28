@@ -53,10 +53,6 @@ DEFAULT_CONFIG = {
         "enabled": True,
         "show_all_ticks": False,
     },
-    "fallback_stocks": [
-        {"code": "sh688008", "name": "澜起科技", "market": "sh"},
-        {"code": "sz159599", "name": "芯片ETF东财", "market": "sz"},
-    ],
     "sina_api": {
         "base_url": "http://hq.sinajs.cn/list={codes}",
         "request_timeout_seconds": 2,
@@ -226,15 +222,6 @@ def validate_config(cfg):
                 url = fs.get("webhook_url", "")
                 if not url or not url.startswith("https://"):
                     errors.append("feishu.webhook_url: Webhook 模式必须填写有效的 HTTPS URL")
-
-    if "fallback_stocks" in cfg:
-        if not cfg["fallback_stocks"]:
-            errors.append("fallback_stocks: 列表不能为空")
-        for i, s in enumerate(cfg["fallback_stocks"]):
-            if not s.get("code"):
-                errors.append(f"fallback_stocks[{i}].code: 缺失")
-            if not s.get("name"):
-                errors.append(f"fallback_stocks[{i}].name: 缺失")
 
     return errors
 
