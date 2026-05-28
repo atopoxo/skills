@@ -898,6 +898,159 @@ def get_etf_flows() -> dict:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Market Sentiment Aggregator (Dashboard)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def get_market_sentiment() -> dict:
+    """Aggregate macro, ETF flow, and news sentiment into a dashboard summary.
+
+    Reads from in-memory caches only - never blocks on network I/O.
+    """
+    global _macro_signals_cache, _etf_flow_cache, _news_summary_cache
+    macro = _macro_signals_cache if _macro_signals_cache else {"available": False}
+    etf = _etf_flow_cache if _etf_flow_cache else {"available": False}
+    news = _news_summary_cache if _news_summary_cache else {}
+
+    has_macro = macro.get("available", False)
+    has_etf = etf.get("available", False)
+    has_news = bool(news.get("item_count", 0))
+
+    if not (has_macro or has_etf or has_news):
+        return {
+            "available": False,
+            "mood": "neutral",
+            "mood_label": "等待数据",
+            "mood_summary": "市场情绪数据正在首次采集中，请稍候...",
+            "score": 0,
+            "gauge_pct": 50,
+            "signals": {
+                "macro": {"verdict": "unknown", "verdict_label": "等待中", "bullish_pct": 0, "detail": ""},
+                "etf_flow": {"verdict": "unknown", "verdict_label": "等待中", "net_score": 0, "detail": ""},
+                "news": {"verdict": "unknown", "verdict_label": "等待中", "bullish_pct": 0, "activity": "quiet", "detail": ""},
+            },
+            "updated_at": datetime.now().strftime("%m-%d %H:%M"),
+        }
+
+    # ── Macro signal ──
+    if has_macro:
+        m_verdict = macro.get("verdict", "neutral")
+        m_bullish = macro.get("bullish_count", 0)
+        m_total = macro.get("total_count", 4)
+        m_bullish_pct = round(m_bullish / m_total * 100) if m_total else 50
+        _label_map = {"bullish": "偏多", "defensive": "偏空", "neutral": "中性"}
+        m_label = _label_map.get(m_verdict, "未知")
+        if m_verdict == "bullish":
+            m_detail = f"{m_bullish}/{m_total} 信号偏多"
+        elif m_verdict == "defensive":
+            m_detail = f"{macro.get('defensive_count', 0)}/{m_total} 信号偏空"
+        else:
+            m_detail = "信号分化"
+    else:
+        m_verdict = "unknown"
+        m_label = "等待中"
+        m_bullish_pct = 0
+        m_detail = "宏观数据获取中..."
+
+    # ── ETF flow ──
+    if has_etf:
+        e_summary = etf.get("summary", {})
+        e_dir = e_summary.get("direction", "mixed")
+        e_label = {"inflow": "流入", "outflow": "流出", "mixed": "分化"}.get(e_dir, "未知")
+        e_net = e_summary.get("net_score", 0)
+        if e_net >= 0:
+            e_detail = "净流入 {:.1f}".format(abs(e_net))
+        else:
+            e_detail = "净流出 {:.1f}".format(abs(e_net))
+    else:
+        e_dir = "unknown"
+        e_label = "等待中"
+        e_net = 0
+        e_detail = "ETF数据获取中..."
+
+    # ── News sentiment ──
+    if has_news:
+        sb = news.get("sentiment_breakdown", {})
+        n_bull = sb.get("bullish", 0)
+        n_bear = sb.get("bearish", 0)
+        n_neut = sb.get("neutral", 0)
+        n_total = n_bull + n_bear + n_neut
+        n_bullish_pct = round(n_bull / n_total * 100) if n_total else 50
+        n_activity = news.get("activity_level", "quiet")
+        if n_bull > n_bear:
+            n_verdict = "bullish"
+            n_label = "偏积极"
+        elif n_bear > n_bull:
+            n_verdict = "bearish"
+            n_label = "偏消极"
+        else:
+            n_verdict = "neutral"
+            n_label = "中性"
+        n_detail = f"{n_bull}\u2191 {n_bear}\u2193"
+        if n_activity != "quiet":
+            act_cn = {"elevated": "活跃", "active": "正常", "calm": "平静"}.get(n_activity, "")
+            n_detail += f" {act_cn}"
+    else:
+        n_verdict = "unknown"
+        n_label = "等待中"
+        n_bullish_pct = 0
+        n_activity = "quiet"
+        n_detail = "新闻数据获取中..."
+
+    # ── Overall mood score ──
+    score = 0
+    if m_verdict == "bullish":
+        score += 1
+    elif m_verdict == "defensive":
+        score -= 1
+    if e_dir == "inflow":
+        score += 1
+    elif e_dir == "outflow":
+        score -= 1
+    if n_verdict == "bullish":
+        score += 1
+    elif n_verdict == "bearish":
+        score -= 1
+
+    if score >= 2:
+        mood = "bullish"
+        mood_label = "乐观"
+    elif score <= -2:
+        mood = "defensive"
+        mood_label = "谨慎"
+    else:
+        mood = "neutral"
+        mood_label = "中性"
+
+    # ── Mood summary ──
+    parts = []
+    if has_macro and m_verdict != "neutral":
+        parts.append(f"宏观{m_label}")
+    if has_etf and e_dir != "mixed":
+        parts.append(f"资金{e_label}")
+    if has_news and n_verdict != "neutral":
+        parts.append(f"新闻{n_label}")
+    if parts:
+        mood_summary = "、".join(parts) + f"，市场情绪偏{mood_label}"
+    else:
+        mood_summary = "各维度信号中性，市场方向不明朗"
+
+    return {
+        "available": True,
+        "mood": mood,
+        "mood_label": mood_label,
+        "mood_summary": mood_summary,
+        "score": score,
+        "gauge_pct": round((score + 3) / 6 * 100),
+        "signals": {
+            "macro": {"verdict": m_verdict, "verdict_label": m_label, "bullish_pct": m_bullish_pct, "detail": m_detail},
+            "etf_flow": {"verdict": e_dir, "verdict_label": e_label, "net_score": round(e_net, 1), "detail": e_detail},
+            "news": {"verdict": n_verdict, "verdict_label": n_label, "bullish_pct": n_bullish_pct, "activity": n_activity, "detail": n_detail},
+        },
+        "updated_at": datetime.now().strftime("%m-%d %H:%M"),
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # LLM Integration (Requirement 7)
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -1025,7 +1178,7 @@ JSON:"""
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
+        with urllib.request.urlopen(req, timeout=90) as resp:
             raw = resp.read().decode("utf-8")
     except Exception as e:
         print(f"[llm] API调用失败: {e}", file=sys.stderr)

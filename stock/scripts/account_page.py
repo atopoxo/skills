@@ -494,6 +494,70 @@ body {
     border-radius: 8px; padding: 0 5px; min-width: 16px; text-align: center;
 }
 .news-btn:hover .badge { background: #fff; color: #e33a3d; }
+
+/* ── Market Sentiment Gauge ── */
+.sentiment-card {
+    margin: 0 12px 10px;
+    background: #141824;
+    border-radius: 12px;
+    padding: 14px 16px 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+.sentiment-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ccd;
+}
+.sentiment-card-header .sentiment-time {
+    font-size: 10px;
+    color: #667;
+    font-weight: 400;
+}
+.sentiment-gauge-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+}
+.sentiment-gauge-wrap svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.sentiment-needle {
+    transform-origin: 150px 125px;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sentiment-center-display {
+    text-align: center;
+    margin-top: -40px;
+    position: relative;
+    z-index: 1;
+}
+.sentiment-center-value {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #fff;
+}
+.sentiment-center-summary {
+    font-size: 11px;
+    color: #889;
+    margin-top: 2px;
+    line-height: 1.4;
+}
+@keyframes gaugePulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+}
+.sentiment-center-value.loading {
+    animation: gaugePulse 1.5s ease-in-out infinite;
+    color: #556;
+}
 </style>
 </head>
 <body>
@@ -552,6 +616,70 @@ body {
     <div class="asset-row">
         <span class="label">累计盈亏</span>
         <span class="value amount" id="totalPnl">--</span>
+    </div>
+</div>
+
+<!-- ── Market Sentiment Gauge ── -->
+<div class="sentiment-card" id="sentimentDashboard">
+    <div class="sentiment-card-header">
+        <span>市场情绪</span>
+        <span class="sentiment-time" id="sentimentTime">--</span>
+    </div>
+    <div class="sentiment-gauge-wrap">
+        <svg viewBox="0 0 300 175" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#4caf50"/>
+                    <stop offset="35%" stop-color="#8bc34a"/>
+                    <stop offset="50%" stop-color="#f59e0b"/>
+                    <stop offset="65%" stop-color="#ff9800"/>
+                    <stop offset="80%" stop-color="#ff5722"/>
+                </linearGradient>
+            </defs>
+            <!-- Outer silver ring -->
+            <path d="M 45 125 A 105 105 0 0 1 255 125"
+                  fill="none" stroke="#334" stroke-width="4" stroke-linecap="round"/>
+            <!-- Colored arc (0-80) -->
+            <path d="M 45 125 A 105 105 0 0 1 255 125"
+                  fill="none" stroke="url(#gaugeGrad)" stroke-width="10" stroke-linecap="butt"
+                  stroke-dasharray="263.89 65.97" stroke-dashoffset="0"/>
+            <!-- Red zone arc (80-100) -->
+            <path d="M 45 125 A 105 105 0 0 1 255 125"
+                  fill="none" stroke="#e33a3d" stroke-width="10" stroke-linecap="butt"
+                  stroke-dasharray="65.97 263.89" stroke-dashoffset="-263.89"/>
+            <!-- Tick marks -->
+            <line x1="45.0" y1="125.0" x2="54.0" y2="125.0" stroke="#8899aa" stroke-width="1.5"/>
+<line x1="50.1" y1="92.6" x2="58.7" y2="95.3" stroke="#8899aa" stroke-width="1"/>
+<line x1="65.1" y1="63.3" x2="72.3" y2="68.6" stroke="#8899aa" stroke-width="1.5"/>
+<line x1="88.3" y1="40.1" x2="93.6" y2="47.3" stroke="#8899aa" stroke-width="1"/>
+<line x1="117.6" y1="25.1" x2="120.3" y2="33.7" stroke="#8899aa" stroke-width="1.5"/>
+<line x1="150.0" y1="20.0" x2="150.0" y2="29.0" stroke="#8899aa" stroke-width="1"/>
+<line x1="182.4" y1="25.1" x2="179.7" y2="33.7" stroke="#8899aa" stroke-width="1.5"/>
+<line x1="211.7" y1="40.1" x2="206.4" y2="47.3" stroke="#8899aa" stroke-width="1"/>
+<line x1="234.9" y1="63.3" x2="227.7" y2="68.6" stroke="#8899aa" stroke-width="1.5"/>
+<line x1="249.9" y1="92.6" x2="241.3" y2="95.3" stroke="#8899aa" stroke-width="1"/>
+<line x1="255.0" y1="125.0" x2="246.0" y2="125.0" stroke="#8899aa" stroke-width="1.5"/>
+            <!-- Numbers -->
+            <text x="66.0" y="129.0" text-anchor="middle" font-size="10" fill="#8899aa" font-family="Arial, sans-serif">0</text>
+<text x="82.0" y="79.6" text-anchor="middle" font-size="10" fill="#8899aa" font-family="Arial, sans-serif">20</text>
+<text x="124.0" y="49.1" text-anchor="middle" font-size="10" fill="#8899aa" font-family="Arial, sans-serif">40</text>
+<text x="176.0" y="49.1" text-anchor="middle" font-size="10" fill="#8899aa" font-family="Arial, sans-serif">60</text>
+<text x="218.0" y="79.6" text-anchor="middle" font-size="10" fill="#8899aa" font-family="Arial, sans-serif">80</text>
+<text x="234.0" y="129.0" text-anchor="middle" font-size="10" fill="#8899aa" font-family="Arial, sans-serif">100</text>
+            <!-- Center cap -->
+            <circle cx="150" cy="125" r="8" fill="#1a1a2e" stroke="#334" stroke-width="2"/>
+            <!-- Needle -->
+            <g class="sentiment-needle" id="gaugeNeedle" style="transform:rotate(0deg)">
+                <line x1="150" y1="125" x2="150" y2="30" stroke="#e8e8e8" stroke-width="2" stroke-linecap="round"/>
+                <polygon points="146,36 150,24 154,36" fill="#e33a3d"/>
+            </g>
+            <!-- Center dot -->
+            <circle cx="150" cy="125" r="4" fill="#e8e8e8"/>
+        </svg>
+    </div>
+    <div class="sentiment-center-display">
+        <div class="sentiment-center-value loading" id="sentimentMood">--</div>
+        <div class="sentiment-center-summary" id="sentimentSummary">正在获取市场数据...</div>
     </div>
 </div>
 
@@ -625,30 +753,107 @@ function renderStockCard(p) {
     var tPnlCls = pnlClass(totalPnlVal);
     var dailyPnlPct = (p.prev_close > 0) ? ((p.price - p.prev_close) / p.prev_close * 100) : 0;
 
-    var html = '<div class="stock-card">';
+    var sid = 's' + p.code;
+    var html = '<div class="stock-card" id="card-' + sid + '">';
     html += '<div class="stock-top">';
     html += '<div><div class="stock-name">' + p.name;
     html += '<button class="news-btn" data-code="' + p.code + '" data-name="' + p.name + '" onclick="event.stopPropagation();var e=this;openNews(e.dataset.code,e.dataset.name)">建议</button>';
     html += '</div>';
     html += '<div class="stock-code">' + p.code + '</div></div>';
-    html += '<div class="stock-pnl ' + pnlCls + '">' + fmtPnl(dailyPnlVal) + ' (' + fmtPnl(dailyPnlPct) + '%)</div>';
+    html += '<div class="stock-pnl ' + pnlCls + '" id="dailyPnl-' + sid + '">' + fmtPnl(dailyPnlVal) + ' (' + fmtPnl(dailyPnlPct) + '%)</div>';
     html += '</div>';
     html += '<div class="stock-meta">';
     html += '<span>成本: ' + fmt(p.cost, 3) + '</span>';
-    html += '<span>现价: ' + fmt(p.price, 3) + '</span>';
+    html += '<span>现价: <b id="price-' + sid + '">' + fmt(p.price, 3) + '</b></span>';
     html += '</div>';
     html += '<div class="stock-bottom">';
     html += '<div class="stock-meta">';
     html += '<div>持仓 <span>' + (p.shares || 0) + '</span>股';
     html += ' | 可用 <span>' + (p.available || 0) + '</span>股</div>';
     html += '</div>';
-    html += '<div class="stock-value">市值: ' + fmtWan(p.market_value) + '</div>';
+    html += '<div class="stock-value" id="mv-' + sid + '">市值: ' + fmtWan(p.market_value) + '</div>';
     html += '</div>';
     html += '<div style="font-size:11px;margin-top:4px;">';
-    html += '累计盈亏 <span class="stock-pnl ' + tPnlCls + '">' + fmtPnl(totalPnlVal) + ' (' + fmtPnl(cumPnlPct) + '%)</span>';
+    html += '累计盈亏 <span class="stock-pnl ' + tPnlCls + '" id="totalPnl-' + sid + '">' + fmtPnl(totalPnlVal) + ' (' + fmtPnl(cumPnlPct) + '%)</span>';
     html += '</div>';
     html += '</div>';
     return html;
+}
+
+
+function updatePrices(data) {
+    var d = data || DATA;
+    var totalVal = d.total_value || 0;
+    var dailyPnl = d.total_daily_pnl || 0;
+    var pos = d.positions || [];
+
+    var marketVal = 0;
+    var holdingPnl = 0;
+    var cumPnl = 0;
+    pos.forEach(function(p) {
+        marketVal += p.market_value || 0;
+        holdingPnl += (p.market_value || 0) - (p.cost || 0) * (p.shares || 0);
+        cumPnl += p.total_pnl || 0;
+    });
+    var availCash = totalVal - marketVal;
+
+    // Header
+    setHtml('headerTotal', fmtMoney(totalVal));
+    var hdp = document.getElementById('headerDailyPnl');
+    hdp.innerHTML = fmtPnl(dailyPnl);
+    hdp.className = 'header-pnl-value ' + pnlClass(dailyPnl);
+    var hpp = document.getElementById('headerPosPnl');
+    hpp.innerHTML = fmtPnl(holdingPnl);
+    hpp.className = 'header-pnl-value ' + pnlClass(holdingPnl);
+    var htp = document.getElementById('headerTotalPnl');
+    htp.innerHTML = fmtPnl(cumPnl);
+    htp.className = 'header-pnl-value ' + pnlClass(cumPnl);
+
+    setHtml('availFunds', fmtMoney(availCash));
+    setClass('dailyPnl', 'value amount ' + pnlClass(dailyPnl));
+    setHtml('dailyPnl', fmtPnl(dailyPnl));
+    setClass('posPnl', 'value amount ' + pnlClass(holdingPnl));
+    setHtml('posPnl', fmtPnl(holdingPnl));
+    setClass('totalPnl', 'value amount ' + pnlClass(cumPnl));
+    setHtml('totalPnl', fmtPnl(cumPnl));
+
+    var now = new Date();
+    setHtml('updateTime', now.toLocaleString('zh-CN'));
+
+    // Update each stock card
+    pos.forEach(function(p) {
+        var sid = 's' + p.code;
+        var dailyPnlVal = p.daily_pnl || 0;
+        var dailyPnlPct = (p.prev_close > 0) ? ((p.price - p.prev_close) / p.prev_close * 100) : 0;
+        var pnlCls = pnlClass(dailyPnlVal);
+        var totalPnlVal = p.total_pnl || 0;
+        var cumPnlPct = p.pnl_pct || 0;
+        var tPnlCls = pnlClass(totalPnlVal);
+
+        var el;
+
+        // Daily P&L
+        el = document.getElementById('dailyPnl-' + sid);
+        if (el) {
+            el.className = 'stock-pnl ' + pnlCls;
+            el.innerHTML = fmtPnl(dailyPnlVal) + ' (' + fmtPnl(dailyPnlPct) + '%)';
+        }
+
+        // Price
+        el = document.getElementById('price-' + sid);
+        if (el) { el.textContent = fmt(p.price, 3); }
+
+        // Market value
+        el = document.getElementById('mv-' + sid);
+        if (el) { el.textContent = '市值: ' + fmtWan(p.market_value); }
+
+        // Total P&L
+        el = document.getElementById('totalPnl-' + sid);
+        if (el) {
+            el.className = 'stock-pnl ' + tPnlCls;
+            el.innerHTML = fmtPnl(totalPnlVal) + ' (' + fmtPnl(cumPnlPct) + '%)';
+        }
+    });
 }
 
 function render(data) {
@@ -1000,11 +1205,60 @@ function closeNews() {
     document.getElementById('newsModal').classList.add('hidden');
 }
 
+function updateSentiment(data) {
+    if (!data) return;
+
+    if (data.updated_at) {
+        setHtml('sentimentTime', data.updated_at);
+    }
+
+    var gaugePct = data.gauge_pct;
+    if (gaugePct == null) gaugePct = 50;
+
+    // Rotate needle: gauge_pct 0 → -90deg, 50 → 0deg, 100 → +90deg
+    var angle = (gaugePct - 50) * 1.8;
+    var needle = document.getElementById('gaugeNeedle');
+    if (needle) {
+        needle.style.transform = 'rotate(' + angle + 'deg)';
+    }
+
+    // Update center display
+    var el = document.getElementById('sentimentMood');
+    if (el) {
+        el.classList.remove('loading');
+        if (!data.available) {
+            el.textContent = '--';
+            el.classList.add('loading');
+        } else {
+            el.textContent = data.mood_label || '--';
+            var m = data.mood || 'neutral';
+            if (m === 'bullish') {
+                el.style.color = '#ff6b6b';
+            } else if (m === 'defensive') {
+                el.style.color = '#69db7c';
+            } else {
+                el.style.color = '#ffd43b';
+            }
+        }
+    }
+
+    setHtml('sentimentSummary', data.mood_summary || '正在获取市场数据...');
+}
+
 render();
 
+
+// Initial sentiment fetch
+fetch('/sentiment').then(function(r) { return r.json(); }).then(updateSentiment).catch(function(){});
+
 // Poll for real-time updates every 1 second
+var _pollCount = 0;
 setInterval(function() {
-    fetch('/data').then(function(r) { return r.json(); }).then(render).catch(function(){});
+    fetch('/data').then(function(r) { return r.json(); }).then(updatePrices).catch(function(){});
+    _pollCount++;
+    if (_pollCount % 30 === 0) {
+        fetch('/sentiment').then(function(r) { return r.json(); }).then(updateSentiment).catch(function(){});
+    }
 }, 1000);
 </script>
 </body>
@@ -1077,6 +1331,13 @@ class _Handler(BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "no-store")
             self.end_headers()
             self.wfile.write(json.dumps(result, ensure_ascii=False).encode("utf-8"))
+        elif path == "/sentiment":
+            sentiment = market_intel.get_market_sentiment()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(json.dumps(sentiment, ensure_ascii=False).encode("utf-8"))
         elif path == "/shutdown":
             self.send_response(200)
             self.send_header("Cache-Control", "no-store")
