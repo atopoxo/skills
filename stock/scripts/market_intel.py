@@ -260,6 +260,107 @@ def _calc_sma(series: list[dict], window: int) -> float | None:
     return sum(closes) / window
 
 
+def _calc_atr(series: list[dict], period: int = 14) -> float | None:
+    """Average True Range — volatility measure used for dynamic stop-loss.
+
+    ATR = average of True Range over `period` days.
+    True Range = max(high-low, |high-prev_close|, |low-prev_close|)
+    """
+    if len(series) < period + 1:
+        return None
+    tr_values = []
+    for i in range(period):
+        h = float(series[i]["high"])
+        l = float(series[i]["low"])
+        pc = float(series[i + 1]["close"])
+        tr = max(h - l, abs(h - pc), abs(l - pc))
+        tr_values.append(tr)
+    return sum(tr_values) / len(tr_values) if tr_values else None
+
+
+def _calc_kelly_fraction(win_prob: float, entry_price: float,
+                         target_price: float, stop_loss: float) -> float:
+    """Kelly Criterion fraction for optimal position sizing.
+
+    f* = (p * b - q) / b
+      p = win probability
+      q = 1 - p
+      b = reward/risk = (target - entry) / (entry - stop)
+
+    Returns half-Kelly fraction (more conservative, avoids over-betting).
+    Capped at 0.25 (max 25% position change per signal).
+    """
+    if entry_price <= 0 or stop_loss <= 0 or target_price <= entry_price:
+        return 0.0
+    reward = target_price - entry_price
+    risk = entry_price - stop_loss
+    if risk <= 0:
+        return 0.0
+    b = reward / risk
+    if b <= 0:
+        return 0.0
+    q = 1.0 - win_prob
+    f = (win_prob * b - q) / b
+    f = max(0.0, min(f * 0.5, 0.25))
+    return f
+
+
+def _score_to_win_probability(score: float) -> float:
+    """Map composite signal score to estimated win probability via sigmoid.
+
+    score = 0  → 50% (coin flip)
+    score = +3 → ~63%
+    score = -3 → ~37%
+    Asymptotically approaches 65%/35% at extremes.
+    """
+    return 0.50 + 0.15 * (2.0 / (1.0 + pow(2.71828, -score * 0.7)) - 1.0)
+
+
+# ── Signal Performance Tracker ─────────────────────────────────────
+# Tracks each signal source's recent predictive accuracy for dynamic weighting.
+
+_SIGNAL_TRACKER: dict[str, dict] = {}
+_SIGNAL_TRACKER_LOCK = threading.Lock()
+SIGNAL_LOOKBACK = 20  # number of past signals to track per source
+
+
+def _update_signal_accuracy(source: str, direction: str, was_correct: bool):
+    """Record whether a signal's directional call was correct."""
+    global _SIGNAL_TRACKER
+    with _SIGNAL_TRACKER_LOCK:
+        if source not in _SIGNAL_TRACKER:
+            _SIGNAL_TRACKER[source] = {"correct": 0, "total": 0, "history": []}
+        tr = _SIGNAL_TRACKER[source]
+        tr["total"] += 1
+        if was_correct:
+            tr["correct"] += 1
+        tr["history"].append({"direction": direction, "correct": was_correct})
+        if len(tr["history"]) > SIGNAL_LOOKBACK:
+            old = tr["history"].pop(0)
+            tr["total"] -= 1
+            if old["correct"]:
+                tr["correct"] -= 1
+
+
+def _get_signal_accuracy(source: str) -> float:
+    """Return recent accuracy for a signal source (0.5 = no edge, 1.0 = perfect)."""
+    with _SIGNAL_TRACKER_LOCK:
+        tr = _SIGNAL_TRACKER.get(source)
+        if not tr or tr["total"] < 3:
+            return 0.5  # Default: no edge assumed until enough data
+        return tr["correct"] / tr["total"]
+
+
+def _get_dynamic_weight(source: str, base_weight: float) -> float:
+    """Compute dynamic weight: base_weight scaled by signal accuracy.
+
+    Accuracy > 0.5 amplifies weight, < 0.5 reduces it.
+    Weight is capped between 0.3× and 1.5× of base.
+    """
+    acc = _get_signal_accuracy(source)
+    return base_weight * max(0.3, min(1.5, acc / 0.5))
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Data Source 1: 财联社 (CLS) Telegraph
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1051,6 +1152,77 @@ def get_market_sentiment() -> dict:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Portfolio Risk Monitor (DeepSeek-style risk budgeting)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def compute_portfolio_risk(holdings_data: dict,
+                           code_to_cat: dict | None = None) -> dict:
+    """Compute portfolio concentration and risk metrics.
+
+    Flags when single-stock or single-sector weight exceeds thresholds,
+    enabling risk-parity-aware decision making (DeepSeek principle).
+    """
+    code_to_cat = code_to_cat or {}
+    positions = holdings_data.get("positions", [])
+    total_value = holdings_data.get("total_value", 0)
+    if total_value <= 0:
+        return {"available": False, "warning": "无有效持仓数据"}
+
+    # ── Single-stock concentration ──
+    stock_weights = []
+    for p in positions:
+        mv = p.get("market_value", 0) or 0
+        if mv > 0:
+            code = str(p.get("code", ""))
+            name = p.get("name", code)
+            weight = mv / total_value * 100
+            stock_weights.append({"code": code, "name": name, "weight": round(weight, 1)})
+
+    stock_weights.sort(key=lambda x: x["weight"], reverse=True)
+    max_stock = stock_weights[0] if stock_weights else None
+    top3_weight = round(sum(s["weight"] for s in stock_weights[:3]), 1)
+
+    # ── Sector/category concentration ──
+    sector_weights: dict[str, float] = {}
+    for p in positions:
+        mv = p.get("market_value", 0) or 0
+        if mv <= 0:
+            continue
+        code = str(p.get("code", ""))
+        cat = "其它"
+        for c in [code, code.zfill(5), code.zfill(6)]:
+            if c in code_to_cat:
+                cat = code_to_cat[c]
+                break
+        sector_weights[cat] = sector_weights.get(cat, 0) + mv / total_value * 100
+
+    sorted_sectors = sorted(sector_weights.items(), key=lambda x: x[1], reverse=True)
+    max_sector = {"name": sorted_sectors[0][0], "weight": round(sorted_sectors[0][1], 1)} if sorted_sectors else None
+
+    # ── Risk flags ──
+    warnings = []
+    if max_stock and max_stock["weight"] > 30:
+        warnings.append(f"⚠ {max_stock['name']}单票仓位{max_stock['weight']:.0f}%，超过30%警戒线")
+    if max_sector and max_sector["weight"] > 50:
+        warnings.append(f"⚠ {max_sector['name']}板块仓位{max_sector['weight']:.0f}%，超过50%警戒线")
+    if top3_weight > 70:
+        warnings.append(f"⚠ 前三大持仓占比{top3_weight:.0f}%，集中度偏高")
+
+    risk_level = "high" if len(warnings) >= 2 else ("medium" if len(warnings) == 1 else "low")
+
+    return {
+        "available": True,
+        "risk_level": risk_level,
+        "warnings": warnings,
+        "max_stock": max_stock,
+        "max_sector": max_sector,
+        "top3_weight": top3_weight,
+        "sector_weights": [{"name": name, "weight": w} for name, w in sorted_sectors[:5]],
+        "stock_count": len(stock_weights),
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # LLM Integration (Requirement 7)
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -1324,6 +1496,17 @@ def _get_technical_levels(stock_code: str) -> dict:
     dist_to_support = round((price - nearest_support) / price * 100, 2)
     dist_to_resistance = round((nearest_resistance - price) / price * 100, 2)
 
+    # ATR-based dynamic stop (2× ATR from current price, min 3% max 12%)
+    kline = fetch_daily_kline(stock_code, 20)
+    atr = _calc_atr(kline, 14) if len(kline) >= 15 else None
+    if atr and price > 0:
+        atr_pct = atr / price * 100
+        atr_stop = round(price - atr * 2.0, 3)
+        atr_stop_pct = round(atr_pct * 2.0, 2)
+    else:
+        atr_stop = None
+        atr_stop_pct = None
+
     return {
         "available": True,
         "price": round(price, 3),
@@ -1338,6 +1521,9 @@ def _get_technical_levels(stock_code: str) -> dict:
         "nearest_resistance": nearest_resistance,
         "dist_to_support_pct": dist_to_support,
         "dist_to_resistance_pct": dist_to_resistance,
+        "atr": round(atr, 3) if atr else None,
+        "atr_stop": atr_stop,
+        "atr_stop_pct": atr_stop_pct,
     }
 
 
@@ -1361,12 +1547,19 @@ def _generate_trade_advice(sentiment: dict, price_data: dict,
     score = 0.0
     has_position = position is not None and position.get("shares", 0) > 0
 
+    # ── Dynamic signal weights (accuracy-tracking, DeepSeek-style) ──
+    w_news = _get_dynamic_weight("news_sentiment", 0.5)
+    w_factors = _get_dynamic_weight("news_factors", 0.3)
+    w_macro = _get_dynamic_weight("macro_signals", 0.5)
+    w_etf = _get_dynamic_weight("etf_flow", 0.3)
+    w_technical = _get_dynamic_weight("technical", 0.4)
+
     # ── News sentiment ──
     if sent_label == "bullish":
-        score += sent_score * 0.5
+        score += sent_score * w_news
         reasons.append("近期相关新闻整体偏向正面，多头情绪占优")
     elif sent_label == "bearish":
-        score -= abs(sent_score) * 0.5
+        score -= abs(sent_score) * w_news
         risks.append("近期相关新闻偏向负面，需关注风险因素")
 
     if mention_count >= 5:
@@ -1374,30 +1567,30 @@ def _generate_trade_advice(sentiment: dict, price_data: dict,
 
     for f in bull_factors[:3]:
         reasons.append(f"利好因素: {f}")
-        score += 0.3
+        score += w_factors
     for f in bear_factors[:3]:
         risks.append(f"风险因素: {f}")
-        score -= 0.3
+        score -= w_factors
 
     # ── Macro signals ──
     if macro_signals and macro_signals.get("available"):
         verdict = macro_signals.get("verdict", "neutral")
         if verdict == "bullish":
             reasons.append("宏观环境偏多，市场风险偏好上升")
-            score += 0.5
+            score += w_macro
         elif verdict == "defensive":
             risks.append("宏观环境偏防御，建议控制仓位")
-            score -= 0.5
+            score -= w_macro
 
     # ── ETF flow ──
     if etf_flows and etf_flows.get("available"):
         etf_dir = etf_flows.get("summary", {}).get("direction", "mixed")
         if etf_dir == "inflow":
             reasons.append("ETF整体资金流入，机构看多情绪较浓")
-            score += 0.3
+            score += w_etf
         elif etf_dir == "outflow":
             risks.append("ETF整体资金流出，注意市场情绪转弱")
-            score -= 0.3
+            score -= w_etf
 
     # ── Price data ──
     current_price = 0.0
@@ -1408,23 +1601,23 @@ def _generate_trade_advice(sentiment: dict, price_data: dict,
 
         if change_pct >= 3:
             reasons.append(f"今日涨幅{change_pct:.1f}%，短线动能强劲")
-            score += 1.0
+            score += 1.0 * w_technical / 0.4  # normalize: base weight 0.4 → 1.0
         elif change_pct >= 1:
             reasons.append(f"今日上涨{change_pct:.1f}%，走势稳健")
-            score += 0.5
+            score += 0.5 * w_technical / 0.4
         elif change_pct <= -3:
             risks.append(f"今日跌幅{abs(change_pct):.1f}%，短线回调明显")
-            score -= 1.0
+            score -= 1.0 * w_technical / 0.4
         elif change_pct <= -1:
             risks.append(f"今日下跌{abs(change_pct):.1f}%，走势偏弱")
-            score -= 0.5
+            score -= 0.5 * w_technical / 0.4
 
         if vol > 100_000_000:
             reasons.append("今日成交量较大，资金关注度高")
-            score += 0.3
+            score += 0.3 * w_technical / 0.4
         elif 0 < vol < 10_000_000:
             risks.append("今日成交量偏低，流动性偏弱")
-            score -= 0.2
+            score -= 0.2 * w_technical / 0.4
     else:
         reasons.append("当前为非交易时段，基于新闻面分析")
 
@@ -1489,35 +1682,52 @@ def _gen_holding_advice(score: float, pnl_pct: float, shares: int,
     ns = price_data.get("nearest_support", 0) if price_avail else 0
     nr = price_data.get("nearest_resistance", 0) if price_avail else 0
 
+    # ATR-based dynamic stop: use 2× ATR when available, fall back to fixed %
+    atr_stop = price_data.get("atr_stop") if price_avail else None
+    atr = price_data.get("atr") if price_avail else None
+
+    def _calc_stop(entry: float, fallback_pct: float = 0.93) -> float:
+        """ATR-based stop loss when available, otherwise fixed-percentage fallback."""
+        if atr_stop and atr and current_price > 0:
+            # Use ATR stop, clamped to [3%, 12%] of entry price
+            raw = current_price - atr * 2.0
+            return round(max(entry * 0.88, min(entry * 0.97, raw)), 2)
+        return round(entry * fallback_pct, 2)
+
+    # Kelly-based position sizing
+    win_prob = _score_to_win_probability(score)
+
     if score >= 3:
-        add_shares = max(100, int(shares * 0.15 / 100) * 100)
         ep = ns if ns > 0 else round(current_price * 0.99, 2)
         tp = nr if nr > 0 else round(current_price * 1.08, 2)
-        sl = round(min(ns * 0.97, cost * 0.92) if ns and cost else current_price * 0.93, 2)
+        sl = _calc_stop(ep, 0.93)
+        kelly_f = _calc_kelly_fraction(win_prob, ep, tp, sl)
+        add_shares = max(100, int(shares * kelly_f / 100) * 100) if kelly_f > 0 else 100
         recommendation, action, confidence = "加仓", "buy", "高"
-        summary = f"{stock_name}多项指标共振看多，建议加仓{add_shares}股，目标价{tp:.2f}"
+        summary = f"{stock_name}多项指标共振看多(Kelly {kelly_f:.0%})，建议加仓{add_shares}股，目标价{tp:.2f}"
         trade_plan = {
             "action": "buy", "shares": add_shares, "price": ep,
             "price_range": [round(ep * 0.995, 2), round(ep * 1.005, 2)],
             "target_price": tp, "stop_loss": sl,
-            "reasoning": f"信号评分{score:.1f}，技术面偏强，在支撑位{ep:.2f}附近加仓，跌破{sl:.2f}止损",
+            "reasoning": f"信号评分{score:.1f}(胜率{win_prob:.0%})，Kelly仓位{kelly_f:.0%}，在{ep:.2f}附近加仓，ATR止损{sl:.2f}",
         }
     elif score >= 1:
         if pnl_pct > 10:
             recommendation, action, confidence = "继续持有", "hold", "中"
             summary = f"{stock_name}走势稳健且已有浮盈{pnl_pct:.1f}%，建议继续持有"
         else:
-            add_shares = max(100, int(shares * 0.10 / 100) * 100)
             ep = ns if ns > 0 else round(current_price * 0.98, 2)
             tp = nr if nr > 0 else round(current_price * 1.05, 2)
-            sl = round(min(ns * 0.97, cost * 0.93) if ns and cost else current_price * 0.94, 2)
+            sl = _calc_stop(ep, 0.94)
+            kelly_f = _calc_kelly_fraction(win_prob, ep, tp, sl)
+            add_shares = max(100, int(shares * kelly_f / 100) * 100) if kelly_f > 0 else 100
             recommendation, action, confidence = "加仓", "buy", "中"
-            summary = f"{stock_name}信号偏多，可轻仓加仓{add_shares}股，目标{tp:.2f}"
+            summary = f"{stock_name}信号偏多(Kelly {kelly_f:.0%})，可轻仓加仓{add_shares}股，目标{tp:.2f}"
             trade_plan = {
                 "action": "buy", "shares": add_shares, "price": ep,
                 "price_range": [round(ep * 0.99, 2), round(ep * 1.01, 2)],
                 "target_price": tp, "stop_loss": sl,
-                "reasoning": f"信号评分{score:.1f}，适度看多，在{ep:.2f}附近小幅加仓",
+                "reasoning": f"信号评分{score:.1f}(胜率{win_prob:.0%})，Kelly仓位{kelly_f:.0%}，在{ep:.2f}附近小幅加仓",
             }
     elif score >= 0:
         recommendation, action, confidence = "继续持有", "hold", "中"
@@ -1529,7 +1739,9 @@ def _gen_holding_advice(score: float, pnl_pct: float, shares: int,
             summary = f"{stock_name}信号中性偏弱，浮亏{abs(pnl_pct):.1f}%，持有但需关注止损"
     elif score >= -2:
         if pnl_pct > 15:
-            sell_shares = max(100, int(shares * 0.3 / 100) * 100)
+            # Score negative but profitable → take partial profits
+            sell_pct = min(0.5, abs(score) * 0.1)  # 20-50% based on score severity
+            sell_shares = max(100, int(shares * sell_pct / 100) * 100)
             ep = nr if nr > 0 else round(current_price * 1.01, 2)
             recommendation, action, confidence = "减仓", "sell", "中"
             summary = f"{stock_name}信号转弱但浮盈可观({pnl_pct:.1f}%)，建议减仓{sell_shares}股锁定利润"
@@ -1538,10 +1750,11 @@ def _gen_holding_advice(score: float, pnl_pct: float, shares: int,
                 "price_range": [round(ep * 0.99, 2), round(ep * 1.01, 2)],
                 "target_price": ns if ns else round(current_price * 0.95, 2),
                 "stop_loss": round(current_price * 1.05, 2),
-                "reasoning": f"信号评分{score:.1f}偏弱，止盈减仓锁定利润",
+                "reasoning": f"信号评分{score:.1f}偏弱，止盈减仓{sell_pct:.0%}锁定利润",
             }
         elif pnl_pct <= -8:
-            sell_shares = max(100, int(shares * 0.5 / 100) * 100)
+            sell_pct = min(0.7, abs(score) * 0.15)
+            sell_shares = max(100, int(shares * sell_pct / 100) * 100)
             recommendation, action, confidence = "减仓", "sell", "高"
             summary = f"{stock_name}信号偏弱且浮亏{abs(pnl_pct):.1f}%，建议减仓{sell_shares}股控制风险"
             trade_plan = {
@@ -1550,20 +1763,21 @@ def _gen_holding_advice(score: float, pnl_pct: float, shares: int,
                 "price_range": [round(current_price * 0.99, 2), round(current_price * 1.01, 2)] if current_price else [0, 0],
                 "target_price": 0,
                 "stop_loss": round(current_price * 0.92, 2) if current_price else 0,
-                "reasoning": f"信号评分{score:.1f}，浮亏超8%，减仓止损控制下行风险",
+                "reasoning": f"信号评分{score:.1f}，浮亏超8%，减仓{sell_pct:.0%}控制下行风险",
             }
         else:
             recommendation, action, confidence = "继续持有", "hold", "中"
             summary = f"{stock_name}信号偏弱但未触发止损，建议持有观察"
     else:
         if pnl_pct > 5:
-            sell_shares = max(100, int(shares * 0.5 / 100) * 100)
+            sell_pct = min(0.8, abs(score) * 0.15)
+            sell_shares = max(100, int(shares * sell_pct / 100) * 100)
             recommendation, action, confidence = "减仓", "sell", "高"
-            summary = f"{stock_name}信号共振看空，建议减仓{sell_shares}股保住利润"
+            summary = f"{stock_name}信号共振看空(Kelly负)，建议减仓{sell_shares}股保住利润"
         else:
             sell_shares = shares
             recommendation, action, confidence = "清仓", "sell", "高"
-            summary = f"{stock_name}信号共振看空，建议清仓{shares}股止损离场"
+            summary = f"{stock_name}信号共振看空(Kelly负)，建议清仓{shares}股止损离场"
         ep = round(current_price, 2) if current_price else 0
         trade_plan = {
             "action": "sell", "shares": sell_shares, "price": ep,
@@ -1748,6 +1962,42 @@ def analyze_single_stock(stock_code: str, stock_name: str,
         result["watch_plan"] = advice["watch_plan"]
     if advice.get("position_info"):
         result["position_info"] = advice["position_info"]
+
+    # ── Update signal accuracy (DeepSeek-style dynamic weighting) ──
+    if price_data.get("available"):
+        change_pct = price_data.get("change_pct", 0)
+        price_up = change_pct > 0.5
+        price_down = change_pct < -0.5
+
+        # News sentiment accuracy
+        news_label = sentiment.get("sentiment_label", "")
+        if news_label == "bullish":
+            _update_signal_accuracy("news_sentiment", "bullish", price_up)
+            _update_signal_accuracy("news_factors", "bullish", price_up)
+        elif news_label == "bearish":
+            _update_signal_accuracy("news_sentiment", "bearish", price_down)
+            _update_signal_accuracy("news_factors", "bearish", price_down)
+
+        # Macro signals accuracy
+        if macro_signals.get("available"):
+            m_verdict = macro_signals.get("verdict", "")
+            if m_verdict == "bullish":
+                _update_signal_accuracy("macro_signals", "bullish", price_up)
+            elif m_verdict == "defensive":
+                _update_signal_accuracy("macro_signals", "defensive", price_down)
+
+        # ETF flow accuracy
+        if etf_flows.get("available"):
+            e_dir = etf_flows.get("summary", {}).get("direction", "")
+            if e_dir == "inflow":
+                _update_signal_accuracy("etf_flow", "inflow", price_up)
+            elif e_dir == "outflow":
+                _update_signal_accuracy("etf_flow", "outflow", price_down)
+
+        # Technical accuracy (price momentum direction)
+        _update_signal_accuracy("technical", "up" if price_up else "down",
+                                price_up if change_pct > 0 else price_down)
+
     return result
 
 

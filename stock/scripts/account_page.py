@@ -854,6 +854,47 @@ function updatePrices(data) {
             el.innerHTML = fmtPnl(totalPnlVal) + ' (' + fmtPnl(cumPnlPct) + '%)';
         }
     });
+
+    // Update category headers (market value, total P&L, daily P&L)
+    var catMap = {};
+    var catOrder = CATEGORIES.order || [];
+    var codeToCat = CATEGORIES.code_to_cat || {};
+    catOrder.forEach(function(c) { catMap[c] = {mv: 0, daily: 0, total: 0}; });
+    catMap['其它'] = {mv: 0, daily: 0, total: 0};
+
+    pos.forEach(function(p) {
+        var code = String(p.code || '');
+        var cat = codeToCat[code];
+        if (!cat || !catMap[cat]) cat = '其它';
+        catMap[cat].mv += p.market_value || 0;
+        catMap[cat].daily += p.daily_pnl || 0;
+        catMap[cat].total += p.total_pnl || 0;
+    });
+
+    catOrder.forEach(function(cat) {
+        var d = catMap[cat];
+        if (!d || d.mv === 0) return;
+        updateCatHeader(cat, d.mv, d.total, d.daily);
+    });
+    if (catMap['其它'].mv > 0) {
+        updateCatHeader('其它', catMap['其它'].mv, catMap['其它'].total, catMap['其它'].daily);
+    }
+}
+
+function updateCatHeader(cat, mv, totalPnl, dailyPnl) {
+    var el;
+    el = document.getElementById('cat-mv-' + cat);
+    if (el) el.textContent = fmtWan(mv);
+    el = document.getElementById('cat-total-pnl-' + cat);
+    if (el) {
+        el.textContent = fmtWan(totalPnl, true);
+        el.className = 'cat-total-pnl ' + pnlClass(totalPnl);
+    }
+    el = document.getElementById('cat-daily-pnl-' + cat);
+    if (el) {
+        el.textContent = fmtWan(dailyPnl, true);
+        el.className = 'cat-daily-pnl ' + pnlClass(dailyPnl);
+    }
 }
 
 function render(data) {
@@ -947,11 +988,11 @@ function render(data) {
         listHtml += '<div class="cat-header" onclick="toggleCat(this)">';
         listHtml += '<span class="cat-name">' + cat + '</span>';
         listHtml += '<div class="cat-info">';
-        listHtml += '<span class="cat-mv">' + fmtWan(catMv) + '</span>';
-        listHtml += '<span class="cat-total-pnl ' + totalPnlCls + '">' + fmtWan(catTotalPnl, true) + '</span>';
+        listHtml += '<span class="cat-mv" id="cat-mv-' + cat + '">' + fmtWan(catMv) + '</span>';
+        listHtml += '<span class="cat-total-pnl ' + totalPnlCls + '" id="cat-total-pnl-' + cat + '">' + fmtWan(catTotalPnl, true) + '</span>';
         listHtml += '</div>';
         listHtml += '<div class="cat-right">';
-        listHtml += '<span class="cat-daily-pnl ' + dailyPnlCls + '">' + fmtWan(catDailyPnl, true) + '</span>';
+        listHtml += '<span class="cat-daily-pnl ' + dailyPnlCls + '" id="cat-daily-pnl-' + cat + '">' + fmtWan(catDailyPnl, true) + '</span>';
         listHtml += '<span class="cat-count">' + stocks.length + '只</span>';
         listHtml += '<span class="cat-arrow">▼</span>';
         listHtml += '</div>';
@@ -978,11 +1019,11 @@ function render(data) {
         listHtml += '<div class="cat-header" onclick="toggleCat(this)">';
         listHtml += '<span class="cat-name">其它</span>';
         listHtml += '<div class="cat-info">';
-        listHtml += '<span class="cat-mv">' + fmtWan(oMv) + '</span>';
-        listHtml += '<span class="cat-total-pnl ' + oTotalCls + '">' + fmtWan(oTotal, true) + '</span>';
+        listHtml += '<span class="cat-mv" id="cat-mv-其它">' + fmtWan(oMv) + '</span>';
+        listHtml += '<span class="cat-total-pnl ' + oTotalCls + '" id="cat-total-pnl-其它">' + fmtWan(oTotal, true) + '</span>';
         listHtml += '</div>';
         listHtml += '<div class="cat-right">';
-        listHtml += '<span class="cat-daily-pnl ' + oDailyCls + '">' + fmtWan(oDaily, true) + '</span>';
+        listHtml += '<span class="cat-daily-pnl ' + oDailyCls + '" id="cat-daily-pnl-其它">' + fmtWan(oDaily, true) + '</span>';
         listHtml += '<span class="cat-count">' + otherPos.length + '只</span>';
         listHtml += '<span class="cat-arrow">▼</span>';
         listHtml += '</div>';
@@ -1333,6 +1374,12 @@ class _Handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(result, ensure_ascii=False).encode("utf-8"))
         elif path == "/sentiment":
             sentiment = market_intel.get_market_sentiment()
+            # Merge portfolio concentration risk when holdings available
+            with _holdings_lock:
+                if _holdings_data and _holdings_data.get("positions"):
+                    risk = market_intel.compute_portfolio_risk(
+                        dict(_holdings_data), _code_to_cat_cache)
+                    sentiment["concentration"] = risk
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Cache-Control", "no-store")
