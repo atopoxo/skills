@@ -66,8 +66,10 @@ def main():
     code_to_cat, cat_order = load_categories()
 
     if not stocks:
-        print("[main] 登录失败，无法获取持仓标的", file=sys.stderr)
-        return
+        print("[main] 登录失败，将以空持仓列表启动Web界面", file=sys.stderr)
+        print("[main] 请在浏览器中刷新页面或重启程序以重试登录", file=sys.stderr)
+        # Continue with empty stocks — server will still start with error state
+        holdings_data = {"total_value": 0, "total_daily_pnl": 0, "positions": [], "_error": "login_failed"}
 
     # Build market value lookup from holdings data
     value_map = _build_value_map(holdings_data)

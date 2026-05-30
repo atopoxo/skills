@@ -133,6 +133,7 @@ _etf_flow_cache: dict = {}
 _etf_flow_time: float = 0.0
 _news_summary_cache: dict = {}
 _news_summary_time: float = 0.0
+_sector_etf_cache: dict = {}
 
 MACRO_CACHE_TTL = 300
 ETF_FLOW_CACHE_TTL = 300
@@ -1151,6 +1152,190 @@ def get_market_sentiment() -> dict:
     }
 
 
+
+def get_sector_sentiment(code_to_cat: dict | None = None,
+                         cat_order: list[str] | None = None) -> dict:
+    """Compute per-sector sentiment for the user's portfolio categories.
+
+    Always returns every sector the user holds. Falls back through:
+    1. News title keyword match
+    2. Broader title+summary search
+    3. ETF flow data for sector-relevant ETFs
+    4. Cached sector ETF kline performance
+
+    Returns {"sectors": [...], "available": bool, "updated_at": "..."}
+    """
+    global _news_summary_cache, _etf_flow_cache
+    code_to_cat = code_to_cat or {}
+    cat_order = cat_order or []
+
+    held_sectors = list(dict.fromkeys(
+        c for c in cat_order if c != "其它" and c in code_to_cat.values()
+    ))
+    if not held_sectors:
+        return {"sectors": [], "available": False, "updated_at": datetime.now().strftime("%m-%d %H:%M")}
+
+    news_items = _news_summary_cache.get("_raw_items", []) if _news_summary_cache else []
+    news_available = len(news_items) > 0
+
+    etf_data = _etf_flow_cache if _etf_flow_cache else {}
+
+    _SECTOR_ETF_MAP = {
+        "AI硬件": ["sh588000"],
+        "黄金": ["sh518880"],
+    }
+
+    news_texts = []
+    for item in news_items:
+        title = item.get("title", "") if isinstance(item, dict) else ""
+        summary = item.get("summary", "") if isinstance(item, dict) else ""
+        news_texts.append(f"{title} {summary}")
+
+    def _classify_item(item):
+        label = (item.get("overall_sentiment_label") or "").lower() if isinstance(item, dict) else ""
+        if label == "bullish":
+            return 1
+        elif label == "bearish":
+            return -1
+        title = item.get("title", "") if isinstance(item, dict) else ""
+        bs = sum(1 for bk in _BULLISH_KEYWORDS if bk in title)
+        br = sum(1 for bk in _BEARISH_KEYWORDS if bk in title)
+        if bs > br:
+            return 1
+        elif br > bs:
+            return -1
+        return 0
+
+    sector_results = []
+    for sector in held_sectors:
+        keywords = _SECTOR_KEYWORDS.get(sector, [])
+        if not keywords:
+            sector_results.append({
+                "sector": sector, "verdict": "no_data", "verdict_label": "--",
+                "bullish_pct": 0, "news_count": 0, "gauge_pct": 0,
+            })
+            continue
+
+        bull = 0
+        bear = 0
+        matching_headlines = []
+
+        # Step 1: Search news titles
+        for item in news_items:
+            title = item.get("title", "") if isinstance(item, dict) else ""
+            if not title:
+                continue
+            if not any(kw in title for kw in keywords):
+                continue
+            result = _classify_item(item)
+            if result == 1:
+                bull += 1
+            elif result == -1:
+                bear += 1
+            if len(matching_headlines) < 3:
+                matching_headlines.append(title)
+
+        # Step 2: Broader search (title + summary)
+        if bull + bear == 0:
+            for i, item in enumerate(news_items):
+                if not isinstance(item, dict):
+                    continue
+                if i < len(news_texts) and any(kw in news_texts[i] for kw in keywords):
+                    result = _classify_item(item)
+                    if result == 1:
+                        bull += 1
+                    elif result == -1:
+                        bear += 1
+                    if len(matching_headlines) < 3:
+                        matching_headlines.append(item.get("title", ""))
+
+        total = bull + bear
+
+        # Step 3: ETF flow fallback
+        data_source = ""
+        if total == 0:
+            etf_symbols = _SECTOR_ETF_MAP.get(sector, [])
+            if etf_symbols and etf_data.get("available"):
+                etf_items = etf_data.get("items", [])
+                etf_signal = 0
+                for ei in etf_items:
+                    if ei.get("symbol") in etf_symbols:
+                        fs = ei.get("flow_score", 0)
+                        if fs > 0.5:
+                            etf_signal += 1
+                        elif fs < -0.5:
+                            etf_signal -= 1
+                if etf_signal != 0:
+                    bull = 1 if etf_signal > 0 else 0
+                    bear = 1 if etf_signal < 0 else 0
+                    total = 1
+                    data_source = "ETF资金流向"
+
+        # Step 4: Cached sector ETF kline
+        if total == 0:
+            sector_codes = [c for c, cat in code_to_cat.items() if cat == sector]
+            for sc in sector_codes:
+                cached = _sector_etf_cache.get(sc)
+                if cached and cached.get("available"):
+                    chg_pct = cached.get("change_pct", 0)
+                    if chg_pct > 1:
+                        bull, bear, total = 1, 0, 1
+                        data_source = f"板块ETF近5日涨{chg_pct:.1f}%"
+                    elif chg_pct < -1:
+                        bull, bear, total = 0, 1, 1
+                        data_source = f"板块ETF近5日跌{abs(chg_pct):.1f}%"
+                    elif abs(chg_pct) <= 1:
+                        total = 1
+                        data_source = "板块ETF近5日持平"
+                if total > 0:
+                    break
+
+        if total == 0:
+            sector_results.append({
+                "sector": sector,
+                "verdict": "no_data",
+                "verdict_label": "--" if not news_available else "无相关",
+                "bullish_pct": 0,
+                "news_count": 0,
+                "gauge_pct": 0,
+                "sample_headlines": matching_headlines,
+                "data_source": "等待数据" if not news_available else "",
+            })
+            continue
+
+        bullish_pct = round(bull / total * 100)
+        if bullish_pct >= 60:
+            verdict = "bullish"
+            verdict_label = "偏多"
+        elif bullish_pct <= 40:
+            verdict = "bearish"
+            verdict_label = "偏空"
+        else:
+            verdict = "neutral"
+            verdict_label = "中性"
+
+        gauge_pct = round((bullish_pct - 20) / 60 * 100) if bullish_pct >= 50 else round(bullish_pct / 50 * 50)
+        gauge_pct = max(5, min(95, gauge_pct))
+
+        result = {
+            "sector": sector,
+            "verdict": verdict,
+            "verdict_label": verdict_label,
+            "bullish_pct": bullish_pct,
+            "news_count": total,
+            "gauge_pct": gauge_pct,
+            "sample_headlines": matching_headlines,
+        }
+        if data_source:
+            result["data_source"] = data_source
+        sector_results.append(result)
+
+    return {
+        "sectors": sector_results,
+        "available": True,
+        "updated_at": datetime.now().strftime("%m-%d %H:%M"),
+    }
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Portfolio Risk Monitor (DeepSeek-style risk budgeting)
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1476,7 +1661,7 @@ def _get_technical_levels(stock_code: str) -> dict:
     is_hk = stock_code.startswith("rt_hk")
     price = sp.price
     if is_hk:
-        fx = get_current_fx_rate()
+        fx = get_current_fx_rate("sz")  # default to 深港通 rate
         price = sp.price * fx if fx > 0 else sp.price
 
     pc = sp.prev_close
@@ -1904,6 +2089,7 @@ def analyze_single_stock(stock_code: str, stock_name: str,
     now = time.time()
     if not _news_summary_cache or (now - _news_summary_time) > NEWS_SUMMARY_CACHE_TTL:
         _news_summary_cache = _build_news_summary(market_news)
+        _news_summary_cache["_raw_items"] = market_news
         _news_summary_time = now
 
     # Analyze sentiment
@@ -2083,6 +2269,31 @@ def refresh_hotspot_loop(stocks: list[tuple[str, str]],
     while True:
         try:
             refresh_hotspot_data(stocks, code_to_cat)
+            _refresh_sector_etf_cache(code_to_cat)
         except Exception as e:
             print(f"[intel] 情报刷新循环异常: {e}", file=sys.stderr)
         time.sleep(interval_seconds)
+
+
+def _refresh_sector_etf_cache(code_to_cat: dict | None = None):
+    """Background: fetch kline for sector ETFs held in portfolio and cache performance."""
+    global _sector_etf_cache
+    code_to_cat = code_to_cat or {}
+    for code in code_to_cat:
+        if not code.startswith(("51", "159", "58")):
+            continue
+        try:
+            market = "sh" if code.startswith("51") else "sz"
+            sina_code = f"{market}{code}"
+            kline = fetch_daily_kline(sina_code, 5)
+            if kline and len(kline) >= 2:
+                latest = kline[0].get("close", 0)
+                prev = kline[-1].get("close", 0)
+                if prev > 0:
+                    _sector_etf_cache[code] = {
+                        "available": True,
+                        "change_pct": round((latest - prev) / prev * 100, 2),
+                        "price": latest,
+                    }
+        except Exception:
+            pass

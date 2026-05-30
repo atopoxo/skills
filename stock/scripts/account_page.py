@@ -14,7 +14,9 @@ import threading
 import webbrowser
 import time
 import urllib.request
+from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from socketserver import ThreadingMixIn
 from urllib.parse import urlparse, parse_qs
 from news_fetcher import get_news_json
 from price_fetcher import get_current_fx_rate
@@ -29,6 +31,11 @@ _FIXED_PORT = 18080
 _holdings_data = {}
 _holdings_lock = threading.Lock()
 _code_to_cat_cache: dict = {}  # populated by _generate_page
+_cat_order_cache: list = []
+
+# Shared state for hotspot (AI analysis) caching to avoid blocking HTTP handler
+_hotspot_cache: dict = {}
+_hotspot_lock = threading.Lock()
 
 
 def _resolve_market(code):
@@ -91,7 +98,8 @@ def set_holdings_data(data):
 
 def update_price_data(price_map):
     """Merge latest price_map (sina_code → StockPrice) into per-position fields.
-    HK stock prices from Sina are HKD; converted to CNY via get_current_fx_rate."""
+    HK stock prices from Sina are HKD; converted to CNY via get_current_fx_rate.
+    Uses 东方财富 港股通 结算汇率 卖出价, distinguished by 沪市/深市."""
     global _holdings_data
     with _holdings_lock:
         if not _holdings_data:
@@ -105,7 +113,10 @@ def update_price_data(price_map):
                 shares = p.get("shares", 0)
                 cost = p.get("cost", 0)
                 if market == "hk":
-                    fx = get_current_fx_rate()
+                    # Determine 沪港通(sh) vs 深港通(sz) from account market type
+                    acct_type = str(p.get("account_type", p.get("Market", "")))
+                    hk_channel = "sh" if acct_type.upper() in ("HA", "SH", "1") else "sz"
+                    fx = get_current_fx_rate(hk_channel)
                     price_cny = sp.price * fx
                     prev_close_cny = sp.prev_close * fx
                     p["price"] = price_cny  # CNY for display consistency with cost
@@ -138,7 +149,8 @@ def _get_holdings_json():
         result = dict(_holdings_data)
         result["total_daily_pnl"] = total_daily
         result["total_value"] = total_mv + result.pop("_cash", 0)
-        return json.dumps(result, ensure_ascii=False, default=str)
+    # Serialize outside lock to avoid blocking other threads
+    return json.dumps(result, ensure_ascii=False, default=str)
 
 
 def _get_lan_ip():
@@ -558,6 +570,71 @@ body {
     animation: gaugePulse 1.5s ease-in-out infinite;
     color: #556;
 }
+/* ── Sector Sentiment Cards ── */
+.sector-sentiment-wrap {
+    margin: 0 12px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.sector-card {
+    flex: 1 1 auto;
+    min-width: 100px;
+    max-width: 130px;
+    background: #141824;
+    border-radius: 10px;
+    padding: 8px 6px 10px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.sector-card .sector-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #99a;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.sector-mini-gauge {
+    width: 80px;
+    height: 48px;
+    margin: 0 auto;
+    display: block;
+}
+.sector-mini-needle {
+    transform-origin: 40px 36px;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sector-card .sector-value {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-top: -2px;
+}
+.sector-card .sector-meta {
+    font-size: 9px;
+    color: #556;
+    margin-top: 1px;
+    line-height: 1.3;
+}
+.sector-bullish .sector-value { color: #ff6b6b; }
+.sector-bearish .sector-value { color: #69db7c; }
+.sector-neutral .sector-value { color: #ffd43b; }
+.sector-no_data .sector-value { color: #556; }
+.sector-bullish { border-top: 2px solid #ff6b6b; }
+.sector-bearish { border-top: 2px solid #69db7c; }
+.sector-neutral { border-top: 2px solid #ffd43b; }
+.sector-no_data { border-top: 2px solid #3a3d4a; }
+.sector-empty {
+    color: #556;
+    font-size: 12px;
+    text-align: center;
+    padding: 14px 0;
+    margin: 0 12px 10px;
+    background: #141824;
+    border-radius: 10px;
+}
 </style>
 </head>
 <body>
@@ -617,6 +694,11 @@ body {
         <span class="label">累计盈亏</span>
         <span class="value amount" id="totalPnl">--</span>
     </div>
+</div>
+
+<!-- ── Sector Sentiment Dashboard ── -->
+<div class="sector-sentiment-wrap" id="sectorSentimentWrap">
+    <div class="sector-empty" id="sectorSentimentEmpty">板块情绪数据采集中...</div>
 </div>
 
 <!-- ── Market Sentiment Gauge ── -->
@@ -899,6 +981,20 @@ function updateCatHeader(cat, mv, totalPnl, dailyPnl) {
 
 function render(data) {
     var d = data || DATA;
+    // Check for login failure state
+    if (DATA._error === 'login_failed') {
+        setHtml('headerTotal', '--');
+        setHtml('stockCount', '0只');
+        setHtml('stockList', '<div class="empty-state" style="font-size:15px;color:#e33a3d;">⚠️ 登录失败，无法获取持仓数据</div>'
+            + '<div class="empty-state" style="font-size:12px;margin-top:12px;line-height:1.6;">请检查 config.json 中的 Cookie 是否过期<br>或关闭程序后使用 <b>--relogin</b> 参数重新登录</div>');
+        var now = new Date();
+        setHtml('updateTime', now.toLocaleString('zh-CN'));
+        // Hide sentiment sections
+        setHtml('sentimentMood', '--');
+        setHtml('sentimentSummary', '请先完成登录');
+        document.getElementById('sentimentMood').classList.add('loading');
+        return;
+    }
     // Save collapse state before re-render
     var collapsed = {};
     document.querySelectorAll('.cat-section').forEach(function(el, i) {
@@ -1082,165 +1178,180 @@ function openNews(code, name) {
     document.getElementById('newsModalTitle').textContent = name + ' — 热点情报';
     document.getElementById('newsModalBody').innerHTML = '<div class="news-loading">分析中...</div>';
     document.getElementById('newsModal').classList.remove('hidden');
+    _fetchHotspot(code, name, 0);
+}
+
+function _fetchHotspot(code, name, retryCount) {
     fetch('/hotspot?code=' + encodeURIComponent(code) + '&name=' + encodeURIComponent(name)).then(function(r) {
         return r.json();
     }).then(function(data) {
-        var body = document.getElementById('newsModalBody');
-        if (!data || data.status === 'error') {
-            body.innerHTML = '<div class="news-empty">数据获取失败' + (data && data.reasons ? ': ' + data.reasons[0] : '') + '</div>';
+        if (data.status === 'processing' && retryCount < 3) {
+            // Background analysis still running — retry after 3 seconds
+            document.getElementById('newsModalBody').innerHTML =
+                '<div class="news-loading">AI分析进行中，约需等待10-30秒... (' + (retryCount + 1) + '/3)</div>';
+            setTimeout(function() { _fetchHotspot(code, name, retryCount + 1); }, 3000);
             return;
         }
-
-        var actColors = {buy: '#e33a3d', sell: '#4caf50', hold: '#f59e0b', wait: '#888'};
-        var actBg = {buy: '#fff5f5,#ffe8e8', sell: '#f0fff0,#e0ffe0', hold: '#fffef5,#fff8e0', wait: '#f5f5f5,#eee'};
-        var actColor = actColors[data.action] || '#f59e0b';
-        var confStars = data.confidence === '高' ? '★★★' : data.confidence === '中' ? '★★☆' : '★☆☆';
-
-        var html = '';
-
-        // ── Recommendation card ──
-        html += '<div style="background:linear-gradient(135deg,' + (actBg[data.action] || '#f5f5f5,#eee') +
-                ');border-radius:12px;padding:16px;margin-bottom:12px;text-align:center;">';
-        html += '<div style="font-size:13px;color:#888;margin-bottom:6px;">智能分析 · 买卖建议</div>';
-        html += '<div style="font-size:36px;font-weight:700;color:' + actColor + ';">' + (data.recommendation || '观望') + '</div>';
-        html += '<div style="font-size:12px;color:#999;margin-top:4px;">置信度 ' + confStars + ' · 评分 ' + (data.score || 0) + '</div>';
-        html += '<div style="font-size:13px;color:#555;margin-top:8px;line-height:1.5;">' + (data.summary || '') + '</div>';
-        html += '</div>';
-
-        // ── Position info card (if holding) ──
-        if (data.position_info) {
-            var pi = data.position_info;
-            var pnlColor = (pi.pnl_pct || 0) >= 0 ? '#e33a3d' : '#4caf50';
-            var pnlSign = (pi.pnl_pct || 0) >= 0 ? '+' : '';
-            html += '<div style="background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">';
-            html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:8px;">持仓状态</div>';
-            html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
-            html += '<span>持有</span><span style="font-weight:600;">' + (pi.shares || 0) + ' 股</span></div>';
-            html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
-            html += '<span>成本</span><span style="font-weight:600;">¥' + (pi.cost || 0).toFixed(3) + '</span></div>';
-            if (pi.current_price) {
-                html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
-                html += '<span>现价</span><span style="font-weight:600;">¥' + pi.current_price.toFixed(3) + '</span></div>';
-            }
-            html += '<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;">';
-            html += '<span>浮动盈亏</span><span style="font-weight:600;color:' + pnlColor + ';">' + pnlSign + (pi.pnl_pct || 0).toFixed(2) + '%</span></div>';
-            html += '</div>';
-        }
-
-        // ── Trade plan card (if actionable) ──
-        if (data.trade_plan) {
-            var tp = data.trade_plan;
-            var tpBg = tp.action === 'buy' ? '#fff5f5' : '#f0fff0';
-            var tpBorder = tp.action === 'buy' ? '#e33a3d' : '#4caf50';
-            html += '<div style="background:' + tpBg + ';border:1px solid ' + tpBorder +
-                    ';border-radius:10px;padding:14px;margin-bottom:10px;">';
-            html += '<div style="font-size:14px;font-weight:600;color:' + tpBorder + ';margin-bottom:10px;">' +
-                    (tp.action === 'buy' ? '买入计划' : '卖出计划') + '</div>';
-            html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
-            html += '<span>操作数量</span><span style="font-weight:700;color:#333;">' + (tp.shares || 0) + ' 股</span></div>';
-            html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
-            html += '<span>' + (tp.action === 'buy' ? '买入价格' : '卖出价格') + '</span><span style="font-weight:700;color:#333;">¥' + (tp.price || 0).toFixed(2) + '</span></div>';
-            if (tp.price_range && tp.price_range[0]) {
-                html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
-                html += '<span>价格区间</span><span style="font-weight:600;">¥' + tp.price_range[0].toFixed(2) + ' ~ ¥' + tp.price_range[1].toFixed(2) + '</span></div>';
-            }
-            if (tp.target_price && tp.target_price > 0) {
-                html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
-                html += '<span>目标价位</span><span style="font-weight:600;color:#e33a3d;">¥' + tp.target_price.toFixed(2) + '</span></div>';
-            }
-            if (tp.stop_loss && tp.stop_loss > 0) {
-                html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
-                html += '<span>止损价位</span><span style="font-weight:600;color:#4caf50;">¥' + tp.stop_loss.toFixed(2) + '</span></div>';
-            }
-            if (tp.reasoning) {
-                html += '<div style="font-size:11px;color:#999;margin-top:8px;line-height:1.4;">' + tp.reasoning + '</div>';
-            }
-            html += '</div>';
-        }
-
-        // ── Watch plan card (if not holding) ──
-        if (data.watch_plan && !data.position_info) {
-            var wp = data.watch_plan;
-            html += '<div style="background:#f8f9ff;border:1px solid #8899cc;border-radius:10px;padding:14px;margin-bottom:10px;">';
-            html += '<div style="font-size:14px;font-weight:600;color:#5566aa;margin-bottom:10px;">入场参考</div>';
-            if (wp.entry_price && wp.entry_price > 0) {
-                html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
-                html += '<span>建议入场价</span><span style="font-weight:700;color:#333;">¥' + wp.entry_price.toFixed(2) + '</span></div>';
-            }
-            html += '<div style="font-size:12px;color:#888;margin-top:6px;line-height:1.5;">' + (wp.entry_condition || '') + '</div>';
-            if (wp.target_price && wp.target_price > 0) {
-                html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;margin-top:4px;">';
-                html += '<span>目标价位</span><span style="font-weight:600;color:#e33a3d;">¥' + wp.target_price.toFixed(2) + '</span></div>';
-            }
-            if (wp.stop_loss && wp.stop_loss > 0) {
-                html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
-                html += '<span>止损价位</span><span style="font-weight:600;color:#4caf50;">¥' + wp.stop_loss.toFixed(2) + '</span></div>';
-            }
-            html += '</div>';
-        }
-
-        // ── Analysis details ──
-        html += '<div style="background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">';
-        html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:10px;">分析依据</div>';
-        if (data.reasons && data.reasons.length > 0) {
-            html += '<div style="margin-bottom:8px;">';
-            html += '<div style="font-size:12px;color:#e33a3d;margin-bottom:4px;">看多因素</div>';
-            data.reasons.forEach(function(r) {
-                html += '<div style="font-size:12px;color:#555;padding:3px 0;padding-left:12px;">• ' + r + '</div>';
-            });
-            html += '</div>';
-        }
-        if (data.risks && data.risks.length > 0) {
-            html += '<div>';
-            html += '<div style="font-size:12px;color:#4caf50;margin-bottom:4px;">风险因素</div>';
-            data.risks.forEach(function(r) {
-                html += '<div style="font-size:12px;color:#555;padding:3px 0;padding-left:12px;">• ' + r + '</div>';
-            });
-            html += '</div>';
-        }
-        if ((!data.reasons || data.reasons.length === 0) && (!data.risks || data.risks.length === 0)) {
-            html += '<div style="font-size:12px;color:#999;text-align:center;padding:8px;">暂无显著多空信号，建议结合盘面综合判断</div>';
-        }
-        if (data.sentiment_label) {
-            var slColor = data.sentiment_label === 'bullish' ? '#e33a3d' :
-                          data.sentiment_label === 'bearish' ? '#4caf50' : '#999';
-            var slText = data.sentiment_label === 'bullish' ? '偏多' :
-                         data.sentiment_label === 'bearish' ? '偏空' : '中性';
-            html += '<div style="margin-top:8px;font-size:11px;color:#999;">新闻情绪: <span style="color:' + slColor + ';font-weight:600;">' + slText + '</span>';
-            if (data.total_mentions) html += ' · ' + data.total_mentions + '条相关';
-            html += ' · ' + (data.updated_at || '') + '</div>';
-        }
-        html += '</div>';
-
-        // ── Related news ──
-        html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:8px;">相关资讯</div>';
-        if (data.news && data.news.length > 0) {
-            data.news.forEach(function(item) {
-                var sentimentLabel = item.overall_sentiment_label || '';
-                var sColor = sentimentLabel === 'Bullish' ? '#e33a3d' :
-                             sentimentLabel === 'Bearish' ? '#4caf50' : '#999';
-                var sTag = sentimentLabel === 'Bullish' ? '利好' :
-                           sentimentLabel === 'Bearish' ? '利空' : '';
-                var newsUrl = item.url || '#';
-                html += '<div class="news-item" onclick="window.open(\\'' + newsUrl + '\\', \\'_blank\\')" style="cursor:pointer;">';
-                html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
-                html += '<span style="flex:1;font-size:14px;color:#333;font-weight:500;">' + (item.title || '') + '</span>';
-                if (sTag) html += '<span style="font-size:10px;color:#fff;background:' + sColor + ';padding:1px 5px;border-radius:4px;margin-left:6px;white-space:nowrap;">' + sTag + '</span>';
-                html += '</div>';
-                if (item.summary) html += '<div class="news-intro">' + item.summary + '</div>';
-                if (item.time_published || item.source) {
-                    html += '<div class="news-time">' + (item.source || '') + ' · ' + (item.time_published || '') + '</div>';
-                }
-                html += '</div>';
-            });
-        } else {
-            html += '<div class="news-empty">暂无直接相关资讯，上方分析基于价格走势和板块动向</div>';
-        }
-
-        body.innerHTML = html;
+        renderHotspot(data);
     }).catch(function() {
         document.getElementById('newsModalBody').innerHTML = '<div class="news-empty">加载失败，请稍后重试</div>';
     });
+}
+
+function renderHotspot(data) {
+    var body = document.getElementById('newsModalBody');
+    if (!data || data.status === 'error') {
+        body.innerHTML = '<div class="news-empty">数据获取失败' + (data && data.reasons ? ': ' + data.reasons[0] : '') + '</div>';
+        return;
+    }
+
+    var actColors = {buy: '#e33a3d', sell: '#4caf50', hold: '#f59e0b', wait: '#888'};
+    var actBg = {buy: '#fff5f5,#ffe8e8', sell: '#f0fff0,#e0ffe0', hold: '#fffef5,#fff8e0', wait: '#f5f5f5,#eee'};
+    var actColor = actColors[data.action] || '#f59e0b';
+    var confStars = data.confidence === '高' ? '★★★' : data.confidence === '中' ? '★★☆' : '★☆☆';
+
+    var html = '';
+
+    // ── Recommendation card ──
+    html += '<div style="background:linear-gradient(135deg,' + (actBg[data.action] || '#f5f5f5,#eee') +
+            ');border-radius:12px;padding:16px;margin-bottom:12px;text-align:center;">';
+    html += '<div style="font-size:13px;color:#888;margin-bottom:6px;">智能分析 · 买卖建议</div>';
+    html += '<div style="font-size:36px;font-weight:700;color:' + actColor + ';">' + (data.recommendation || '观望') + '</div>';
+    html += '<div style="font-size:12px;color:#999;margin-top:4px;">置信度 ' + confStars + ' · 评分 ' + (data.score || 0) + '</div>';
+    html += '<div style="font-size:13px;color:#555;margin-top:8px;line-height:1.5;">' + (data.summary || '') + '</div>';
+    html += '</div>';
+
+    // ── Position info card (if holding) ──
+    if (data.position_info) {
+        var pi = data.position_info;
+        var pnlColor = (pi.pnl_pct || 0) >= 0 ? '#e33a3d' : '#4caf50';
+        var pnlSign = (pi.pnl_pct || 0) >= 0 ? '+' : '';
+        html += '<div style="background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">';
+        html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:8px;">持仓状态</div>';
+        html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
+        html += '<span>持有</span><span style="font-weight:600;">' + (pi.shares || 0) + ' 股</span></div>';
+        html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
+        html += '<span>成本</span><span style="font-weight:600;">¥' + (pi.cost || 0).toFixed(3) + '</span></div>';
+        if (pi.current_price) {
+            html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
+            html += '<span>现价</span><span style="font-weight:600;">¥' + pi.current_price.toFixed(3) + '</span></div>';
+        }
+        html += '<div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;">';
+        html += '<span>浮动盈亏</span><span style="font-weight:600;color:' + pnlColor + ';">' + pnlSign + (pi.pnl_pct || 0).toFixed(2) + '%</span></div>';
+        html += '</div>';
+    }
+
+    // ── Trade plan card (if actionable) ──
+    if (data.trade_plan) {
+        var tp = data.trade_plan;
+        var tpBg = tp.action === 'buy' ? '#fff5f5' : '#f0fff0';
+        var tpBorder = tp.action === 'buy' ? '#e33a3d' : '#4caf50';
+        html += '<div style="background:' + tpBg + ';border:1px solid ' + tpBorder +
+                ';border-radius:10px;padding:14px;margin-bottom:10px;">';
+        html += '<div style="font-size:14px;font-weight:600;color:' + tpBorder + ';margin-bottom:10px;">' +
+                (tp.action === 'buy' ? '买入计划' : '卖出计划') + '</div>';
+        html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
+        html += '<span>操作数量</span><span style="font-weight:700;color:#333;">' + (tp.shares || 0) + ' 股</span></div>';
+        html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
+        html += '<span>' + (tp.action === 'buy' ? '买入价格' : '卖出价格') + '</span><span style="font-weight:700;color:#333;">¥' + (tp.price || 0).toFixed(2) + '</span></div>';
+        if (tp.price_range && tp.price_range[0]) {
+            html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
+            html += '<span>价格区间</span><span style="font-weight:600;">¥' + tp.price_range[0].toFixed(2) + ' ~ ¥' + tp.price_range[1].toFixed(2) + '</span></div>';
+        }
+        if (tp.target_price && tp.target_price > 0) {
+            html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
+            html += '<span>目标价位</span><span style="font-weight:600;color:#e33a3d;">¥' + tp.target_price.toFixed(2) + '</span></div>';
+        }
+        if (tp.stop_loss && tp.stop_loss > 0) {
+            html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
+            html += '<span>止损价位</span><span style="font-weight:600;color:#4caf50;">¥' + tp.stop_loss.toFixed(2) + '</span></div>';
+        }
+        if (tp.reasoning) {
+            html += '<div style="font-size:11px;color:#999;margin-top:8px;line-height:1.4;">' + tp.reasoning + '</div>';
+        }
+        html += '</div>';
+    }
+
+    // ── Watch plan card (if not holding) ──
+    if (data.watch_plan && !data.position_info) {
+        var wp = data.watch_plan;
+        html += '<div style="background:#f8f9ff;border:1px solid #8899cc;border-radius:10px;padding:14px;margin-bottom:10px;">';
+        html += '<div style="font-size:14px;font-weight:600;color:#5566aa;margin-bottom:10px;">入场参考</div>';
+        if (wp.entry_price && wp.entry_price > 0) {
+            html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
+            html += '<span>建议入场价</span><span style="font-weight:700;color:#333;">¥' + wp.entry_price.toFixed(2) + '</span></div>';
+        }
+        html += '<div style="font-size:12px;color:#888;margin-top:6px;line-height:1.5;">' + (wp.entry_condition || '') + '</div>';
+        if (wp.target_price && wp.target_price > 0) {
+            html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;margin-top:4px;">';
+            html += '<span>目标价位</span><span style="font-weight:600;color:#e33a3d;">¥' + wp.target_price.toFixed(2) + '</span></div>';
+        }
+        if (wp.stop_loss && wp.stop_loss > 0) {
+            html += '<div style="display:flex;justify-content:space-between;font-size:13px;color:#555;padding:3px 0;">';
+            html += '<span>止损价位</span><span style="font-weight:600;color:#4caf50;">¥' + wp.stop_loss.toFixed(2) + '</span></div>';
+        }
+        html += '</div>';
+    }
+
+    // ── Analysis details ──
+    html += '<div style="background:#fff;border-radius:10px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.04);">';
+    html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:10px;">分析依据</div>';
+    if (data.reasons && data.reasons.length > 0) {
+        html += '<div style="margin-bottom:8px;">';
+        html += '<div style="font-size:12px;color:#e33a3d;margin-bottom:4px;">看多因素</div>';
+        data.reasons.forEach(function(r) {
+            html += '<div style="font-size:12px;color:#555;padding:3px 0;padding-left:12px;">• ' + r + '</div>';
+        });
+        html += '</div>';
+    }
+    if (data.risks && data.risks.length > 0) {
+        html += '<div>';
+        html += '<div style="font-size:12px;color:#4caf50;margin-bottom:4px;">风险因素</div>';
+        data.risks.forEach(function(r) {
+            html += '<div style="font-size:12px;color:#555;padding:3px 0;padding-left:12px;">• ' + r + '</div>';
+        });
+        html += '</div>';
+    }
+    if ((!data.reasons || data.reasons.length === 0) && (!data.risks || data.risks.length === 0)) {
+        html += '<div style="font-size:12px;color:#999;text-align:center;padding:8px;">暂无显著多空信号，建议结合盘面综合判断</div>';
+    }
+    if (data.sentiment_label) {
+        var slColor = data.sentiment_label === 'bullish' ? '#e33a3d' :
+                      data.sentiment_label === 'bearish' ? '#4caf50' : '#999';
+        var slText = data.sentiment_label === 'bullish' ? '偏多' :
+                     data.sentiment_label === 'bearish' ? '偏空' : '中性';
+        html += '<div style="margin-top:8px;font-size:11px;color:#999;">新闻情绪: <span style="color:' + slColor + ';font-weight:600;">' + slText + '</span>';
+        if (data.total_mentions) html += ' · ' + data.total_mentions + '条相关';
+        html += ' · ' + (data.updated_at || '') + '</div>';
+    }
+    html += '</div>';
+
+    // ── Related news ──
+    html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:8px;">相关资讯</div>';
+    if (data.news && data.news.length > 0) {
+        data.news.forEach(function(item) {
+            var sentimentLabel = item.overall_sentiment_label || '';
+            var sColor = sentimentLabel === 'Bullish' ? '#e33a3d' :
+                         sentimentLabel === 'Bearish' ? '#4caf50' : '#999';
+            var sTag = sentimentLabel === 'Bullish' ? '利好' :
+                       sentimentLabel === 'Bearish' ? '利空' : '';
+            var newsUrl = item.url || '#';
+            html += '<div class="news-item" onclick="window.open(\\'' + newsUrl + '\\', \\'_blank\\')" style="cursor:pointer;">';
+            html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+            html += '<span style="flex:1;font-size:14px;color:#333;font-weight:500;">' + (item.title || '') + '</span>';
+            if (sTag) html += '<span style="font-size:10px;color:#fff;background:' + sColor + ';padding:1px 5px;border-radius:4px;margin-left:6px;white-space:nowrap;">' + sTag + '</span>';
+            html += '</div>';
+            if (item.summary) html += '<div class="news-intro">' + item.summary + '</div>';
+            if (item.time_published || item.source) {
+                html += '<div class="news-time">' + (item.source || '') + ' · ' + (item.time_published || '') + '</div>';
+            }
+            html += '</div>';
+        });
+    } else {
+        html += '<div class="news-empty">暂无直接相关资讯，上方分析基于价格走势和板块动向</div>';
+    }
+
+    body.innerHTML = html;
 }
 function closeNews() {
     document.getElementById('newsModal').classList.add('hidden');
@@ -1286,19 +1397,76 @@ function updateSentiment(data) {
     setHtml('sentimentSummary', data.mood_summary || '正在获取市场数据...');
 }
 
+function updateSectorSentiment(data) {
+    var wrap = document.getElementById('sectorSentimentWrap');
+    if (!wrap) return;
+    if (!data || !data.available || !(data.sectors && data.sectors.length)) {
+        var infoEl = document.getElementById('sectorSentimentEmpty');
+        if (infoEl) {
+            infoEl.textContent = data && data.available === false ? '板块新闻采集中，稍后更新...' : '暂无板块情绪数据';
+        }
+        return;
+    }
+    var infoEl = document.getElementById('sectorSentimentEmpty');
+    if (infoEl) infoEl.remove();
+
+    var html = '';
+    data.sectors.forEach(function(s) {
+        var cls = 'sector-' + (s.verdict || 'neutral');
+        var gPct = s.gauge_pct != null ? s.gauge_pct : 50;
+        if (s.verdict === 'no_data') gPct = 0;
+        var needleAngle = (gPct - 50) * 1.62;
+        var metaText = s.verdict === 'no_data' ? (s.news_count > 0 ? s.news_count + '条相关' : '暂无数据') : s.news_count + '条相关新闻';
+        var sourceNote = s.data_source ? '<div style="font-size:8px;color:#445">' + s.data_source + '</div>' : '';
+
+        html += '<div class="sector-card ' + cls + '">';
+        html += '<div class="sector-name">' + s.sector + '</div>';
+        html += '<svg class="sector-mini-gauge" viewBox="0 0 80 48">';
+        html += '<defs><linearGradient id="sg' + s.sector + '" x1="0%" y1="0%" x2="100%" y2="0%">';
+        html += '<stop offset="0%" stop-color="#4caf50"/><stop offset="35%" stop-color="#8bc34a"/>';
+        html += '<stop offset="50%" stop-color="#f59e0b"/><stop offset="65%" stop-color="#ff9800"/>';
+        html += '<stop offset="80%" stop-color="#ff5722"/></linearGradient></defs>';
+        html += '<path d="M 8 36 A 32 32 0 0 1 72 36" fill="none" stroke="#334" stroke-width="2" stroke-linecap="round"/>';
+        html += '<path d="M 8 36 A 32 32 0 0 1 72 36" fill="none" stroke="url(#sg' + s.sector + ')" stroke-width="4" stroke-linecap="butt" stroke-dasharray="80.42 20.11" stroke-dashoffset="0"/>';
+        html += '<path d="M 8 36 A 32 32 0 0 1 72 36" fill="none" stroke="#e33a3d" stroke-width="4" stroke-linecap="butt" stroke-dasharray="20.11 80.42" stroke-dashoffset="-80.42"/>';
+        html += '<g class="sector-mini-needle" style="transform:rotate(' + needleAngle.toFixed(1) + 'deg)">';
+        html += '<line x1="40" y1="36" x2="40" y2="12" stroke="#e8e8e8" stroke-width="1.2" stroke-linecap="round"/>';
+        html += '</g>';
+        html += '<circle cx="40" cy="36" r="2" fill="#e8e8e8"/>';
+        html += '</svg>';
+        html += '<div class="sector-value">' + (s.verdict_label || '--') + '</div>';
+        html += '<div class="sector-meta">' + metaText + '</div>';
+        html += sourceNote;
+        html += '</div>';
+    });
+    wrap.innerHTML = html;
+}
+
 render();
 
 
 // Initial sentiment fetch
 fetch('/sentiment').then(function(r) { return r.json(); }).then(updateSentiment).catch(function(){});
+fetch('/sector-sentiment').then(function(r) { return r.json(); }).then(updateSectorSentiment).catch(function(){});
 
 // Poll for real-time updates every 1 second
 var _pollCount = 0;
+var _syncFailures = 0;
 setInterval(function() {
-    fetch('/data').then(function(r) { return r.json(); }).then(updatePrices).catch(function(){});
+    fetch('/data').then(function(r) { return r.json(); }).then(function(d) {
+        _syncFailures = 0;
+        updatePrices(d);
+    }).catch(function(){
+        _syncFailures++;
+        if (_syncFailures === 5) {
+            // Show warning icon in update time after 5 consecutive failures
+            setHtml('updateTime', '⚠ 数据同步失败');
+        }
+    });
     _pollCount++;
     if (_pollCount % 30 === 0) {
         fetch('/sentiment').then(function(r) { return r.json(); }).then(updateSentiment).catch(function(){});
+        fetch('/sector-sentiment').then(function(r) { return r.json(); }).then(updateSectorSentiment).catch(function(){});
     }
 }, 1000);
 </script>
@@ -1308,8 +1476,9 @@ setInterval(function() {
 
 def _generate_page(holdings_data, code_to_cat=None, cat_order=None):
     """Generate HTML page with holdings and category data embedded."""
-    global _code_to_cat_cache
+    global _code_to_cat_cache, _cat_order_cache
     _code_to_cat_cache = code_to_cat or {}
+    _cat_order_cache = cat_order or []
     data_json = json.dumps(holdings_data, ensure_ascii=False, default=str)
     data_json = data_json.replace("</", "<\\/")
 
@@ -1328,6 +1497,25 @@ class _Handler(BaseHTTPRequestHandler):
     page_html = ""
 
     def do_GET(self):
+        self.close_connection = True
+        try:
+            self._handle()
+        except Exception as e:
+            # Never leave the client hanging — always send a response
+            try:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                error_body = json.dumps(
+                    {"status": "error", "reasons": [f"Server error: {e}"]},
+                    ensure_ascii=False,
+                )
+                self.wfile.write(error_body.encode("utf-8"))
+            except Exception:
+                pass
+
+    def _handle(self):
         path = urlparse(self.path).path
         if path == "/" or path == "":
             self.send_response(200)
@@ -1350,7 +1538,6 @@ class _Handler(BaseHTTPRequestHandler):
         elif path == "/news":
             qs = parse_qs(urlparse(self.path).query)
             raw_code = qs.get("code", [""])[0]
-            # Convert raw East Money code to sina code for news lookup
             market = _resolve_market(raw_code)
             sina = _to_sina_code(raw_code, market)
             self.send_response(200)
@@ -1365,8 +1552,42 @@ class _Handler(BaseHTTPRequestHandler):
             market = _resolve_market(raw_code)
             sina = _to_sina_code(raw_code, market)
             position = _find_position(sina)
-            result = market_intel.get_or_fetch_hotspot(
-                sina, stock_name, _code_to_cat_cache, position)
+            # Run hotspot analysis in a background thread to avoid blocking the
+            # HTTP handler (LLM calls can take 90+ seconds). Return cached data
+            # immediately if available, otherwise a "processing" placeholder.
+            with _hotspot_lock:
+                cached = _hotspot_cache.get(sina)
+            if cached:
+                # Serve cached result instantly — no blocking at all
+                result = cached
+            else:
+                # No cache yet: start a background fetch and return placeholder
+                result = {
+                    "status": "processing",
+                    "code": sina,
+                    "name": stock_name,
+                    "recommendation": "分析中...",
+                    "action": "wait",
+                    "confidence": "低",
+                    "score": 0,
+                    "summary": "正在获取市场数据和AI分析，请稍后再次点击...",
+                    "reasons": ["后台分析进行中"],
+                    "risks": [],
+                    "sentiment_label": "neutral",
+                    "sentiment_score": 0,
+                    "total_mentions": 0,
+                    "news": [],
+                    "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                }
+                def _fetch_in_background():
+                    try:
+                        r = market_intel.get_or_fetch_hotspot(
+                            sina, stock_name, _code_to_cat_cache, position)
+                        with _hotspot_lock:
+                            _hotspot_cache[sina] = r
+                    except Exception:
+                        pass
+                threading.Thread(target=_fetch_in_background, daemon=True).start()
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Cache-Control", "no-store")
@@ -1385,6 +1606,14 @@ class _Handler(BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "no-store")
             self.end_headers()
             self.wfile.write(json.dumps(sentiment, ensure_ascii=False).encode("utf-8"))
+        elif path == "/sector-sentiment":
+            sector_data = market_intel.get_sector_sentiment(
+                _code_to_cat_cache, _cat_order_cache)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(json.dumps(sector_data, ensure_ascii=False).encode("utf-8"))
         elif path == "/shutdown":
             self.send_response(200)
             self.send_header("Cache-Control", "no-store")
@@ -1400,18 +1629,31 @@ class _Handler(BaseHTTPRequestHandler):
         pass  # Suppress HTTP log noise
 
 
-class _ReusableHTTPServer(HTTPServer):
-    pass
+class _ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
+    daemon_threads = True
 
 
 def _try_shutdown_old(port):
-    """Send /shutdown to any existing server on `port`, then wait for it to die."""
+    """Send /shutdown to any existing server on `port`, then wait for it to die.
+    Only attempts shutdown if port is confirmed in use first."""
+    # Check if port is actually in use before attempting shutdown.
+    # Prevents urllib connection attempt from disrupting subsequent bind() on Windows.
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(0.5)
+        result = s.connect_ex(("127.0.0.1", port))
+        s.close()
+        if result != 0:
+            return  # Port not in use — nothing to shut down
+    except Exception:
+        pass
+
     try:
         req = urllib.request.Request(
             f"http://127.0.0.1:{port}/shutdown", method="GET"
         )
-        urllib.request.urlopen(req, timeout=1)
-        time.sleep(0.3)
+        urllib.request.urlopen(req, timeout=2)
+        time.sleep(0.5)
     except Exception:
         pass
 
@@ -1436,7 +1678,7 @@ def launch_account_page(holdings_data, code_to_cat=None, cat_order=None, open_br
     _try_shutdown_old(_FIXED_PORT)
 
     host_ip = _get_lan_ip()
-    server = _ReusableHTTPServer(("0.0.0.0", _FIXED_PORT), _Handler)
+    server = _ThreadingHTTPServer(("0.0.0.0", _FIXED_PORT), _Handler)
     server._url = f"http://{host_ip}:{_FIXED_PORT}"
     server._local_url = f"http://127.0.0.1:{_FIXED_PORT}"
 

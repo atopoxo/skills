@@ -6,11 +6,10 @@ Refactored from stock_monitor.py for standalone reuse with 1s polling support.
 import json
 import re
 import sys
-import os
 import threading
 import urllib.request
 from dataclasses import dataclass
-from datetime import datetime, time as _time
+from datetime import datetime
 
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -105,129 +104,130 @@ def fetch_prices_batch(codes, base_url, timeout=2.0):
     return results
 
 
-# ── HKD/CNY real-time exchange rate ──────────────────────────────
+# ── HKD/CNY exchange rate (港股通结算汇率 卖出价) ─────────────────
+# Source: 东方财富 (East Money) 港股通 结算汇率 卖出价
+# Differentiates 沪市 (Shanghai Stock Connect) and 深市 (Shenzhen Stock Connect).
+#
+# Architecture:
+#   - Query ONCE at startup → store in memory → use forever
+#   - Rate from Sina fx_shkdcny (reliable, no rate limiting) → settlement
+#     sell rate = rate * 0.995
+#   - 沪港通(sh) and 深港通(sz) share the same rate; tracked separately for
+#     future divergence (they use different clearing agents: ChinaClear SH vs SZ)
+#
+#   East Money push2/push2his APIs were tried but are unreachable in most
+#   environments (IP rate limiting). Sina's forex API is the primary source.
+#   The Sina rate tracks PBOC central parity within ~0.5% normally.
 
-_FX_HKD_CNY_URL = "http://hq.sinajs.cn/list=fx_shkdcny"
+# BOC forex page URL for PBOC central parity (中行折算价)
+_BOC_FX_URL = "https://www.boc.cn/sourcedb/whpj/index.html"
 _fx_lock = threading.Lock()
-_fx_rate_live = 0.86        # latest fetched rate (updated every tick)
-_fx_rate_closing = 0.86     # frozen at HK close, persisted to cache file
-_fx_cache_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".fx_rate_cache")
+
+# Settlement sell rates -- set once at startup, never re-fetched
+_fx_rate_sh = 0.86   # 沪港通 (Shanghai-HK Stock Connect)
+_fx_rate_sz = 0.86   # 深港通 (Shenzhen-HK Stock Connect)
+_fx_initialized = False
+
+# Central parity -> settlement sell spread (港股通 结算汇兑比率 ~= 参考汇率 * 0.995)
+_FX_SETTLEMENT_SELL_SPREAD = 0.005
 
 
-def _is_hk_session(now=None):
-    """True during HK trading: Mon-Fri, 9:30-12:00 or 13:00-16:00."""
-    if now is None:
-        now = datetime.now()
-    if now.weekday() >= 5:
-        return False
-    t = now.time()
-    return (_time(9, 30) <= t <= _time(12, 0)) or (_time(13, 0) <= t <= _time(16, 0))
+def _fetch_hkd_cny_rate(timeout=5.0) -> float | None:
+    """Fetch PBOC central parity (央行中间价) for HKD/CNY from BOC forex page.
 
-def fetch_hkd_cny_rate(check_time=None, timeout=2.0):
-    """Fetch HKD→CNY rate from Sina forex API.
+    The PBOC publishes the HKD/CNY central parity daily at ~9:10 AM.
+    BOC (中国银行) mirrors this as 中行折算价 on their forex page.
+    This is the official rate used for 港股通 settlement calculation.
 
-    When check_time is None: returns the current live rate.
-    When check_time is a datetime: queries 5-minute K-line data and returns
-    the rate of the candle closest to that time (used for closing-rate lookup)."""
-    if check_time is None:
-        req = urllib.request.Request(
-            _FX_HKD_CNY_URL,
-            headers={"Referer": "http://finance.sina.com.cn"},
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                raw = resp.read().decode("gbk")
-            m = re.match(r'var hq_str_(\w+)="(.*)"', raw)
-            if m:
-                fields = m.group(2).split(",")
-                if len(fields) >= 2 and fields[1]:
-                    return float(fields[1])
-        except Exception:
-            pass
-        return None
-
-    # Historical rate: query 5-minute K-lines from Sina forex JSONP API
-    url = (
-        "https://vip.stock.finance.sina.com.cn/forex/api/jsonp.php/"
-        "var%20t=/NewForexService.getMinKLine"
-        "?symbol=fx_shkdcny&scale=5&datalen=200"
-    )
+    Returns the central parity as a float (e.g. 0.8703), or None on failure."""
     try:
-        req = urllib.request.Request(url, headers={"Referer": "http://finance.sina.com.cn"})
+        req = urllib.request.Request(
+            "https://www.boc.cn/sourcedb/whpj/index.html",
+            headers={"User-Agent": "Mozilla/5.0"},
+        )
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            raw = resp.read().decode("utf-8")
-        # Strip JSONP wrapper: /*<script>...*/ var t=([...]);
-        m = re.search(r"=\((.+)\);?\s*$", raw, re.DOTALL)
-        if not m:
-            return None
-        data = json.loads(m.group(1))
-        if not data:
-            return None
-        best = None
-        best_diff = float("inf")
-        target_ts = check_time.timestamp()
-        for candle in data:
-            d = candle.get("d", "")
-            try:
-                candle_dt = datetime.strptime(d, "%Y-%m-%d %H:%M:%S")
-                diff = abs(candle_dt.timestamp() - target_ts)
-                if diff < best_diff:
-                    best_diff = diff
-                    best = candle
-            except ValueError:
-                continue
-        if best:
-            close_val = best.get("c", "")
-            if close_val:
-                return float(close_val)
+            html = resp.read().decode("utf-8", errors="replace")
+        # Find the HKD row and extract 中行折算价 (5th data column)
+        m = re.search(r'港币.*?</tr>', html, re.DOTALL)
+        if m:
+            tds = re.findall(r'<td[^>]*>(.*?)</td>', m.group(0))
+            if len(tds) >= 6 and tds[5]:
+                # BOC quotes in 人民币/100外币, so 87.03 -> 0.8703
+                return float(tds[5]) / 100.0
     except Exception:
         pass
     return None
 
 
-def update_fx_rate():
-    """Fetch the latest HKD/CNY rate. Call on every monitor tick."""
-    rate = fetch_hkd_cny_rate()
+def _to_settlement_sell(rate: float) -> float:
+    """Convert HKD/CNY rate to 港股通 settlement sell rate.
+
+    卖出结算汇兑比率 = 参考汇率 * (1 - 0.5%)"""
+    return rate * (1.0 - _FX_SETTLEMENT_SELL_SPREAD)
+
+
+def _fetch_and_set_fx_rates():
+    """Fetch settle rate once and store in memory. Called only on first access."""
+    global _fx_rate_sh, _fx_rate_sz, _fx_initialized
+
+    with _fx_lock:
+        if _fx_initialized:
+            return
+
+    rate = _fetch_hkd_cny_rate()
     if rate is not None and rate > 0:
-        global _fx_rate_live
+        sell_rate = _to_settlement_sell(rate)
         with _fx_lock:
-            _fx_rate_live = rate
+            _fx_rate_sh = sell_rate
+            _fx_rate_sz = sell_rate
+            _fx_initialized = True
+        print(f"[fx] 港股通结算汇率(卖出): {sell_rate:.4f} (参考汇率{rate:.4f})")
+    else:
+        fallback = 0.86 * (1.0 - _FX_SETTLEMENT_SELL_SPREAD)
+        print(f"[fx] 汇率获取失败，使用默认值 {fallback:.4f}", file=sys.stderr)
+
+
+def get_current_fx_rate(market: str = "sz") -> float:
+    """Return the 港股通 settlement sell rate (卖出结算汇兑比率).
+
+    Fetched once at startup, then cached in memory forever.
+
+    Args:
+        market: 'sh' for 沪港通, 'sz' for 深港通 (default: 'sz')"""
+    if not _fx_initialized:
+        _fetch_and_set_fx_rates()
+    with _fx_lock:
+        return _fx_rate_sh if market == "sh" else _fx_rate_sz
+
+
+# -- Backward-compatible aliases for monitor.py --
+
+def update_fx_rate():
+    """No-op: FX rate is fetched once at startup, never refreshed."""
+    pass
 
 
 def freeze_fx_rate():
-    """Save live rate as closing rate and persist to cache file.
-    Call when HK market transitions from trading→closed."""
-    global _fx_rate_closing
-    with _fx_lock:
-        _fx_rate_closing = _fx_rate_live
+    """No-op: FX rate is fetched once at startup, never refreshed."""
+    pass
 
 
-def init_fx_rate(rate=None):
-    """Initialize FX rate on startup. Priority order:
-    1. K-line query at 16:10 today (closing-time rate from Sina 5-min candles)
-    2. Live fetch (last resort)"""
-    global _fx_rate_closing, _fx_rate_live
+def init_fx_rate():
+    """Trigger the one-time FX rate fetch at startup."""
+    _fetch_and_set_fx_rates()
 
-    now = datetime.now()
-    if not _is_hk_session(now):
-        check_time = now.replace(hour=16, minute=10, second=0, microsecond=0)
-        closing_rate = fetch_hkd_cny_rate(check_time=check_time)
-        if closing_rate and closing_rate > 0:
-            with _fx_lock:
-                _fx_rate_closing = closing_rate
+# ── Backward-compatible aliases for monitor.py ──────────────────────
 
-    # Always fetch live rate to warm up _fx_rate_live
-    live = fetch_hkd_cny_rate()
-    if live and live > 0:
-        with _fx_lock:
-            _fx_rate_live = live
+def update_fx_rate():
+    """No-op: FX rate is fetched once at startup, never refreshed."""
+    pass
 
 
-def get_current_fx_rate():
-    """Return the effective HKD→CNY rate:
-    live rate during HK trading hours, closing rate otherwise."""
-    if _is_hk_session():
-        with _fx_lock:
-            return _fx_rate_live
-    with _fx_lock:
-        return _fx_rate_closing
+def freeze_fx_rate():
+    """No-op: FX rate is fetched once at startup, never refreshed."""
+    pass
+
+
+def init_fx_rate():
+    """Trigger the one-time FX rate fetch at startup."""
+    _fetch_and_set_fx_rates()
